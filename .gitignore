@@ -28,3 +28,9 @@ release
 package-lock.json
 pnpm-lock.yaml
 yarn.lock
+
+# Learning project files (keep local only)
+COURSE.md
+QUIZZES.md
+SnipForge_MVP_Plan.md
+research.md
