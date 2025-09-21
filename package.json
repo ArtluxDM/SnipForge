@@ -1,0 +1,68 @@
+{
+  "name": "snipforge",
+  "version": "2.0.0",
+  "main": "dist-electron/main/index.js",
+  "description": "A desktop app for saving, searching, and managing command snippets.",
+  "author": "Artluxdm",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArtluxDM/SnipForge.git"
+  },
+  "homepage": "https://github.com/ArtluxDM/SnipForge",
+  "keywords": [
+    "electron",
+    "vue3",
+    "vite",
+    "snippets",
+    "commands",
+    "productivity",
+    "developer-tools"
+  ],
+  "debug": {
+    "env": {
+      "VITE_DEV_SERVER_URL": "http://127.0.0.1:3344/"
+    }
+  },
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit && vite build && electron-builder",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@vitejs/plugin-vue": "^5.0.4",
+    "electron": "^29.1.1",
+    "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
+    "typescript": "^5.4.2",
+    "vite": "^5.1.5",
+    "vite-plugin-electron": "^0.28.4",
+    "vite-plugin-electron-renderer": "^0.14.5",
+    "vue": "^3.4.21",
+    "vue-tsc": "^2.0.6"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.2.0",
+    "lucide-vue-next": "^0.544.0",
+    "marked": "^16.3.0"
+  },
+  "build": {
+    "appId": "com.snipforge.app",
+    "productName": "SnipForge",
+    "icon": "app-icon.png",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*",
+      "!dist/mac-arm64/**/*",
+      "!dist/*.dmg",
+      "!dist/*.zip",
+      "!dist/*.blockmap"
+    ]
+  }
+}
