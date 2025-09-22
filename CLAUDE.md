@@ -85,6 +85,50 @@ updated_at TEXT NOT NULL
 - Avoid long explanations in commit messages
 - Example: `feat: change export tag filtering from OR to AND logic because is better and it makes it easier to use and this was coded by etc etc etc`
 
+## Release Process
+
+When creating a new release after making changes:
+
+1. **Commit Changes:**
+   ```bash
+   git add .
+   git commit -m "fix: description of changes"
+   ```
+
+2. **Create Git Tag:**
+   ```bash
+   git tag v2.0.1  # increment version appropriately
+   ```
+
+3. **Update Package Version:**
+   - Edit `package.json` to match the git tag version
+   - Example: change `"version": "2.0.0"` to `"version": "2.0.1"`
+
+4. **Push to GitHub:**
+   ```bash
+   git push origin main --tags
+   ```
+
+5. **Build Application:**
+   ```bash
+   pnpm build
+   ```
+   - Output goes to `release/{version}/` directory
+   - DMG file: `SnipForge-Mac-{version}-Installer.dmg`
+
+6. **Create GitHub Release:**
+   ```bash
+   gh release create v2.0.1 \
+     --title "SnipForge v2.0.1" \
+     --notes "Description of changes" \
+     release/2.0.1/SnipForge-Mac-2.0.1-Installer.dmg
+   ```
+
+**Build Configuration:**
+- Uses `electron-builder.json5` for build settings (not package.json)
+- Outputs to `release/{version}/` directory
+- Automatically handles native dependencies like `better-sqlite3`
+
 ## Safety Considerations
 
 - Clipboard-only operations (no automatic command execution)

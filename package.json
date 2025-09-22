@@ -1,6 +1,6 @@
 {
   "name": "snipforge",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "main": "dist-electron/main/index.js",
   "description": "A desktop app for saving, searching, and managing command snippets.",
   "author": "Artluxdm",
@@ -48,21 +48,5 @@
     "better-sqlite3": "^12.2.0",
     "lucide-vue-next": "^0.544.0",
     "marked": "^16.3.0"
-  },
-  "build": {
-    "appId": "com.snipforge.app",
-    "productName": "SnipForge",
-    "icon": "app-icon.png",
-    "directories": {
-      "output": "dist"
-    },
-    "files": [
-      "dist/**/*",
-      "dist-electron/**/*",
-      "!dist/mac-arm64/**/*",
-      "!dist/*.dmg",
-      "!dist/*.zip",
-      "!dist/*.blockmap"
-    ]
   }
 }
