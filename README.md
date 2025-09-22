@@ -20,6 +20,10 @@ A desktop application for saving, searching, and managing command snippets with 
 2. Open the DMG and drag SnipForge to Applications
 3. Launch SnipForge
 
+**macOS Security Note**: Since this app isn't code signed, macOS will show a "damaged" warning. To run it:
+- **Method 1**: Right-click the app → "Open" → "Open" (bypasses Gatekeeper)
+- **Method 2**: Run `xattr -d com.apple.quarantine /Applications/SnipForge.app` in Terminal
+
 ### Build from Source
 
 ```bash
