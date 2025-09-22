@@ -22,7 +22,7 @@
       </div>
       <div class="modal-footer">
         <button @click="$emit('cancel')" class="cancel-button">Cancel</button>
-        <button @click="handleSubmit" class="submit-button">
+        <button @click="handleSubmit" class="save-button">
           Copy Command
         </button>
       </div>

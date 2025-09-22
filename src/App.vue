@@ -715,7 +715,6 @@ html, body, #app {
 .search-container {
   position: relative;
   padding: 0 0.5%;
-  -webkit-app-region: no-drag;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -742,6 +741,7 @@ html, body, #app {
   font-size: 0.875rem;
   outline: none;
   box-sizing: border-box;
+  -webkit-app-region: no-drag;
 }
 
 .filter-button {
@@ -757,6 +757,7 @@ html, body, #app {
   justify-content: center;
   transition: all 0.2s;
   border: 1px solid #3e3e3e;
+  -webkit-app-region: no-drag;
 }
 
 .filter-button:hover {
@@ -887,7 +888,6 @@ html, body, #app {
   width: auto;
   padding: 0 0.5%;
   flex-shrink: 0;
-  -webkit-app-region: no-drag;
 }
 
 /* Main content */
@@ -915,6 +915,7 @@ html, body, #app {
   justify-content: center;
   width: 32px;
   height: 32px;
+  -webkit-app-region: no-drag;
 }
 
 .add-button:hover,

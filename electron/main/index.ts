@@ -58,21 +58,37 @@ async function showWindow() {
     win.restore()
   }
 
-  // Position window at center of screen
+  // Only center window if it's the first time showing or if it's off-screen
+  const currentBounds = win.getBounds()
   const { screen } = require('electron')
   const primaryDisplay = screen.getPrimaryDisplay()
   const { width: screenWidth, height: screenHeight } = primaryDisplay.workAreaSize
-  const windowWidth = 800
-  const windowHeight = 600
 
-  const x = Math.round((screenWidth - windowWidth) / 2)
-  const y = Math.round((screenHeight - windowHeight) / 2)
+  // Check if window is completely off-screen
+  const isOffScreen = currentBounds.x < 0 ||
+                     currentBounds.y < 0 ||
+                     currentBounds.x > screenWidth ||
+                     currentBounds.y > screenHeight
 
-  win.setBounds({ x, y, width: windowWidth, height: windowHeight })
+  if (isOffScreen) {
+    // Only center if off-screen, preserve size
+    const windowWidth = currentBounds.width || 800
+    const windowHeight = currentBounds.height || 600
+    const x = Math.round((screenWidth - windowWidth) / 2)
+    const y = Math.round((screenHeight - windowHeight) / 2)
+    win.setBounds({ x, y, width: windowWidth, height: windowHeight })
+  }
 
-  // Simple show and focus
+  // Show and focus window
   win.show()
   win.focus()
+
+  // Force window to refresh drag regions (fixes the drag issue)
+  setTimeout(() => {
+    if (win && !win.isDestroyed()) {
+      win.webContents.invalidate()
+    }
+  }, 50)
 
   console.log('Window shown and focused')
 
