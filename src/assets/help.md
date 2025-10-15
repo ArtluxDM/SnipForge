@@ -3,7 +3,10 @@
 ## Navigation
 
 - **↑↓** - Navigate through commands
-- **Escape** - Clear selection and search
+- **Tab** - Navigate between focusable elements (searchbar → filter → settings → help → commands)
+- **Enter** (in searchbar) - Select first command
+- **⌘F** (Mac) / **Ctrl+F** (Windows/Linux) - Focus searchbar from anywhere
+- **Escape** - Cancel/deselect/close (priority: modals → dropdown → selection → blur → clear search)
 
 ## Actions
 

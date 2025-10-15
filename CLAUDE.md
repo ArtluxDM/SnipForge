@@ -134,3 +134,10 @@ When creating a new release after making changes:
 - Clipboard-only operations (no automatic command execution)
 - Variable substitution prompts prevent accidental execution
 - Local SQLite storage (no cloud dependencies)
+
+## Known Issues
+
+### Windows Build
+- Windows builds currently have issues, likely related to `better-sqlite3` native dependency
+- Need to investigate build tools requirements and native module compilation
+- TODO: Debug and fix Windows build process in next session

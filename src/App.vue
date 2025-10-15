@@ -1,7 +1,7 @@
 <script setup lang="ts">
 console.log('App.vue script is running')
 // Import the ref function from Vue for creating reactive data
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import CommandModal from './components/CommandModal.vue'
 import VariableInputModal from './components/VariableInputModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
@@ -46,6 +46,26 @@ const showSettingsModal = ref(false)
 
 // Help modal state
 const showHelpModal = ref(false)
+
+// Notification state
+const notificationMessage = ref('')
+const showNotification = ref(false)
+let notificationTimeout: number | null = null
+
+// Show notification function
+const showNotificationToast = (message: string, duration = 2000) => {
+  // Clear any existing timeout
+  if (notificationTimeout) {
+    clearTimeout(notificationTimeout)
+  }
+
+  notificationMessage.value = message
+  showNotification.value = true
+
+  notificationTimeout = window.setTimeout(() => {
+    showNotification.value = false
+  }, duration)
+}
 //Load commands from database
 const loadCommands = async () => {
   try {
@@ -57,19 +77,23 @@ const loadCommands = async () => {
     console.error('Error loading commands from database:', error)
   }
 } // Load commands when the component is mounted
+
+// Store click handler so we can remove it on unmount
+const outsideClickHandler = (event: MouseEvent) => {
+  const target = event.target as HTMLElement
+  const filterContainer = target.closest('.search-container')
+  if (!filterContainer && showFilterDropdown.value) {
+    showFilterDropdown.value = false
+  }
+}
+
 onMounted(() => {
   loadCommands()
   //keyboard event listener
   document.addEventListener('keydown', handleKeyboard)
 
   // Add click listener to close filter dropdown when clicking outside
-  document.addEventListener('click', (event) => {
-    const target = event.target as HTMLElement
-    const filterContainer = target.closest('.search-container')
-    if (!filterContainer && showFilterDropdown.value) {
-      showFilterDropdown.value = false
-    }
-  })
+  document.addEventListener('click', outsideClickHandler)
 
   // Listen for window-shown event from main process
   if (window.electronAPI) {
@@ -88,6 +112,12 @@ onMounted(() => {
       }, 100)
     })
   }
+})
+
+// Cleanup event listeners on unmount
+onUnmounted(() => {
+  document.removeEventListener('keydown', handleKeyboard)
+  document.removeEventListener('click', outsideClickHandler)
 })
 //filters commands based on search input with prefix support
 const filteredCommands = computed(() => {
@@ -168,21 +198,31 @@ const hasActiveFilters = computed(() => {
 // Handle search input autocomplete for tag: prefix
 const handleSearchKeyDown = (event: KeyboardEvent) => {
   if (event.key === 'Tab') {
-    event.preventDefault()
-
     const input = event.target as HTMLInputElement
     const cursorPosition = input.selectionStart || 0
     const availableTags = getAllTags(commands.value)
 
     const result = autocompleteSearchQuery(searchQuery.value, cursorPosition, availableTags)
 
+    // Only prevent default if autocomplete succeeded
     if (result.wasCompleted && result.completed) {
+      event.preventDefault()
       searchQuery.value = result.completed
       // Set cursor position after the completed tag
       setTimeout(() => {
         const newCursorPos = result.completed!.indexOf(result.suggestion!) + result.suggestion!.length
         input.setSelectionRange(newCursorPos, newCursorPos)
       }, 0)
+    }
+    // Otherwise, let Tab work normally (browser focus management)
+  } else if (event.key === 'Enter') {
+    event.preventDefault()
+    // Select first command if available
+    if (filteredCommands.value.length > 0) {
+      selectedCommandId.value = filteredCommands.value[0].id
+      // Blur the search input
+      const input = event.target as HTMLInputElement
+      input.blur()
     }
   }
 }
@@ -216,8 +256,10 @@ const copyToClipboard = async (text: string) => {
   try {
     await window.electronAPI.clipboard.writeText(text)
     console.log('Command copied to clipboard:', text)
+    showNotificationToast('Copied to clipboard!')
   } catch (error) {
     console.error('Error copying command to clipboard:', error)
+    showNotificationToast('Failed to copy')
   }
 }
 
@@ -346,14 +388,17 @@ const deleteCommand = async (id: number) => {
     const result = await window.electronAPI.database.deleteCommand(id)
     if (result.success) {
       console.log('Command deleted successfully')
+      showNotificationToast('Command deleted')
       // refresh the command list and clear selection
       await loadCommands()
       selectedCommandId.value = null
     } else {
       console.error('Failed to delete command:', result.error)
+      showNotificationToast('Failed to delete command')
     }
   } catch (error) {
     console.error('Error deleting command:', error)
+    showNotificationToast('Failed to delete command')
   }
 }
   // Command editing functions
@@ -375,23 +420,28 @@ const deleteCommand = async (id: number) => {
   formData)
         if (result.success) {
           console.log('Command updated successfully')
+          showNotificationToast('Command updated')
           await loadCommands()
         } else {
           console.error('Failed to update command:', result.error)
+          showNotificationToast('Failed to update command')
         }
       } else {
         // Add new command
         const result = await window.electronAPI.database.addCommand(formData)
         if (result.success) {
           console.log('Command added successfully')
+          showNotificationToast('Command added')
           await loadCommands()
         } else {
           console.error('Failed to add command:', result.error)
+          showNotificationToast('Failed to add command')
         }
       }
       showModal.value = false
     } catch (error) {
       console.error('Error saving command:', error)
+      showNotificationToast('Failed to save command')
     }
   }
   // Handle modal cancel
@@ -402,11 +452,48 @@ const deleteCommand = async (id: number) => {
   
 // keyboard Navigation and actions
 const handleKeyboard = (event: KeyboardEvent) => {
+  const target = event.target as HTMLElement
+
+  // Handle ESC first - it should always work to cancel/close things
+  if (event.key === 'Escape') {
+    event.preventDefault()
+    // ESC priority: modals -> filter dropdown -> command selection -> blur input -> clear search
+    if (showVariableModal.value) {
+      handleVariableCancel()
+    } else if (showModal.value) {
+      handleModalCancel()
+    } else if (showSettingsModal.value) {
+      showSettingsModal.value = false
+    } else if (showHelpModal.value) {
+      showHelpModal.value = false
+    } else if (showFilterDropdown.value) {
+      showFilterDropdown.value = false
+    } else if (selectedCommandId.value !== null) {
+      selectedCommandId.value = null
+    } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+      ;(target as HTMLInputElement).blur()
+    } else if (searchQuery.value) {
+      searchQuery.value = ''
+    }
+    return
+  }
+
+  // Handle Cmd/Ctrl+F to focus search bar
+  if (event.key === 'f' && (event.metaKey || event.ctrlKey)) {
+    event.preventDefault()
+    selectedCommandId.value = null // Deselect command
+    const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement
+    if (searchInput) {
+      searchInput.focus()
+      searchInput.select()
+    }
+    return
+  }
+
   // Don't process hotkeys when modal is open or filter dropdown is open
   if (showModal.value || showVariableModal.value || showSettingsModal.value || showHelpModal.value || showFilterDropdown.value) return
 
   // Don't process hotkeys when user is typing in an input field
-  const target = event.target as HTMLElement
   if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
 
   if (filteredCommands.value.length === 0) return
@@ -446,19 +533,10 @@ const handleKeyboard = (event: KeyboardEvent) => {
     modalMode.value = 'add'
     showModal.value = true
     }else if (event.key === 'Backspace'){
+      event.preventDefault()
       const selectedCommand = filteredCommands.value.find(cmd => cmd.id === selectedCommandId.value)
       if (selectedCommand) {
         deleteCommand(selectedCommand.id)
-      }
-    }else if (event.key === 'Escape'){
-      // Close filter dropdown first, then clear selection and search
-      if (showFilterDropdown.value) {
-        showFilterDropdown.value = false
-      } else {
-        //clear selection
-        selectedCommandId.value = null
-        //clear search
-        searchQuery.value = ''
       }
     }
 }
@@ -490,6 +568,7 @@ const selectedCommandId = ref<number | null>(null);
             placeholder="search commands..."
             v-model="searchQuery"
             @keydown="handleSearchKeyDown"
+            @focus="selectedCommandId = null"
             class="search-input"
           />
           <button
@@ -565,19 +644,27 @@ const selectedCommandId = ref<number | null>(null);
       <!-- Container div that will hold the search results -->
       <div class="results">
       <!--Command results will go here-->
-      <div v-for="command in filteredCommands" :key="command.id" class="command-item" :class="{'selected': selectedCommandId === command.id}" @click="selectedCommandId = command.id">
+      <div
+        v-for="(command, index) in filteredCommands"
+        :key="command.id"
+        class="command-item"
+        :class="{'selected': selectedCommandId === command.id}"
+        :tabindex="selectedCommandId === command.id || (selectedCommandId === null && index === 0) ? 0 : -1"
+        @click="selectedCommandId = command.id"
+        @focus="selectedCommandId = command.id"
+      >
         <div class="command-content">
           <div class="command-title">{{ command.title }}</div>
           <div class="command-body">{{ command.body }}</div>
         </div>
         <div class="command-actions">
-          <button @click.stop="copyCommand(command.body)" title="Copy command">
+          <button @click.stop="copyCommand(command.body)" tabindex="-1" title="Copy command">
             <Copy :size="16" />
           </button>
-          <button @click.stop="editCommand(command.id)" title="Edit command">
+          <button @click.stop="editCommand(command.id)" tabindex="-1" title="Edit command">
             <Edit :size="16" />
           </button>
-          <button @click.stop="deleteCommand(command.id)" title="Delete command">
+          <button @click.stop="deleteCommand(command.id)" tabindex="-1" title="Delete command">
             <Trash2 :size="16" />
           </button>
         </div>
@@ -617,6 +704,13 @@ const selectedCommandId = ref<number | null>(null);
       :show="showHelpModal"
       @cancel="showHelpModal = false"
     />
+
+    <!-- Notification Toast -->
+    <Transition name="toast">
+      <div v-if="showNotification" class="notification-toast">
+        {{ notificationMessage }}
+      </div>
+    </Transition>
   </div>
 </template>
 
@@ -951,6 +1045,11 @@ html, body, #app {
   border-color: #ec5002ee;
 }
 
+/* Remove browser focus outline on commands - we use .selected class instead */
+.command-item:focus {
+  outline: none;
+}
+
 .command-content {
   flex: 1;
   min-width: 0;
@@ -988,7 +1087,8 @@ html, body, #app {
   transition: opacity 0.2s;
 }
 
-.command-item:hover .command-actions {
+.command-item:hover .command-actions,
+.command-item.selected .command-actions {
   opacity: 1;
 }
 
@@ -1151,5 +1251,39 @@ html, body, #app {
 
 .save-button:hover {
   background-color: #d64502;
+}
+
+/* Notification Toast */
+.notification-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2d2d2d;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 8px;
+  border: 1px solid #404040;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 2000;
+  pointer-events: none;
+}
+
+/* Toast transition animations */
+.toast-enter-active,
+.toast-leave-active {
+  transition: all 0.3s ease;
+}
+
+.toast-enter-from {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
+}
+
+.toast-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(20px);
 }
 </style>
