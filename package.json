@@ -1,6 +1,6 @@
 {
   "name": "snipforge",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "main": "dist-electron/main/index.js",
   "description": "A desktop app for saving, searching, and managing command snippets.",
   "author": "Artluxdm",
