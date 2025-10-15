@@ -6,12 +6,14 @@ import CommandModal from './components/CommandModal.vue'
 import VariableInputModal from './components/VariableInputModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
 import HelpModal from './components/HelpModal.vue'
+import DescriptionModal from './components/DescriptionModal.vue'
 import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'lucide-vue-next'
 import { extractVariables, substituteVariables, hasVariables, type VariableValues } from './utils/variables'
 import { exportCommands, importCommands, validateExportData, generateExportFilename } from './utils/importExport'
 import { parseSearchQuery, filterCommandsBySearch, type SearchFilter } from './utils/searchParser'
 import { autocompleteSearchQuery } from './utils/autocomplete'
 import { getAllTags } from './utils/tags'
+import { marked } from 'marked'
 
 type Command = {
   id: number
@@ -47,6 +49,11 @@ const showSettingsModal = ref(false)
 
 // Help modal state
 const showHelpModal = ref(false)
+
+// Description modal state
+const showDescriptionModal = ref(false)
+const descriptionModalTitle = ref('')
+const descriptionModalContent = ref('')
 
 // Notification state
 const notificationMessage = ref('')
@@ -467,6 +474,8 @@ const handleKeyboard = (event: KeyboardEvent) => {
       showSettingsModal.value = false
     } else if (showHelpModal.value) {
       showHelpModal.value = false
+    } else if (showDescriptionModal.value) {
+      showDescriptionModal.value = false
     } else if (showFilterDropdown.value) {
       showFilterDropdown.value = false
     } else if (selectedCommandId.value !== null) {
@@ -492,7 +501,7 @@ const handleKeyboard = (event: KeyboardEvent) => {
   }
 
   // Don't process hotkeys when modal is open or filter dropdown is open
-  if (showModal.value || showVariableModal.value || showSettingsModal.value || showHelpModal.value || showFilterDropdown.value) return
+  if (showModal.value || showVariableModal.value || showSettingsModal.value || showHelpModal.value || showDescriptionModal.value || showFilterDropdown.value) return
 
   // Don't process hotkeys when user is typing in an input field
   if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
@@ -544,6 +553,36 @@ const handleKeyboard = (event: KeyboardEvent) => {
 
 // To track which command is selected
 const selectedCommandId = ref<number | null>(null);
+
+// Configure marked for better markdown support (used in modal)
+marked.setOptions({
+  breaks: true,
+  gfm: true
+})
+
+// Get plain text from markdown description for tooltip (strip markdown syntax)
+const getDescriptionTooltip = (description: string): string => {
+  if (!description) return ''
+  // Strip markdown syntax for plain text display
+  let plainText = description
+    .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold**
+    .replace(/\*(.+?)\*/g, '$1')      // *italic*
+    .replace(/\[(.+?)\]\(.+?\)/g, '$1')  // [text](url)
+    .replace(/`(.+?)`/g, '$1')        // `code`
+    .replace(/^#+\s+/gm, '')          // # heading
+
+  // Take first 100 characters or first 2 lines, whichever is shorter
+  const lines = plainText.split('\n').slice(0, 2)
+  const preview = lines.join(' ')
+  return preview.length > 100 ? preview.substring(0, 100) + '...' : preview
+}
+
+// Open description modal
+const openDescriptionModal = (title: string, description: string) => {
+  descriptionModalTitle.value = title
+  descriptionModalContent.value = description
+  showDescriptionModal.value = true
+}
 
 
 </script>
@@ -655,7 +694,18 @@ const selectedCommandId = ref<number | null>(null);
         @focus="selectedCommandId = command.id"
       >
         <div class="command-content">
-          <div class="command-title">{{ command.title }}</div>
+          <div class="command-title-row">
+            <span class="command-title">{{ command.title }}</span>
+            <button
+              v-if="command.description"
+              class="info-icon"
+              @click.stop="openDescriptionModal(command.title, command.description)"
+              tabindex="-1"
+              :title="getDescriptionTooltip(command.description)"
+            >
+              <HelpCircle :size="14" />
+            </button>
+          </div>
           <div class="command-body">{{ command.body }}</div>
         </div>
         <div class="command-actions">
@@ -704,6 +754,14 @@ const selectedCommandId = ref<number | null>(null);
     <HelpModal
       :show="showHelpModal"
       @cancel="showHelpModal = false"
+    />
+
+    <!-- Description Modal -->
+    <DescriptionModal
+      :show="showDescriptionModal"
+      :title="descriptionModalTitle"
+      :description="descriptionModalContent"
+      @cancel="showDescriptionModal = false"
     />
 
     <!-- Notification Toast -->
@@ -1056,14 +1114,40 @@ html, body, #app {
   min-width: 0;
 }
 
+.command-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+  min-width: 0;
+}
+
 .command-title {
   color: #ffffff;
   font-size: 14px;
   font-weight: 500;
-  margin-bottom: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.info-icon {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: #b3b3b3;
+  transition: all 0.2s;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.info-icon:hover {
+  color: #ec5002ee;
+  background-color: #2a2a2a;
 }
 
 .command-body {
@@ -1073,6 +1157,35 @@ html, body, #app {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.command-body :deep(*) {
+  display: inline;
+  margin: 0;
+  padding: 0;
+}
+
+.command-body :deep(code) {
+  background-color: #2a2a2a;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+}
+
+.command-body :deep(strong) {
+  font-weight: 600;
+}
+
+.command-body :deep(em) {
+  font-style: italic;
+}
+
+.command-body :deep(a) {
+  color: inherit;
+  text-decoration: none;
+  cursor: default;
+  pointer-events: none;
 }
 
 .command-item.selected .command-body {
