@@ -47,8 +47,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     readFile: (filePath: string): Promise<{success: boolean, content?: string, error?: string}> =>
       ipcRenderer.invoke('file:readFile', filePath)
   },
-  //sysrtem info
-  platform: process.platform
+  //system info
+  platform: process.platform,
+  // shell methods
+  shell: {
+    openExternal: (url: string): Promise<void> => ipcRenderer.invoke('shell:openExternal', url)
+  }
 })
 // tell the compiler what's availible on the window object
 declare global {
@@ -74,7 +78,10 @@ declare global {
         writeFile: (filePath: string, content: string) => Promise<{success: boolean, error?: string}>
         readFile: (filePath: string) => Promise<{success: boolean, content?: string, error?: string}>
       },
-      platform: string
+      platform: string,
+      shell: {
+        openExternal: (url: string) => Promise<void>
+      }
     }
   }
 }

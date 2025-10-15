@@ -335,7 +335,7 @@ ipcMain.handle('file:readFile', async (_, filePath: string) => {
 })
 ipcMain.handle('dialog:showInputDialog', async (_,title: string, label: string,defaultValue: string = '') =>
   {
-  if (!win) return {success: false, value: null} 
+  if (!win) return {success: false, value: null}
   try {
     // Create a modal window for input
     const result = await dialog.showMessageBox(win, {
@@ -358,6 +358,17 @@ ipcMain.handle('dialog:showInputDialog', async (_,title: string, label: string,d
   }catch (error) {
     console.error('Error showing input dialog:', error)
     return { success: false, value: null }
+  }
+})
+
+// IPC handler for opening external URLs in system browser
+ipcMain.handle('shell:openExternal', async (_, url: string) => {
+  try {
+    await shell.openExternal(url)
+    console.log('Opened external URL:', url)
+  } catch (error) {
+    console.error('Error opening external URL:', error)
+    throw error
   }
 })
 // This method will be called when Electron has finished

@@ -17,6 +17,7 @@ type Command = {
   id: number
   title: string
   body: string
+  description: string
   tags: string
   created_at: string
   updated_at: string
@@ -411,7 +412,7 @@ const deleteCommand = async (id: number) => {
     showModal.value = true
   }
   // Handle modal save
-  const handleModalSave = async (formData: { title: string; body: string; tags: string }) =>
+  const handleModalSave = async (formData: { title: string; body: string; description: string; tags: string }) =>
    {
     try {
       if (modalMode.value === 'edit' && selectedCommandForEdit.value) {
