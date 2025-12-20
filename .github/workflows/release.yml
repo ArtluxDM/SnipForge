@@ -66,21 +66,7 @@ jobs:
           # GITHUB_TOKEN is automatically provided by GitHub Actions
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
-      # Step 6: Upload artifacts (the built installers)
-      # This makes the installers available for download from the Actions run
-      # Also used by the release step
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          # Name the artifact based on which OS built it
-          name: SnipForge-${{ matrix.os }}
-          # Path to the built files
-          # release/** means everything inside the release folder
-          path: release/**/*.{dmg,exe,AppImage,deb,rpm,zip}
-          # Don't fail if no files found (some OSes might not produce all formats)
-          if-no-files-found: warn
-      
-      # Step 7: Create GitHub Release (only runs once, on macOS)
+      # Step 6: Create GitHub Release (only runs once, on macOS)
       # We use 'if' to make this step only run on macOS to avoid duplicate releases
       - name: Create Release
         if: matrix.os == 'macos-latest'
