@@ -19,30 +19,53 @@
 
                 <div class="form-group">
                     <div class="field-header">
-                        <label for="body">Command (supports Markdown):</label>
-                        <button
-                            type="button"
-                            @click="bodyPreviewMode = !bodyPreviewMode"
-                            class="preview-toggle"
-                            :title="bodyPreviewMode ? 'Edit' : 'Preview'"
-                        >
-                            <Pencil v-if="bodyPreviewMode" :size="16" />
-                            <BookOpen v-else :size="16" />
-                        </button>
+                        <label for="body">Command:</label>
+                        <select v-model="formData.language" class="language-selector">
+                            <option value="plaintext">Plain Text</option>
+                            <option value="richtext">Rich Text</option>
+                            <option value="markdown">Markdown</option>
+                            <option value="yaml">YAML</option>
+                            <option value="javascript">JavaScript</option>
+                            <option value="typescript">TypeScript</option>
+                            <option value="python">Python</option>
+                            <option value="html">HTML</option>
+                            <option value="css">CSS</option>
+                            <option value="bash">Bash</option>
+                            <option value="json">JSON</option>
+                            <option value="sql">SQL</option>
+                            <option value="go">Go</option>
+                            <option value="rust">Rust</option>
+                            <option value="java">Java</option>
+                        </select>
                     </div>
+                    <!-- Code editor for programming languages -->
+                    <CodeEditor
+                        v-if="isCodeLanguage(formData.language)"
+                        v-model="formData.body"
+                        :language="formData.language"
+                        placeholder="Enter code..."
+                    />
+                    <!-- Markdown editor with toolbar -->
+                    <MarkdownEditor
+                        v-else-if="formData.language === 'markdown'"
+                        v-model="formData.body"
+                        placeholder="Write markdown..."
+                    />
+                    <!-- Rich text WYSIWYG editor -->
+                    <RichTextEditor
+                        v-else-if="formData.language === 'richtext'"
+                        v-model="formData.body"
+                        placeholder="Start typing..."
+                    />
+                    <!-- Plain text fallback -->
                     <textarea
-                        v-if="!bodyPreviewMode"
+                        v-else
                         id="body"
                         v-model="formData.body"
                         placeholder="Enter command body"
-                        rows="3"
+                        rows="10"
+                        class="plain-textarea"
                     ></textarea>
-                    <div
-                        v-else
-                        class="markdown-preview"
-                        v-html="renderedBody"
-                        @click="handlePreviewClick"
-                    ></div>
                 </div>
 
                 <div class="form-group">
@@ -72,28 +95,23 @@
                 <div class="form-group">
                     <div class="field-header">
                         <label for="description">Description (supports Markdown - optional):</label>
-                        <button
-                            type="button"
-                            @click="descriptionPreviewMode = !descriptionPreviewMode"
-                            class="preview-toggle"
-                            :title="descriptionPreviewMode ? 'Edit' : 'Preview'"
-                        >
-                            <Pencil v-if="descriptionPreviewMode" :size="16" />
-                            <BookOpen v-else :size="16" />
-                        </button>
                     </div>
+                    <!-- Editable mode: textarea -->
                     <textarea
-                        v-if="!descriptionPreviewMode"
+                        v-if="descriptionEditMode"
                         id="description"
                         v-model="formData.description"
                         placeholder="Add a description for this snippet (optional)"
                         rows="3"
+                        @blur="descriptionEditMode = false"
+                        ref="descriptionTextarea"
                     ></textarea>
+                    <!-- Display mode: rendered markdown -->
                     <div
                         v-else
-                        class="markdown-preview"
+                        class="markdown-preview description-display"
                         v-html="renderedDescription"
-                        @click="handlePreviewClick"
+                        @click="enterDescriptionEditMode"
                     ></div>
                 </div>
             </div>
@@ -111,7 +129,9 @@
   import { getAllTags } from '../utils/tags'
   import { getInlineSuggestion } from '../utils/autocomplete'
   import { marked } from 'marked'
-  import { Pencil, BookOpen } from 'lucide-vue-next'
+  import CodeEditor from './CodeEditor.vue'
+  import RichTextEditor from './RichTextEditor.vue'
+  import MarkdownEditor from './MarkdownEditor.vue'
 
   // Props
   interface Props {
@@ -123,6 +143,7 @@
       body: string
       description: string
       tags: string
+      language: string
     } | null
     commands?: Array<{ tags: string }>
   }
@@ -134,7 +155,7 @@
 
   // Emits
   const emit = defineEmits<{
-    save: [command: { title: string; body: string; description: string; tags: string }]
+    save: [command: { title: string; body: string; description: string; tags: string; language: string }]
     cancel: []
   }>()
 
@@ -142,16 +163,30 @@
   const formData = ref({
     title: '',
     body: '',
-    description: ''
+    description: '',
+    language: 'plaintext'
   })
 
   const tagsInput = ref('')
   const titleInput = ref<HTMLInputElement>()
   const tagsInputRef = ref<HTMLInputElement>()
+  const descriptionTextarea = ref<HTMLTextAreaElement>()
 
-  // Preview mode toggles
-  const descriptionPreviewMode = ref(false)
-  const bodyPreviewMode = ref(false)
+  // Inline edit mode for description
+  const descriptionEditMode = ref(false)
+
+  // Helper to determine editor type
+  const isCodeLanguage = (language: string): boolean => {
+    const codeLangs = ['yaml', 'javascript', 'typescript', 'python', 'html', 'css', 'bash', 'json', 'sql', 'go', 'rust', 'java']
+    return codeLangs.includes(language)
+  }
+
+  const enterDescriptionEditMode = () => {
+    descriptionEditMode.value = true
+    nextTick(() => {
+      descriptionTextarea.value?.focus()
+    })
+  }
 
   // Configure marked for better markdown support
   marked.setOptions({
@@ -159,13 +194,9 @@
     gfm: true
   })
 
-  // Rendered Markdown
+  // Rendered content for description
   const renderedDescription = computed(() => {
     return marked(formData.value.description || '')
-  })
-
-  const renderedBody = computed(() => {
-    return marked(formData.value.body || '')
   })
 
   // Get available tags for autocomplete
@@ -183,7 +214,8 @@
       formData.value = {
         title: newCommand.title,
         body: newCommand.body,
-        description: newCommand.description || ''
+        description: newCommand.description || '',
+        language: newCommand.language || 'plaintext'
       }
       // Parse tags from JSON string
       try {
@@ -194,12 +226,11 @@
       }
     } else {
       // Reset form for add mode
-      formData.value = { title: '', body: '', description: '' }
+      formData.value = { title: '', body: '', description: '', language: 'plaintext' }
       tagsInput.value = ''
     }
-    // Reset preview modes when command changes
-    descriptionPreviewMode.value = false
-    bodyPreviewMode.value = false
+    // Reset edit mode when command changes
+    descriptionEditMode.value = false
   }, { immediate: true })
 
   // Focus title input when modal opens and clear form when closing
@@ -211,12 +242,11 @@
     } else {
       // Modal is closing - clear form data for add mode to prevent persistence
       if (props.mode === 'add') {
-        formData.value = { title: '', body: '', description: '' }
+        formData.value = { title: '', body: '', description: '', language: 'plaintext' }
         tagsInput.value = ''
       }
-      // Reset preview modes when closing
-      descriptionPreviewMode.value = false
-      bodyPreviewMode.value = false
+      // Reset edit mode when closing
+      descriptionEditMode.value = false
     }
   })
 
@@ -315,34 +345,6 @@
     return { left: '0px', top: '0px' }
   }
 
-  // Handle clicks in preview mode to open links in system browser
-  const handlePreviewClick = async (event: MouseEvent) => {
-    const target = event.target as HTMLElement
-    if (target.tagName === 'A') {
-      event.preventDefault()
-      let url = (target as HTMLAnchorElement).href
-
-      // If the URL is relative (starts with localhost), extract the actual URL
-      // This happens when user writes [text](example.com) instead of [text](https://example.com)
-      if (url.includes('localhost:5173/')) {
-        // Extract the part after localhost:5173/
-        url = url.split('localhost:5173/')[1]
-        // Add https:// if no protocol
-        if (!url.startsWith('http://') && !url.startsWith('https://')) {
-          url = 'https://' + url
-        }
-      }
-
-      if (url) {
-        // Show confirmation dialog
-        const confirmed = confirm(`You are about to navigate to:\n\n${url}\n\nDo you want to continue?`)
-        if (confirmed) {
-          await (window as any).electronAPI.shell.openExternal(url)
-        }
-      }
-    }
-  }
-
   // Handle save
   const handleSave = () => {
     if (!formData.value.title.trim() || !formData.value.body.trim()) {
@@ -360,7 +362,8 @@
       title: formData.value.title.trim(),
       body: formData.value.body.trim(),
       description: formData.value.description.trim(),
-      tags: JSON.stringify(tags)
+      tags: JSON.stringify(tags),
+      language: formData.value.language
     })
   }
   </script>
@@ -377,23 +380,35 @@
     margin-bottom: 0;
   }
 
-  .preview-toggle {
-    background: none;
-    border: 1px solid #404040;
-    border-radius: 4px;
-    padding: 6px;
-    cursor: pointer;
-    color: #b3b3b3;
+  .header-controls {
     display: flex;
     align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
+    gap: 8px;
   }
 
-  .preview-toggle:hover {
-    background-color: #3e3e3e;
-    color: #ec5002ee;
+  .language-selector {
+    background-color: #1a1a1a;
+    border: 1px solid #404040;
+    border-radius: 4px;
+    padding: 4px 8px;
+    color: #b3b3b3;
+    font-size: 11px;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: auto;
+    width: auto;
+  }
+
+  .language-selector:hover {
+    background-color: #2a2a2a;
     border-color: #ec5002ee;
+    color: #ffffff;
+  }
+
+  .language-selector:focus {
+    outline: none;
+    border-color: #ec5002ee;
+    color: #ffffff;
   }
 
   .markdown-preview {
@@ -405,6 +420,20 @@
     color: #ffffff;
     font-size: 14px;
     line-height: 1.6;
+  }
+
+  .description-display {
+    cursor: text;
+    transition: border-color 0.2s;
+  }
+
+  .description-display:hover {
+    border-color: #ec5002ee;
+  }
+
+  .description-display:empty::before {
+    content: attr(data-placeholder);
+    color: #666;
   }
 
   .markdown-preview :deep(h1),
@@ -497,6 +526,25 @@
     font-family: inherit;
     white-space: nowrap;
     z-index: 1;
+  }
+
+  .plain-textarea {
+    background-color: #1a1a1a;
+    border: 1px solid #404040;
+    border-radius: 8px;
+    padding: 12px;
+    color: #ffffff;
+    font-size: 14px;
+    font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, monospace;
+    line-height: 1.6;
+    resize: vertical;
+    min-height: 200px;
+    width: 100%;
+  }
+
+  .plain-textarea:focus {
+    outline: none;
+    border-color: #ec5002ee;
   }
   </style>   
                

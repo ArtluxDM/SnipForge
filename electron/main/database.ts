@@ -8,6 +8,7 @@ export interface Command {
     body: string
     description: string
     tags: string
+    language: string
     created_at: string
     updated_at: string
 }
@@ -45,6 +46,16 @@ try {
         // Column already exists or other error, ignore
         console.log('Description column already exists or table is new')
     }
+
+    // Add language column to existing tables (migration)
+    try {
+        db.exec(`ALTER TABLE commands ADD COLUMN language TEXT DEFAULT 'plaintext'`)
+        console.log('Added language column to existing database')
+    } catch (error) {
+        // Column already exists or other error, ignore
+        console.log('Language column already exists or table is new')
+    }
+
     console.log('Database table created successfully')
     return db
     }catch (error) {
@@ -65,7 +76,7 @@ export function updateCommand(id: number, updates: Partial<Command>): boolean{
     const now = new Date().toISOString();
     const stmt = db.prepare(`
         UPDATE commands
-        SET title = ?, body = ?, description = ?, tags = ?, updated_at = ?
+        SET title = ?, body = ?, description = ?, tags = ?, language = ?, updated_at = ?
         WHERE id = ?
     `);
     const result = stmt.run(
@@ -73,6 +84,7 @@ export function updateCommand(id: number, updates: Partial<Command>): boolean{
         updates.body || '',
         updates.description || '',
         updates.tags || '[]',
+        updates.language || 'plaintext',
         now,
         id
     );
@@ -90,14 +102,15 @@ export function addCommand(command: Omit<Command, 'id' | 'created_at' | 'updated
     if (!db) throw new Error("Database not initialized");
     const now = new Date().toISOString();
     const stmt = db.prepare(`
-        INSERT INTO commands (title, body, description, tags, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO commands (title, body, description, tags, language, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `);
     const result = stmt.run(
         command.title,
         command.body,
         command.description || '',
         command.tags || '[]',
+        command.language || 'plaintext',
         now,
         now
     );
@@ -117,8 +130,8 @@ export function seedTestData(): void {
 
     //prepare the insert statement
     const insertCommand = db.prepare(`
-        INSERT INTO commands (title, body, description, tags, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?)
+        INSERT INTO commands (title, body, description, tags, language, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     `)
     const now = new Date().toISOString()
 
@@ -128,6 +141,7 @@ export function seedTestData(): void {
         'You can create snippets in plain text or markdown, and add variables with the following syntax {{variable name}}. Read the help section for more.',
         'This section is used to describe your snippets and it also supports markdown, cool right?',
         '["snipforge", "by_artluxdm"]',
+        'markdown',
         now,
         now
     )

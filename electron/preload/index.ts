@@ -25,6 +25,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   //clipboard methods
   clipboard : {
     writeText: (text: string) => ipcRenderer.invoke('clipboard:writeText', text),
+    write: (data: { text: string, html?: string }) => ipcRenderer.invoke('clipboard:write', data),
     readText: (): Promise<string> => ipcRenderer.invoke('clipboard:readText')
   },
   //dialog methods
@@ -74,6 +75,7 @@ declare global {
       },
       clipboard: {
         writeText: (text: string) => Promise<void>,
+        write: (data: { text: string, html?: string }) => Promise<void>,
         readText: () => Promise<string>
       },
       dialog: {

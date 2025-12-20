@@ -18,6 +18,7 @@ interface Window {
     }
     clipboard: {
       writeText: (text: string) => Promise<void>
+      write: (data: { text: string; html?: string }) => Promise<void>
       readText: () => Promise<string>
     }
     dialog: {

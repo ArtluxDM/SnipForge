@@ -311,6 +311,28 @@ ipcMain.handle('clipboard:writeText', async (_,text:string) => {
     throw error
     }
 })
+
+// IPC handler for writing both text and HTML to clipboard
+ipcMain.handle('clipboard:write', async (_, data: { text: string, html?: string }) => {
+  try {
+    if (data.html) {
+      // Write both formats
+      clipboard.write({
+        text: data.text,
+        html: data.html
+      })
+      console.log('clipboard written with both text and HTML')
+    } else {
+      // Just write text
+      clipboard.writeText(data.text)
+      console.log('clipboard text written successfully')
+    }
+  } catch (error) {
+    console.error('Error writing to clipboard:', error)
+    throw error
+  }
+})
+
 // IPC handlers for reading from clipboard.
 ipcMain.handle('clipboard:readText', async () => {
   try{

@@ -14,6 +14,7 @@ import { parseSearchQuery, filterCommandsBySearch, type SearchFilter } from './u
 import { autocompleteSearchQuery } from './utils/autocomplete'
 import { getAllTags } from './utils/tags'
 import { marked } from 'marked'
+import hljs from 'highlight.js'
 
 type Command = {
   id: number
@@ -21,6 +22,7 @@ type Command = {
   body: string
   description: string
   tags: string
+  language: string
   created_at: string
   updated_at: string
 }
@@ -286,30 +288,63 @@ const handleSearchKeyDown = (event: KeyboardEvent) => {
     commandsLength: commands.value.length
   })
 // Function to copy command body to clipboard
-const copyCommand = async (text: string) => {
+const copyCommand = async (command: Command) => {
   // Check if the command contains variables
-  if (hasVariables(text)) {
+  if (hasVariables(command.body)) {
     // Extract variables and show input modal
-    const variables = extractVariables(text)
+    const variables = extractVariables(command.body)
     currentVariables.value = variables
-    pendingCommand.value = text
+    pendingCommand.value = command.body
+    pendingCommandLanguage.value = command.language
     showVariableModal.value = true
   } else {
     // No variables, copy directly
-    await copyToClipboard(text)
+    await copyToClipboard(command.body, command.language)
   }
 }
 
 // Function to copy raw command with variables intact (for Shift+C)
-const copyCommandTemplate = async (text: string) => {
-  await copyToClipboard(text)
+const copyCommandTemplate = async (text: string, language: string) => {
+  await copyToClipboard(text, language)
 }
 
-// Actual clipboard copy function
-const copyToClipboard = async (text: string) => {
+// Helper to strip HTML tags for plain text
+const stripHtml = (html: string): string => {
+  const div = document.createElement('div')
+  div.innerHTML = html
+  return div.textContent || div.innerText || ''
+}
+
+// Actual clipboard copy function with HTML generation
+const copyToClipboard = async (text: string, language: string = 'plaintext') => {
   try {
-    await window.electronAPI.clipboard.writeText(text)
-    console.log('Command copied to clipboard:', text)
+    // Generate HTML based on language
+    let html: string | undefined
+    let plainText = text
+
+    if (language === 'richtext') {
+      // Rich text is already HTML from TipTap
+      html = text
+      // Extract plain text from HTML for plain text clipboard
+      plainText = stripHtml(text)
+    } else if (language === 'markdown') {
+      // Convert markdown to HTML
+      html = await marked(text)
+    } else if (language !== 'plaintext') {
+      // Generate syntax highlighted HTML
+      try {
+        const highlighted = hljs.highlight(text, { language }).value
+        html = `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`
+      } catch (error) {
+        // Fallback to plain text if language not supported
+        console.warn('Language not supported, copying as plain text:', language)
+        html = undefined
+      }
+    }
+
+    // Write to clipboard with both formats
+    await window.electronAPI.clipboard.write({ text: plainText, html })
+    console.log('Command copied to clipboard with format:', language)
     showNotificationToast('Copied to clipboard!')
   } catch (error) {
     console.error('Error copying command to clipboard:', error)
@@ -317,16 +352,20 @@ const copyToClipboard = async (text: string) => {
   }
 }
 
+// Variable for storing language of pending command
+const pendingCommandLanguage = ref('plaintext')
+
 // Handle variable input submission
 const handleVariableSubmit = async (values: VariableValues) => {
   try {
     const processedCommand = substituteVariables(pendingCommand.value, values)
-    await copyToClipboard(processedCommand)
+    await copyToClipboard(processedCommand, pendingCommandLanguage.value)
     showVariableModal.value = false
 
     // Clear state
     currentVariables.value = []
     pendingCommand.value = ''
+    pendingCommandLanguage.value = 'plaintext'
   } catch (error) {
     console.error('Error processing variables:', error)
   }
@@ -339,6 +378,7 @@ const handleVariableCancel = () => {
   // Clear state
   currentVariables.value = []
   pendingCommand.value = ''
+  pendingCommandLanguage.value = 'plaintext'
 }
 
 // Export functionality
@@ -465,7 +505,7 @@ const deleteCommand = async (id: number) => {
     showModal.value = true
   }
   // Handle modal save
-  const handleModalSave = async (formData: { title: string; body: string; description: string; tags: string }) =>
+  const handleModalSave = async (formData: { title: string; body: string; description: string; tags: string; language: string }) =>
    {
     try {
       if (modalMode.value === 'edit' && selectedCommandForEdit.value) {
@@ -568,13 +608,13 @@ const handleKeyboard = (event: KeyboardEvent) => {
     event.preventDefault()
     const selectedCommand = filteredCommands.value.find(cmd => cmd.id === selectedCommandId.value)
     if (selectedCommand) {
-      copyCommand(selectedCommand.body)
+      copyCommand(selectedCommand)
     }
     }else if (event.key === 'C' && event.shiftKey){
     event.preventDefault()
     const selectedCommand = filteredCommands.value.find(cmd => cmd.id === selectedCommandId.value)
     if (selectedCommand) {
-      copyCommandTemplate(selectedCommand.body)
+      copyCommandTemplate(selectedCommand.body, selectedCommand.language)
     }
     }else if (event.key === 'e'){
     event.preventDefault()
@@ -778,7 +818,7 @@ const openDescriptionModal = (title: string, description: string) => {
           <div class="command-body">{{ command.body }}</div>
         </div>
         <div class="command-actions">
-          <button @click.stop="copyCommand(command.body)" tabindex="-1" title="Copy command">
+          <button @click.stop="copyCommand(command)" tabindex="-1" title="Copy command">
             <Copy :size="16" />
           </button>
           <button @click.stop="editCommand(command.id)" tabindex="-1" title="Edit command">
