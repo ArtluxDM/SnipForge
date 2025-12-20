@@ -166,6 +166,35 @@ watch(() => props.language, () => {
         },
         '.cm-activeLine': {
           backgroundColor: '#2a2a2a'
+        },
+        '.cm-tooltip': {
+          backgroundColor: '#2a2a2a',
+          border: '1px solid #404040',
+          borderRadius: '4px',
+          color: '#e3e3e3'
+        },
+        '.cm-tooltip.cm-tooltip-autocomplete > ul': {
+          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, monospace',
+          fontSize: '13px'
+        },
+        '.cm-tooltip.cm-tooltip-autocomplete > ul > li': {
+          color: '#e3e3e3',
+          padding: '4px 8px'
+        },
+        '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
+          backgroundColor: '#ec5002ee',
+          color: '#ffffff'
+        },
+        '.cm-completionLabel': {
+          color: '#e3e3e3'
+        },
+        '.cm-completionDetail': {
+          color: '#999',
+          fontStyle: 'italic'
+        },
+        '.cm-completionMatchedText': {
+          color: '#ec5002ee',
+          fontWeight: 'bold'
         }
       })
     ]
