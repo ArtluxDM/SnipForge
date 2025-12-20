@@ -27,8 +27,9 @@ pnpm install
 # Development
 pnpm dev        # starts Electron + Vite dev server
 
-# Add core dependencies
+# Core dependencies
 pnpm add better-sqlite3 lucide-vue-next marked
+pnpm add codemirror @codemirror/lang-* @tiptap/vue-3 @tiptap/starter-kit @tiptap/extension-*
 pnpm add -D @types/better-sqlite3
 
 # Build
@@ -40,9 +41,10 @@ pnpm build      # production build
 **Tech Stack:**
 - Desktop: Electron + Vue 3 + Vite + TypeScript
 - Database: SQLite via better-sqlite3 (synchronous, local storage)
+- Editors: CodeMirror 6 (code/markdown), TipTap (rich text)
 - Search: Client-side text matching
-- UI: Lucide icons, Marked for markdown help
-- OS Integration: Electron's globalShortcut and clipboard
+- UI: Lucide icons, Marked for markdown rendering
+- OS Integration: Electron's globalShortcut, clipboard, system tray
 
 **Process Architecture:**
 - **Main Process (Electron):** Handles global hotkeys, SQLite database connection, and IPC for clipboard operations
@@ -53,22 +55,30 @@ pnpm build      # production build
 -- Table: commands
 id INTEGER PRIMARY KEY,
 title TEXT NOT NULL,
-body TEXT NOT NULL,             -- the command (shell or slash)
+body TEXT NOT NULL,             -- the command/snippet content
+description TEXT DEFAULT '',    -- optional description with markdown support
 tags TEXT DEFAULT '[]',         -- JSON array of strings
+language TEXT DEFAULT 'plaintext', -- editor type: plaintext, richtext, markdown, javascript, python, etc.
 created_at TEXT NOT NULL,
 updated_at TEXT NOT NULL
 ```
 
 ## Core Features
 
-1. **Global Hotkey:** Opens search palette (default: Ctrl/Cmd+Shift+Space)
-2. **Text Search:** Real-time search across title and body using simple text matching
-3. **Actions:** Copy to clipboard with variable substitution
-4. **Variables:** Template substitution with `{{variable name}}` syntax and user prompts
-5. **Command Management:** Add, edit, delete commands with tagging support
-6. **Tag System:** Tag autocomplete and export filtering
-7. **Export/Import:** JSON format with tag filtering options
-8. **Help System:** Built-in markdown help with keyboard shortcuts
+1. **Multiple Editor Types:**
+   - **Plain Text:** Simple text input
+   - **Rich Text:** WYSIWYG editor with formatting, lists, task lists, links, images (TipTap)
+   - **Markdown:** Syntax-highlighted markdown with toolbar (CodeMirror)
+   - **Code:** Syntax highlighting for 12+ languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash)
+
+2. **Global Hotkey:** Opens search palette (default: Ctrl/Cmd+Shift+Space)
+3. **Text Search:** Real-time search across title, body, and description
+4. **Actions:** Copy to clipboard with variable substitution
+5. **Variables:** Template substitution with `{{variable name}}` syntax and user prompts
+6. **Command Management:** Add, edit, delete commands with descriptions and tagging
+7. **Tag System:** Tag autocomplete and export filtering
+8. **Export/Import:** JSON format with tag filtering options
+9. **Help System:** Built-in markdown help with keyboard shortcuts
 
 ## Development Guidelines
 
@@ -109,20 +119,14 @@ When creating a new release after making changes:
    git push origin main --tags
    ```
 
-5. **Build Application:**
+5. **Push Tag to Trigger GitHub Actions:**
    ```bash
-   pnpm build
+   git push origin main --tags
    ```
-   - Output goes to `release/{version}/` directory
-   - DMG file: `SnipForge-Mac-{version}-Installer.dmg`
-
-6. **Create GitHub Release:**
-   ```bash
-   gh release create v2.0.1 \
-     --title "SnipForge v2.0.1" \
-     --notes "Description of changes" \
-     release/2.0.1/SnipForge-Mac-2.0.1-Installer.dmg
-   ```
+   - GitHub Actions automatically builds for Windows, macOS, and Linux
+   - Creates a draft release with all installers
+   - Check progress at: `https://github.com/ArtluxDM/SnipForge/actions`
+   - Review and publish the draft release when builds complete
 
 **Build Configuration:**
 - Uses `electron-builder.json5` for build settings (not package.json)
@@ -135,9 +139,19 @@ When creating a new release after making changes:
 - Variable substitution prompts prevent accidental execution
 - Local SQLite storage (no cloud dependencies)
 
-## Known Issues
+## Automated Builds
 
-### Windows Build
-- Windows builds currently have issues, likely related to `better-sqlite3` native dependency
-- Need to investigate build tools requirements and native module compilation
-- TODO: Debug and fix Windows build process in next session
+GitHub Actions automatically builds for all platforms when you push a tag:
+
+**Workflow:** `.github/workflows/release.yml`
+- Triggered by: pushing tags (e.g., `v2.4.0`)
+- Builds: macOS (.dmg), Windows (.exe), Linux (.AppImage, .deb, .rpm)
+- Creates: Draft GitHub release with all installers
+- Free: Unlimited builds for public repositories
+
+**Manual Release Process** (if needed):
+1. Clean build cache: `rm -rf node_modules/.vite dist dist-electron release`
+2. Build: `pnpm build`
+3. DMG location: `release/{version}/SnipForge-Mac-{version}-Installer.dmg`
+
+**Important:** Always do clean builds when switching from dev to production to avoid caching issues.
