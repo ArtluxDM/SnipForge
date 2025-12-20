@@ -193,10 +193,20 @@ async function createWindow() {
 
 function createTray() {
   // Use the app icon for the tray
-  const iconPath = path.join(process.env.APP_ROOT || '', 'app-icon.png')
+  // In production, use resourcesPath; in dev, use APP_ROOT
+  let iconPath: string
+  if (app.isPackaged) {
+    iconPath = path.join(process.resourcesPath, 'app-icon.png')
+  } else {
+    iconPath = path.join(process.env.APP_ROOT || '', 'app-icon.png')
+  }
 
   // Create tray icon
   const icon = nativeImage.createFromPath(iconPath)
+  if (icon.isEmpty()) {
+    console.error('Failed to load tray icon from:', iconPath)
+    return
+  }
   const resizedIcon = icon.resize({ width: 16, height: 16 })
   tray = new Tray(resizedIcon)
 
