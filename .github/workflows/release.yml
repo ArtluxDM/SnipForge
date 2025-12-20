@@ -1,0 +1,102 @@
+# Name of the workflow - shows up in GitHub Actions UI
+name: Build and Release
+
+# When should this workflow run?
+# We trigger on push events, but ONLY when tags starting with 'v' are pushed (like v2.4.0)
+on:
+  push:
+    tags:
+      - 'v*'
+
+# Jobs are the main units of work - we have one job called 'release'
+jobs:
+  release:
+    # This job uses a matrix strategy to run on multiple operating systems in parallel
+    # Each OS runs independently and simultaneously
+    strategy:
+      matrix:
+        # These are the operating systems GitHub provides
+        # windows-latest = Windows Server, macos-latest = macOS, ubuntu-latest = Ubuntu Linux
+        os: [macos-latest, windows-latest, ubuntu-latest]
+    
+    # Specify which OS this specific job instance runs on (from the matrix)
+    runs-on: ${{ matrix.os }}
+    
+    # Steps are the individual tasks that run sequentially on each OS
+    steps:
+      # Step 1: Checkout the code
+      # This downloads your repository code to the GitHub Actions runner
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      # Step 2: Set up Node.js
+      # Electron apps need Node.js to build
+      # We specify version 20 (LTS) for consistency
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      # Step 3: Install pnpm
+      # We use pnpm as our package manager (faster than npm)
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+      
+      # Step 4: Install dependencies
+      # This runs 'pnpm install' to download all node_modules
+      - name: Install dependencies
+        run: pnpm install
+      
+      # Step 5: Build the application
+      # This runs 'pnpm build' which:
+      # 1. Compiles TypeScript
+      # 2. Bundles with Vite
+      # 3. Packages with electron-builder for the current OS
+      - name: Build application
+        run: pnpm build
+        env:
+          # GH_TOKEN allows electron-builder to create GitHub releases
+          # GITHUB_TOKEN is automatically provided by GitHub Actions
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      # Step 6: Upload artifacts (the built installers)
+      # This makes the installers available for download from the Actions run
+      # Also used by the release step
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          # Name the artifact based on which OS built it
+          name: SnipForge-${{ matrix.os }}
+          # Path to the built files
+          # release/** means everything inside the release folder
+          path: release/**/*.{dmg,exe,AppImage,deb,rpm,zip}
+          # Don't fail if no files found (some OSes might not produce all formats)
+          if-no-files-found: warn
+      
+      # Step 7: Create GitHub Release (only runs once, on macOS)
+      # We use 'if' to make this step only run on macOS to avoid duplicate releases
+      - name: Create Release
+        if: matrix.os == 'macos-latest'
+        uses: softprops/action-gh-release@v1
+        with:
+          # Get the tag name that triggered this workflow
+          tag_name: ${{ github.ref_name }}
+          # Release title
+          name: SnipForge ${{ github.ref_name }}
+          # Mark as draft so you can review before publishing
+          draft: true
+          # Generate release notes automatically from commits
+          generate_release_notes: true
+          # Upload all the built files from all OSes
+          # The ** glob pattern finds files in all subdirectories
+          files: |
+            release/**/*.dmg
+            release/**/*.exe
+            release/**/*.AppImage
+            release/**/*.deb
+            release/**/*.rpm
+            release/**/*.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
