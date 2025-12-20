@@ -165,8 +165,6 @@ async function createWindow() {
     win.webContents.openDevTools()
   } else {
     win.loadFile(indexHtml)
-    // Temporarily enable DevTools in production for debugging
-    win.webContents.openDevTools()
   }
 
   // Test actively push message to the Electron-Renderer
