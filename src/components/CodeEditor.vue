@@ -237,3 +237,47 @@ onUnmounted(() => {
   min-height: 200px;
 }
 </style>
+
+<style>
+/* Global autocomplete styles - using higher specificity */
+.cm-tooltip.cm-tooltip-autocomplete {
+  background-color: #2a2a2a !important;
+  border: 1px solid #404040 !important;
+  border-radius: 4px !important;
+}
+
+.cm-tooltip-autocomplete ul {
+  font-family: Monaco, Menlo, "Ubuntu Mono", Consolas, monospace !important;
+  font-size: 13px !important;
+}
+
+.cm-tooltip-autocomplete ul li {
+  color: #e3e3e3 !important;
+  padding: 4px 8px !important;
+  background-color: transparent !important;
+}
+
+.cm-tooltip-autocomplete ul li[aria-selected] {
+  background-color: #3a3a3a !important;
+  color: #ffffff !important;
+}
+
+.cm-completionIcon {
+  display: none !important;
+}
+
+.cm-completionLabel {
+  color: #e3e3e3 !important;
+}
+
+.cm-completionDetail {
+  color: #999 !important;
+  font-style: italic !important;
+}
+
+.cm-completionMatchedText {
+  color: #ec5002ee !important;
+  font-weight: bold !important;
+  text-decoration: none !important;
+}
+</style>
