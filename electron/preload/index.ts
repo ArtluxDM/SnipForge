@@ -52,6 +52,14 @@ contextBridge.exposeInMainWorld('electronAPI', {
   // shell methods
   shell: {
     openExternal: (url: string): Promise<void> => ipcRenderer.invoke('shell:openExternal', url)
+  },
+  // window control methods
+  window: {
+    minimize: (): Promise<void> => ipcRenderer.invoke('window:minimize'),
+    maximize: (): Promise<void> => ipcRenderer.invoke('window:maximize'),
+    close: (): Promise<void> => ipcRenderer.invoke('window:close'),
+    isMaximized: (): Promise<boolean> => ipcRenderer.invoke('window:isMaximized'),
+    getPlatform: (): Promise<string> => ipcRenderer.invoke('window:getPlatform')
   }
 })
 // tell the compiler what's availible on the window object
@@ -81,6 +89,13 @@ declare global {
       platform: string,
       shell: {
         openExternal: (url: string) => Promise<void>
+      },
+      window: {
+        minimize: () => Promise<void>
+        maximize: () => Promise<void>
+        close: () => Promise<void>
+        isMaximized: () => Promise<boolean>
+        getPlatform: () => Promise<string>
       }
     }
   }

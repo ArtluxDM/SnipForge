@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, clipboard, dialog, globalShortcut } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, clipboard, dialog, globalShortcut, Tray, Menu, nativeImage } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -43,6 +43,7 @@ if (!app.requestSingleInstanceLock()) {
 }
 
 let win: BrowserWindow | null = null
+let tray: Tray | null = null
 const preload = path.join(__dirname, '../preload/index.mjs')
 const indexHtml = path.join(RENDERER_DIST, 'index.html')
 
@@ -188,6 +189,54 @@ async function createWindow() {
 
 
   // win.webContents.on('will-navigate', (event, url) => { }) #344
+}
+
+function createTray() {
+  // Use the app icon for the tray
+  const iconPath = path.join(process.env.APP_ROOT || '', 'app-icon.png')
+
+  // Create tray icon
+  const icon = nativeImage.createFromPath(iconPath)
+  const resizedIcon = icon.resize({ width: 16, height: 16 })
+  tray = new Tray(resizedIcon)
+
+  // Create context menu
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Show SnipForge',
+      click: async () => {
+        if (!win || win.isDestroyed()) {
+          await createWindow()
+        } else {
+          showWindow()
+        }
+      }
+    },
+    {
+      label: 'Quit',
+      click: () => {
+        isAppQuiting = true
+        app.quit()
+      }
+    }
+  ])
+
+  // Set tooltip and context menu
+  tray.setToolTip('SnipForge')
+  tray.setContextMenu(contextMenu)
+
+  // Show window on tray icon click (Windows/Linux)
+  tray.on('click', async () => {
+    if (!win || win.isDestroyed()) {
+      await createWindow()
+    } else if (win.isVisible()) {
+      win.hide()
+    } else {
+      showWindow()
+    }
+  })
+
+  console.log('✅ System tray icon created')
 }
 
 // IPC handlers for database operations
@@ -371,17 +420,52 @@ ipcMain.handle('shell:openExternal', async (_, url: string) => {
     throw error
   }
 })
+
+// IPC handlers for window controls
+ipcMain.handle('window:minimize', () => {
+  if (win) {
+    win.minimize()
+  }
+})
+
+ipcMain.handle('window:maximize', () => {
+  if (win) {
+    if (win.isMaximized()) {
+      win.unmaximize()
+    } else {
+      win.maximize()
+    }
+  }
+})
+
+ipcMain.handle('window:close', () => {
+  if (win) {
+    win.close()
+  }
+})
+
+ipcMain.handle('window:isMaximized', () => {
+  return win ? win.isMaximized() : false
+})
+
+ipcMain.handle('window:getPlatform', () => {
+  return process.platform
+})
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 
 
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  createTray()
+})
 
 app.on('window-all-closed', () => {
   win = null
-  if (process.platform !== 'darwin') app.quit()
+  // Don't quit the app - it stays in the tray
+  // User can quit from tray context menu
 })
 
 app.on('will-quit', () => {

@@ -24,6 +24,45 @@ type Command = {
   created_at: string
   updated_at: string
 }
+
+// Platform detection - use the synchronous platform property
+const isWindows = ref(false)
+const isMaximized = ref(false)
+
+// Safely detect platform
+try {
+  if (window.electronAPI && window.electronAPI.platform) {
+    isWindows.value = window.electronAPI.platform === 'win32'
+    console.log('Platform detected:', window.electronAPI.platform, 'isWindows:', isWindows.value)
+  } else {
+    console.warn('electronAPI not available')
+  }
+} catch (error) {
+  console.error('Error detecting platform:', error)
+}
+
+// Window control functions
+const minimizeWindow = async () => {
+  await window.electronAPI.window.minimize()
+}
+
+const maximizeWindow = async () => {
+  await window.electronAPI.window.maximize()
+  // Update maximized state after toggling
+  isMaximized.value = await window.electronAPI.window.isMaximized()
+}
+
+const closeWindow = async () => {
+  await window.electronAPI.window.close()
+}
+
+// Check maximized state on mount (only for Windows)
+const checkMaximizedState = async () => {
+  if (isWindows.value) {
+    isMaximized.value = await window.electronAPI.window.isMaximized()
+  }
+}
+
 // Create a reactive variable to store the search text
   // ref() makes the variable reactive - when it changes, the UI updates
 const searchQuery = ref('');
@@ -97,6 +136,7 @@ const outsideClickHandler = (event: MouseEvent) => {
 
 onMounted(() => {
   loadCommands()
+  checkMaximizedState()
   //keyboard event listener
   document.addEventListener('keydown', handleKeyboard)
 
@@ -676,6 +716,29 @@ const openDescriptionModal = (title: string, description: string) => {
         <button class="settings-button" @click="showSettingsModal = true" title="Settings">
           <Settings :size="18" />
         </button>
+
+        <!-- Windows window controls -->
+        <div v-if="isWindows" class="window-controls">
+          <button class="window-control-btn minimize-btn" @click="minimizeWindow" title="Minimize">
+            <svg width="12" height="12" viewBox="0 0 12 12">
+              <rect x="0" y="5" width="12" height="2" fill="currentColor"/>
+            </svg>
+          </button>
+          <button class="window-control-btn maximize-btn" @click="maximizeWindow" :title="isMaximized ? 'Restore' : 'Maximize'">
+            <svg v-if="!isMaximized" width="12" height="12" viewBox="0 0 12 12">
+              <rect x="1" y="1" width="10" height="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+            <svg v-else width="12" height="12" viewBox="0 0 12 12">
+              <rect x="2" y="0" width="10" height="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+              <rect x="0" y="2" width="10" height="10" stroke="currentColor" stroke-width="1.5" fill="none"/>
+            </svg>
+          </button>
+          <button class="window-control-btn close-btn-window" @click="closeWindow" title="Close">
+            <svg width="12" height="12" viewBox="0 0 12 12">
+              <path d="M 1,1 L 11,11 M 11,1 L 1,11" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1074,6 +1137,36 @@ html, body, #app {
 .add-button:hover,
 .help-button:hover,
 .settings-button:hover {
+  background-color: #2a2a2a;
+  color: #ffffff;
+}
+
+/* Window controls (Windows only) */
+.window-controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: 8px;
+  -webkit-app-region: no-drag;
+}
+
+.window-control-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  color: #ec5002ee;
+  transition: all 0.2s;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  -webkit-app-region: no-drag;
+}
+
+.window-control-btn:hover {
   background-color: #2a2a2a;
   color: #ffffff;
 }
