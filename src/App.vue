@@ -43,23 +43,29 @@ try {
 
 // Window control functions
 const minimizeWindow = async () => {
-  await window.electronAPI.window.minimize()
+  if ((window.electronAPI as any)?.window) {
+    await (window.electronAPI as any).window.minimize()
+  }
 }
 
 const maximizeWindow = async () => {
-  await window.electronAPI.window.maximize()
-  // Update maximized state after toggling
-  isMaximized.value = await window.electronAPI.window.isMaximized()
+  if ((window.electronAPI as any)?.window) {
+    await (window.electronAPI as any).window.maximize()
+    // Update maximized state after toggling
+    isMaximized.value = await (window.electronAPI as any).window.isMaximized()
+  }
 }
 
 const closeWindow = async () => {
-  await window.electronAPI.window.close()
+  if ((window.electronAPI as any)?.window) {
+    await (window.electronAPI as any).window.close()
+  }
 }
 
 // Check maximized state on mount (only for Windows)
 const checkMaximizedState = async () => {
-  if (isWindows.value) {
-    isMaximized.value = await window.electronAPI.window.isMaximized()
+  if (isWindows.value && (window.electronAPI as any)?.window) {
+    isMaximized.value = await (window.electronAPI as any).window.isMaximized()
   }
 }
 
