@@ -4,14 +4,18 @@ A desktop application for saving, searching, and managing command snippets with 
 
 ## Features
 
-- Real-time search by title and body
-- Global hotkey access with `Cmd+Shift+Space`
-- Clipboard integration for copying commands
-- Tag system with autocomplete
-- Variable substitution using `{{variable name}}` syntax
-- Keyboard navigation and shortcuts
-- Export/Import commands in JSON format with tag filtering
-- Built-in help system
+- **Multiple Editor Types**: Plain Text, Rich Text (WYSIWYG), Markdown, and Code editors
+- **Syntax Highlighting**: Support for 12+ programming languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash)
+- **Rich Text Editing**: WYSIWYG editor with formatting, lists, task lists, links, and images
+- **Markdown Support**: Markdown editor with toolbar and syntax highlighting
+- **Real-time Search**: Search by title and body across all snippets
+- **Global Hotkey**: Quick access with `Cmd+Shift+Space` (macOS) or `Ctrl+Shift+Space` (Windows/Linux)
+- **Clipboard Integration**: One-click copy with variable substitution
+- **Tag System**: Organize snippets with tags and autocomplete
+- **Variable Substitution**: Dynamic values using `{{variable name}}` syntax
+- **Keyboard Navigation**: Full keyboard shortcuts for power users
+- **Export/Import**: JSON format with tag filtering
+- **Built-in Help**: Comprehensive help system with keyboard shortcuts
 
 ## Installation
 
@@ -80,6 +84,10 @@ When copied, you'll be prompted to enter values for each variable.
 ## Roadmap
 
 ### ✅ Completed Features
+- [x] Multiple editor types (Plain Text, Rich Text, Markdown, Code)
+- [x] Syntax highlighting for 12+ programming languages
+- [x] WYSIWYG rich text editor with custom checkboxes
+- [x] Markdown editor with toolbar
 - [x] Global hotkey access
 - [x] Command CRUD operations (Create, Read, Update, Delete)
 - [x] Real-time search filtering
@@ -88,11 +96,15 @@ When copied, you'll be prompted to enter values for each variable.
 - [x] Keyboard navigation and shortcuts
 - [x] Clipboard integration
 - [x] Export/Import with tag filtering
-- [x] Built-in help system
+- [x] Built-in help system with markdown rendering
 - [x] SQLite local storage
 - [x] Custom title bar and window management
+- [x] System tray integration
 
 ### 🔄 Upcoming Improvements
+- [ ] Windows and Linux builds via GitHub Actions
 - [ ] Tag management (edit/delete existing tags)
-- [ ] Improve search (add tag filtering, fuzzy search)
-- [ ] Improve arrow navigation logic
+- [ ] Search improvements (tag filtering, fuzzy search)
+- [ ] Command history and favorites
+- [ ] Cloud sync (optional)
+- [ ] Themes and customization
