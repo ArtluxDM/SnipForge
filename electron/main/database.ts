@@ -30,9 +30,8 @@ try {
             title TEXT NOT NULL,
             body TEXT NOT NULL,
             description TEXT DEFAULT '',
-            shell TEXT DEFAULT '',
             tags TEXT DEFAULT '[]',
-            variables TEXT DEFAULT '{}',
+            language TEXT DEFAULT 'plaintext',
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
         )
