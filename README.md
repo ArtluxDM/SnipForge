@@ -26,7 +26,10 @@ A desktop application for saving, searching, and managing command snippets with 
 
 **macOS Security Note**: Since this app isn't code signed, macOS will show a "damaged" warning. To run it:
 - **Method 1**: Right-click the app → "Open" → "Open" (bypasses Gatekeeper)
-- **Method 2**: Run `xattr -d com.apple.quarantine /Applications/SnipForge.app` in Terminal
+- **Method 2**: Run this command in Terminal:
+  ```bash
+  xattr -cr /Applications/SnipForge.app
+  ```
 
 ### Build from Source
 
