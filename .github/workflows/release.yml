@@ -8,6 +8,11 @@ on:
     tags:
       - 'v*'
 
+# Permissions needed for this workflow
+# The GITHUB_TOKEN needs write access to create releases and upload assets
+permissions:
+  contents: write
+
 # Jobs are the main units of work - we have one job called 'release'
 jobs:
   release:
