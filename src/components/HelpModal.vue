@@ -43,7 +43,7 @@ const markdownContent = computed(() => {
     `**${globalHotkey}**`
   )
 
-  return marked.parse(processedMarkdown)
+  return marked.parse(processedMarkdown, { async: false })
 })
 </script>
 

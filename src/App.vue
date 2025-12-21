@@ -339,7 +339,7 @@ const copyToClipboard = async (text: string, language: string = 'plaintext') => 
       plainText = stripHtml(html)
     } else if (language === 'markdown') {
       // Convert markdown to HTML and sanitize to prevent XSS in receiving apps
-      const rawHtml = marked.parse(text)
+      const rawHtml = marked.parse(text, { async: false })
       html = DOMPurify.sanitize(rawHtml)
     } else if (language !== 'plaintext') {
       // Generate syntax highlighted HTML
