@@ -1,0 +1,169 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 18,
+  "commands": [
+    {
+      "title": "n8n: Start server",
+      "body": "n8n start",
+      "description": "Start n8n server (web interface)",
+      "tags": ["n8n", "start", "server"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Execute CLI command",
+      "body": "docker exec -u node -it {{container name}} n8n {{command}}",
+      "description": "Run n8n CLI command inside Docker container",
+      "tags": ["n8n", "docker", "cli"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Execute workflow by ID",
+      "body": "n8n execute --id {{workflow id}}",
+      "description": "Run a saved workflow by its ID (find ID in workflow URL)",
+      "tags": ["n8n", "execute", "workflow"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Activate workflow",
+      "body": "n8n update:workflow --id={{workflow id}} --active=true",
+      "description": "Set workflow active status to true (requires n8n restart)",
+      "tags": ["n8n", "workflow", "activate"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Deactivate workflow",
+      "body": "n8n update:workflow --id={{workflow id}} --active=false",
+      "description": "Set workflow active status to false (requires n8n restart)",
+      "tags": ["n8n", "workflow", "deactivate"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Activate all workflows",
+      "body": "n8n update:workflow --all --active=true",
+      "description": "Activate all workflows (requires n8n restart)",
+      "tags": ["n8n", "workflow", "activate"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Export all workflows",
+      "body": "n8n export:workflow --all --output={{filename}}.json",
+      "description": "Export all workflows to JSON file for backup",
+      "tags": ["n8n", "export", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Export specific workflow",
+      "body": "n8n export:workflow --id={{workflow id}} --output={{filename}}.json",
+      "description": "Export single workflow by ID",
+      "tags": ["n8n", "export", "workflow"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Export workflows (separate files)",
+      "body": "n8n export:workflow --all --separate --output={{directory}}",
+      "description": "Export each workflow to separate file (useful for version control)",
+      "tags": ["n8n", "export", "backup", "separate"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Export credentials (encrypted)",
+      "body": "n8n export:credentials --all --output={{filename}}.json",
+      "description": "Export all credentials (encrypted with instance secret)",
+      "tags": ["n8n", "export", "credentials"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Export credentials (decrypted)",
+      "body": "n8n export:credentials --all --decrypted --output={{filename}}.json",
+      "description": "Export credentials in plain text (WARNING: sensitive data visible)",
+      "tags": ["n8n", "export", "credentials", "decrypted"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Import workflows",
+      "body": "n8n import:workflow --input={{filename}}.json",
+      "description": "Import workflows from JSON file",
+      "tags": ["n8n", "import", "workflow"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Import credentials",
+      "body": "n8n import:credentials --input={{filename}}.json",
+      "description": "Import credentials from JSON file",
+      "tags": ["n8n", "import", "credentials"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Reset user management",
+      "body": "n8n user-management:reset",
+      "description": "Reset user management to pre-setup state (removes all users - use if password forgotten)",
+      "tags": ["n8n", "user-management", "reset"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Disable user MFA",
+      "body": "n8n user-management:mfa-disable --email={{user email}}",
+      "description": "Disable multi-factor authentication for user (if recovery codes lost)",
+      "tags": ["n8n", "user-management", "mfa"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Reset LDAP settings",
+      "body": "n8n ldap:reset",
+      "description": "Reset LDAP configuration to defaults",
+      "tags": ["n8n", "ldap", "reset"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Uninstall community node",
+      "body": "n8n community:uninstall --name={{package name}}",
+      "description": "Remove community node (useful if causing instability)",
+      "tags": ["n8n", "community-nodes", "uninstall"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "n8n: Security audit",
+      "body": "n8n audit",
+      "description": "Run security audit to detect common security issues",
+      "tags": ["n8n", "security", "audit"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

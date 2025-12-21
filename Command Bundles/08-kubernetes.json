@@ -1,0 +1,169 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 18,
+  "commands": [
+    {
+      "title": "Get all pods",
+      "body": "kubectl get pods -n {{namespace}}",
+      "description": "List all pods in specified namespace",
+      "tags": ["kubernetes", "k8s", "pods"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get all pods (all namespaces)",
+      "body": "kubectl get pods --all-namespaces",
+      "description": "List all pods across all namespaces",
+      "tags": ["kubernetes", "k8s", "pods"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Describe pod",
+      "body": "kubectl describe pod {{pod name}} -n {{namespace}}",
+      "description": "Show detailed information about pod including events",
+      "tags": ["kubernetes", "k8s", "describe"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get pod logs",
+      "body": "kubectl logs {{pod name}} -n {{namespace}}",
+      "description": "View logs from pod",
+      "tags": ["kubernetes", "k8s", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Follow pod logs",
+      "body": "kubectl logs -f {{pod name}} -n {{namespace}}",
+      "description": "Stream pod logs in real-time",
+      "tags": ["kubernetes", "k8s", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Exec into pod",
+      "body": "kubectl exec -it {{pod name}} -n {{namespace}} -- /bin/bash",
+      "description": "Open interactive bash shell in pod",
+      "tags": ["kubernetes", "k8s", "exec"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Port forward to pod",
+      "body": "kubectl port-forward {{pod name}} {{local port}}:{{pod port}} -n {{namespace}}",
+      "description": "Forward local port to pod port for debugging",
+      "tags": ["kubernetes", "k8s", "port-forward"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Delete pod",
+      "body": "kubectl delete pod {{pod name}} -n {{namespace}}",
+      "description": "Delete specific pod",
+      "tags": ["kubernetes", "k8s", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get deployments",
+      "body": "kubectl get deployments -n {{namespace}}",
+      "description": "List all deployments in namespace",
+      "tags": ["kubernetes", "k8s", "deployments"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Scale deployment",
+      "body": "kubectl scale deployment {{deployment name}} --replicas={{count}} -n {{namespace}}",
+      "description": "Scale deployment to specified number of replicas",
+      "tags": ["kubernetes", "k8s", "scale"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Restart deployment",
+      "body": "kubectl rollout restart deployment {{deployment name}} -n {{namespace}}",
+      "description": "Trigger rolling restart of deployment",
+      "tags": ["kubernetes", "k8s", "restart"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get services",
+      "body": "kubectl get svc -n {{namespace}}",
+      "description": "List all services in namespace",
+      "tags": ["kubernetes", "k8s", "services"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Apply YAML manifest",
+      "body": "kubectl apply -f {{file.yaml}}",
+      "description": "Apply Kubernetes configuration from YAML file",
+      "tags": ["kubernetes", "k8s", "apply"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get cluster info",
+      "body": "kubectl cluster-info",
+      "description": "Display cluster information and API server address",
+      "tags": ["kubernetes", "k8s", "cluster"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get nodes",
+      "body": "kubectl get nodes",
+      "description": "List all nodes in cluster",
+      "tags": ["kubernetes", "k8s", "nodes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Top pods (resource usage)",
+      "body": "kubectl top pods -n {{namespace}}",
+      "description": "Show CPU and memory usage for pods",
+      "tags": ["kubernetes", "k8s", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Get pod YAML",
+      "body": "kubectl get pod {{pod name}} -n {{namespace}} -o yaml",
+      "description": "Export pod configuration as YAML",
+      "tags": ["kubernetes", "k8s", "yaml"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Set current namespace",
+      "body": "kubectl config set-context --current --namespace={{namespace}}",
+      "description": "Change default namespace for current context",
+      "tags": ["kubernetes", "k8s", "context"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

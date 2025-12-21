@@ -1,0 +1,151 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 16,
+  "commands": [
+    {
+      "title": "Ping: Test connectivity",
+      "body": "ping {{host}}",
+      "description": "Test network connectivity to host",
+      "tags": ["ping", "network", "connectivity"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Ping: Limited count",
+      "body": "ping -c {{count}} {{host}}",
+      "description": "Ping specific number of times then stop",
+      "tags": ["ping", "network"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Traceroute: Trace network path",
+      "body": "traceroute {{host}}",
+      "description": "Show all hops between you and destination",
+      "tags": ["traceroute", "network", "path"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Netstat: Show listening ports",
+      "body": "netstat -tulpn",
+      "description": "List all listening TCP/UDP ports and programs",
+      "tags": ["netstat", "network", "ports"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Netstat: Show all connections",
+      "body": "netstat -an",
+      "description": "Display all active network connections",
+      "tags": ["netstat", "network", "connections"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SS: Show listening sockets",
+      "body": "ss -tulpn",
+      "description": "Modern replacement for netstat - show listening sockets",
+      "tags": ["ss", "network", "sockets"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nmap: Scan ports",
+      "body": "nmap {{host}}",
+      "description": "Scan common ports on host",
+      "tags": ["nmap", "network", "scan"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nmap: Scan specific ports",
+      "body": "nmap -p {{port range}} {{host}}",
+      "description": "Scan specific port or range (e.g., 80,443 or 1-1000)",
+      "tags": ["nmap", "network", "scan", "ports"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Netcat: Test port connectivity",
+      "body": "nc -zv {{host}} {{port}}",
+      "description": "Check if port is open (z=scan, v=verbose)",
+      "tags": ["netcat", "nc", "network", "port"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Netcat: Listen on port",
+      "body": "nc -l {{port}}",
+      "description": "Listen for connections on port (useful for testing)",
+      "tags": ["netcat", "nc", "network", "listen"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Dig: DNS lookup",
+      "body": "dig {{domain}}",
+      "description": "Query DNS records for domain",
+      "tags": ["dig", "dns", "lookup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Dig: Specific record type",
+      "body": "dig {{domain}} {{record type}}",
+      "description": "Query specific DNS record (A, AAAA, MX, TXT, etc.)",
+      "tags": ["dig", "dns", "record"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nslookup: DNS lookup",
+      "body": "nslookup {{domain}}",
+      "description": "Simple DNS query (alternative to dig)",
+      "tags": ["nslookup", "dns", "lookup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tcpdump: Capture network traffic",
+      "body": "sudo tcpdump -i {{interface}} -w {{output.pcap}}",
+      "description": "Capture packets on network interface to file",
+      "tags": ["tcpdump", "network", "capture"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tcpdump: Capture specific port",
+      "body": "sudo tcpdump -i {{interface}} port {{port}}",
+      "description": "Capture traffic on specific port",
+      "tags": ["tcpdump", "network", "port"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "IP: Show network interfaces",
+      "body": "ip addr show",
+      "description": "Display all network interfaces and IP addresses",
+      "tags": ["ip", "network", "interfaces"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

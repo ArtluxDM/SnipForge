@@ -1,0 +1,169 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 18,
+  "commands": [
+    {
+      "title": "Grep: Search in file",
+      "body": "grep \"{{pattern}}\" {{file}}",
+      "description": "Search for pattern in file",
+      "tags": ["grep", "search", "text"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grep: Recursive search",
+      "body": "grep -r \"{{pattern}}\" {{directory}}",
+      "description": "Search recursively in all files within directory",
+      "tags": ["grep", "search", "recursive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grep: Case-insensitive search",
+      "body": "grep -i \"{{pattern}}\" {{file}}",
+      "description": "Search ignoring case differences",
+      "tags": ["grep", "search", "case-insensitive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grep: Show line numbers",
+      "body": "grep -n \"{{pattern}}\" {{file}}",
+      "description": "Display line numbers with matching lines",
+      "tags": ["grep", "search", "line-numbers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grep: Show context lines",
+      "body": "grep -A {{after}} -B {{before}} \"{{pattern}}\" {{file}}",
+      "description": "Show N lines after and before match",
+      "tags": ["grep", "search", "context"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grep: Invert match",
+      "body": "grep -v \"{{pattern}}\" {{file}}",
+      "description": "Show lines that don't match pattern",
+      "tags": ["grep", "search", "invert"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Sed: Find and replace",
+      "body": "sed 's/{{search}}/{{replace}}/g' {{file}}",
+      "description": "Replace all occurrences in file (output to stdout)",
+      "tags": ["sed", "replace", "text"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Sed: In-place replacement",
+      "body": "sed -i 's/{{search}}/{{replace}}/g' {{file}}",
+      "description": "Replace in file directly (modifies original file)",
+      "tags": ["sed", "replace", "in-place"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Sed: Delete lines matching pattern",
+      "body": "sed '/{{pattern}}/d' {{file}}",
+      "description": "Remove lines containing pattern",
+      "tags": ["sed", "delete", "text"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Sed: Delete specific line",
+      "body": "sed '{{line number}}d' {{file}}",
+      "description": "Remove specific line by number",
+      "tags": ["sed", "delete", "line"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Awk: Print specific column",
+      "body": "awk '{print ${{column number}}}' {{file}}",
+      "description": "Extract and print specific column from file",
+      "tags": ["awk", "column", "text"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Awk: Print multiple columns",
+      "body": "awk '{print ${{col1}}, ${{col2}}}' {{file}}",
+      "description": "Print multiple columns separated by comma",
+      "tags": ["awk", "column", "text"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Awk: Filter by condition",
+      "body": "awk '${{column}} > {{value}}' {{file}}",
+      "description": "Show only lines where column value meets condition",
+      "tags": ["awk", "filter", "condition"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Awk: Custom delimiter",
+      "body": "awk -F'{{delimiter}}' '{print ${{column}}}' {{file}}",
+      "description": "Use custom field separator (e.g., comma for CSV)",
+      "tags": ["awk", "delimiter", "csv"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Jq: Parse JSON",
+      "body": "cat {{file.json}} | jq '.'",
+      "description": "Pretty-print JSON file",
+      "tags": ["jq", "json", "parse"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Jq: Extract field",
+      "body": "cat {{file.json}} | jq '.{{field path}}'",
+      "description": "Extract specific field from JSON",
+      "tags": ["jq", "json", "extract"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Jq: Filter array",
+      "body": "cat {{file.json}} | jq '.[] | select(.{{field}} == \"{{value}}\")'",
+      "description": "Filter JSON array by field value",
+      "tags": ["jq", "json", "filter"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Jq: Map array values",
+      "body": "cat {{file.json}} | jq '.[] | .{{field}}'",
+      "description": "Extract specific field from each array element",
+      "tags": ["jq", "json", "map"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

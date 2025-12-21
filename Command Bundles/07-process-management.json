@@ -1,0 +1,151 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 16,
+  "commands": [
+    {
+      "title": "List running processes",
+      "body": "ps aux",
+      "description": "Show all running processes with detailed information",
+      "tags": ["linux", "ps", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Interactive process viewer",
+      "body": "htop",
+      "description": "Launch interactive process viewer with CPU/memory usage (better than top)",
+      "tags": ["linux", "htop", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Kill process by PID",
+      "body": "kill {{PID}}",
+      "description": "Send TERM signal to process (graceful shutdown)",
+      "tags": ["linux", "kill", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Force kill process",
+      "body": "kill -9 {{PID}}",
+      "description": "Send KILL signal (force immediate termination)",
+      "tags": ["linux", "kill", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Kill all processes by name",
+      "body": "pkill {{process name}}",
+      "description": "Kill all processes matching name",
+      "tags": ["linux", "pkill", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Kill all processes by name (force)",
+      "body": "pkill -9 {{process name}}",
+      "description": "Force kill all processes matching name",
+      "tags": ["linux", "pkill", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Find process by name",
+      "body": "pgrep {{process name}}",
+      "description": "Find PID of processes matching name",
+      "tags": ["linux", "pgrep", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Run process in background",
+      "body": "{{command}} &",
+      "description": "Start process in background and return to shell",
+      "tags": ["linux", "background", "processes"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Run process with nohup",
+      "body": "nohup {{command}} &",
+      "description": "Run command immune to hangups, output to nohup.out",
+      "tags": ["linux", "nohup", "background"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "List background jobs",
+      "body": "jobs",
+      "description": "Show all background jobs in current shell",
+      "tags": ["linux", "jobs", "background"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Bring job to foreground",
+      "body": "fg %{{job number}}",
+      "description": "Bring background job to foreground",
+      "tags": ["linux", "fg", "jobs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Send job to background",
+      "body": "bg %{{job number}}",
+      "description": "Resume suspended job in background",
+      "tags": ["linux", "bg", "jobs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Check system uptime",
+      "body": "uptime",
+      "description": "Show how long system has been running and load average",
+      "tags": ["linux", "uptime", "system"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Monitor process",
+      "body": "top -p {{PID}}",
+      "description": "Monitor specific process in top",
+      "tags": ["linux", "top", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nice: Run with lower priority",
+      "body": "nice -n {{priority}} {{command}}",
+      "description": "Run command with adjusted priority (19=lowest, -20=highest)",
+      "tags": ["linux", "nice", "priority"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Renice: Change priority of running process",
+      "body": "renice {{priority}} -p {{PID}}",
+      "description": "Change priority of already running process",
+      "tags": ["linux", "renice", "priority"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

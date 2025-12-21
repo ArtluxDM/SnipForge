@@ -1,0 +1,115 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 12,
+  "commands": [
+    {
+      "title": "Nginx: Test configuration",
+      "body": "nginx -t",
+      "description": "Test nginx config for syntax errors before reloading",
+      "tags": ["nginx", "test", "config"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Reload configuration",
+      "body": "nginx -s reload",
+      "description": "Reload config without stopping server",
+      "tags": ["nginx", "reload"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Stop server",
+      "body": "nginx -s stop",
+      "description": "Fast shutdown of nginx",
+      "tags": ["nginx", "stop"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Graceful stop",
+      "body": "nginx -s quit",
+      "description": "Graceful shutdown (wait for requests to finish)",
+      "tags": ["nginx", "stop", "graceful"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Basic server block",
+      "body": "server {\n    listen 80;\n    server_name {{domain}};\n    \n    root /var/www/{{domain}};\n    index index.html;\n    \n    location / {\n        try_files $uri $uri/ =404;\n    }\n}",
+      "description": "Basic nginx server block for static site",
+      "tags": ["nginx", "config", "server-block"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Reverse proxy",
+      "body": "server {\n    listen 80;\n    server_name {{domain}};\n    \n    location / {\n        proxy_pass http://{{backend host}}:{{port}};\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }\n}",
+      "description": "Proxy requests to backend server",
+      "tags": ["nginx", "config", "proxy"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: SSL/HTTPS configuration",
+      "body": "server {\n    listen 443 ssl;\n    server_name {{domain}};\n    \n    ssl_certificate /etc/ssl/certs/{{domain}}.crt;\n    ssl_certificate_key /etc/ssl/private/{{domain}}.key;\n    \n    ssl_protocols TLSv1.2 TLSv1.3;\n    ssl_ciphers HIGH:!aNULL:!MD5;\n    \n    location / {\n        proxy_pass http://localhost:{{port}};\n    }\n}",
+      "description": "HTTPS server with SSL certificates",
+      "tags": ["nginx", "config", "ssl", "https"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: HTTP to HTTPS redirect",
+      "body": "server {\n    listen 80;\n    server_name {{domain}};\n    return 301 https://$server_name$request_uri;\n}",
+      "description": "Redirect all HTTP traffic to HTTPS",
+      "tags": ["nginx", "config", "redirect", "https"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Load balancing",
+      "body": "upstream backend {\n    server {{server1}}:{{port}};\n    server {{server2}}:{{port}};\n    server {{server3}}:{{port}};\n}\n\nserver {\n    listen 80;\n    location / {\n        proxy_pass http://backend;\n    }\n}",
+      "description": "Distribute requests across multiple backend servers",
+      "tags": ["nginx", "config", "load-balancing"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Enable gzip compression",
+      "body": "gzip on;\ngzip_vary on;\ngzip_min_length 1024;\ngzip_types text/plain text/css text/xml text/javascript application/javascript application/json application/xml+rss;",
+      "description": "Enable gzip compression for text-based responses",
+      "tags": ["nginx", "config", "gzip", "compression"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Rate limiting",
+      "body": "limit_req_zone $binary_remote_addr zone={{zone name}}:10m rate={{requests}}r/s;\n\nserver {\n    location /api/ {\n        limit_req zone={{zone name}} burst={{burst size}};\n        proxy_pass http://backend;\n    }\n}",
+      "description": "Limit request rate to prevent abuse",
+      "tags": ["nginx", "config", "rate-limit"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Nginx: Custom error pages",
+      "body": "error_page 404 /404.html;\nerror_page 500 502 503 504 /50x.html;\n\nlocation = /404.html {\n    root /var/www/errors;\n    internal;\n}\n\nlocation = /50x.html {\n    root /var/www/errors;\n    internal;\n}",
+      "description": "Serve custom error pages",
+      "tags": ["nginx", "config", "error-pages"],
+      "language": "nginx",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

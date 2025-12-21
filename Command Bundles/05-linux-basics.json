@@ -1,0 +1,187 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 20,
+  "commands": [
+    {
+      "title": "List directory contents",
+      "body": "ls -lah",
+      "description": "List all files including hidden, with human-readable sizes and permissions",
+      "tags": ["linux", "ls", "list"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Change directory",
+      "body": "cd {{directory path}}",
+      "description": "Navigate to specified directory",
+      "tags": ["linux", "cd", "navigation"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Print working directory",
+      "body": "pwd",
+      "description": "Show current directory full path",
+      "tags": ["linux", "pwd"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Create directory",
+      "body": "mkdir -p {{directory path}}",
+      "description": "Create directory including parent directories if needed",
+      "tags": ["linux", "mkdir"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Remove file",
+      "body": "rm {{file}}",
+      "description": "Delete a file",
+      "tags": ["linux", "rm", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Remove directory recursively",
+      "body": "rm -rf {{directory}}",
+      "description": "Delete directory and all contents (use with caution!)",
+      "tags": ["linux", "rm", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Copy file",
+      "body": "cp {{source}} {{destination}}",
+      "description": "Copy file to new location",
+      "tags": ["linux", "cp", "copy"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Copy directory recursively",
+      "body": "cp -r {{source directory}} {{destination}}",
+      "description": "Copy directory and all contents",
+      "tags": ["linux", "cp", "copy"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Move/rename file",
+      "body": "mv {{source}} {{destination}}",
+      "description": "Move file or rename it",
+      "tags": ["linux", "mv", "move"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "View file contents",
+      "body": "cat {{file}}",
+      "description": "Display entire file contents",
+      "tags": ["linux", "cat", "view"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "View file with pagination",
+      "body": "less {{file}}",
+      "description": "View file contents with scrolling (q to quit)",
+      "tags": ["linux", "less", "view"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "View last lines of file",
+      "body": "tail -n {{lines}} {{file}}",
+      "description": "Show last N lines of file",
+      "tags": ["linux", "tail", "view"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Follow file in real-time",
+      "body": "tail -f {{file}}",
+      "description": "Monitor file as new lines are added (useful for logs)",
+      "tags": ["linux", "tail", "follow", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "View first lines of file",
+      "body": "head -n {{lines}} {{file}}",
+      "description": "Show first N lines of file",
+      "tags": ["linux", "head", "view"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Count lines in file",
+      "body": "wc -l {{file}}",
+      "description": "Count number of lines in file",
+      "tags": ["linux", "wc", "count"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Disk usage of directory",
+      "body": "du -sh {{directory}}",
+      "description": "Show total size of directory in human-readable format",
+      "tags": ["linux", "du", "disk"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Disk space on filesystem",
+      "body": "df -h",
+      "description": "Show disk space usage for all mounted filesystems",
+      "tags": ["linux", "df", "disk"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Download file from URL",
+      "body": "wget {{url}}",
+      "description": "Download file from internet",
+      "tags": ["linux", "wget", "download"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Clear terminal screen",
+      "body": "clear",
+      "description": "Clear all text from terminal screen",
+      "tags": ["linux", "clear"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Command history",
+      "body": "history",
+      "description": "Show list of previously executed commands",
+      "tags": ["linux", "history"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

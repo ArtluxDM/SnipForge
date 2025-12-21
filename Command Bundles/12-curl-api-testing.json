@@ -1,0 +1,142 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 15,
+  "commands": [
+    {
+      "title": "Curl: GET request",
+      "body": "curl {{url}}",
+      "description": "Simple GET request to URL",
+      "tags": ["curl", "http", "api"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: GET with headers",
+      "body": "curl -H \"{{header name}}: {{header value}}\" {{url}}",
+      "description": "GET request with custom header",
+      "tags": ["curl", "http", "api", "headers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: POST JSON data",
+      "body": "curl -X POST {{url}} \\\n  -H \"Content-Type: application/json\" \\\n  -d '{{json data}}'",
+      "description": "POST JSON data to API endpoint",
+      "tags": ["curl", "http", "api", "post", "json"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: POST with Bearer token",
+      "body": "curl -X POST {{url}} \\\n  -H \"Authorization: Bearer {{token}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{{json data}}'",
+      "description": "POST with JWT/Bearer authentication",
+      "tags": ["curl", "http", "api", "auth", "jwt"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: PUT request",
+      "body": "curl -X PUT {{url}} \\\n  -H \"Content-Type: application/json\" \\\n  -d '{{json data}}'",
+      "description": "PUT request to update resource",
+      "tags": ["curl", "http", "api", "put"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: DELETE request",
+      "body": "curl -X DELETE {{url}} \\\n  -H \"Authorization: Bearer {{token}}\"",
+      "description": "DELETE request to remove resource",
+      "tags": ["curl", "http", "api", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Basic authentication",
+      "body": "curl -u {{username}}:{{password}} {{url}}",
+      "description": "GET request with basic auth credentials",
+      "tags": ["curl", "http", "api", "auth"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Download file",
+      "body": "curl -O {{url}}",
+      "description": "Download file keeping original filename",
+      "tags": ["curl", "download"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Save with custom filename",
+      "body": "curl -o {{filename}} {{url}}",
+      "description": "Download file with custom name",
+      "tags": ["curl", "download"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Follow redirects",
+      "body": "curl -L {{url}}",
+      "description": "Follow HTTP redirects automatically",
+      "tags": ["curl", "http", "redirect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Verbose output",
+      "body": "curl -v {{url}}",
+      "description": "Show detailed request/response information for debugging",
+      "tags": ["curl", "http", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Include response headers",
+      "body": "curl -i {{url}}",
+      "description": "Include HTTP headers in output",
+      "tags": ["curl", "http", "headers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Only show headers",
+      "body": "curl -I {{url}}",
+      "description": "Show only response headers (HEAD request)",
+      "tags": ["curl", "http", "headers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: POST form data",
+      "body": "curl -X POST {{url}} \\\n  -F \"{{field name}}={{value}}\" \\\n  -F \"file=@{{filepath}}\"",
+      "description": "POST multipart form data with file upload",
+      "tags": ["curl", "http", "post", "form", "upload"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Curl: Test API response time",
+      "body": "curl -w \"\\nTime: %{time_total}s\\n\" -o /dev/null -s {{url}}",
+      "description": "Measure API response time without showing response body",
+      "tags": ["curl", "http", "performance", "timing"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

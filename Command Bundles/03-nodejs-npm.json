@@ -1,0 +1,151 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 16,
+  "commands": [
+    {
+      "title": "NPM: Initialize new project",
+      "body": "npm init -y",
+      "description": "Create package.json with default values without prompts",
+      "tags": ["npm", "init"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Install package",
+      "body": "npm install {{package name}}",
+      "description": "Install package and add to dependencies in package.json",
+      "tags": ["npm", "install"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Install dev dependency",
+      "body": "npm install --save-dev {{package name}}",
+      "description": "Install package as development dependency",
+      "tags": ["npm", "install", "dev"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Install all dependencies",
+      "body": "npm install",
+      "description": "Install all packages listed in package.json",
+      "tags": ["npm", "install"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Update packages",
+      "body": "npm update",
+      "description": "Update all packages to latest version respecting semver",
+      "tags": ["npm", "update"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Check outdated packages",
+      "body": "npm outdated",
+      "description": "List packages that have newer versions available",
+      "tags": ["npm", "outdated"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Run script",
+      "body": "npm run {{script name}}",
+      "description": "Execute script defined in package.json scripts section",
+      "tags": ["npm", "run"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: Clear cache",
+      "body": "npm cache clean --force",
+      "description": "Force clear npm cache - useful for troubleshooting",
+      "tags": ["npm", "cache", "troubleshooting"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Yarn: Install dependencies",
+      "body": "yarn install",
+      "description": "Install all dependencies from package.json using Yarn",
+      "tags": ["yarn", "install"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Yarn: Add package",
+      "body": "yarn add {{package name}}",
+      "description": "Add package to dependencies",
+      "tags": ["yarn", "add"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Yarn: Add dev dependency",
+      "body": "yarn add --dev {{package name}}",
+      "description": "Add package as development dependency",
+      "tags": ["yarn", "add", "dev"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "PNPM: Install dependencies",
+      "body": "pnpm install",
+      "description": "Install all dependencies using PNPM (faster, disk-efficient)",
+      "tags": ["pnpm", "install"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "PNPM: Add package",
+      "body": "pnpm add {{package name}}",
+      "description": "Add package to dependencies using PNPM",
+      "tags": ["pnpm", "add"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Node: Check version",
+      "body": "node --version",
+      "description": "Display currently active Node.js version",
+      "tags": ["node", "version"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPX: Run package without installing",
+      "body": "npx {{package name}}",
+      "description": "Execute package directly without global installation",
+      "tags": ["npx", "run"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "NPM: List installed packages",
+      "body": "npm list --depth=0",
+      "description": "Show top-level installed packages without dependencies",
+      "tags": ["npm", "list"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

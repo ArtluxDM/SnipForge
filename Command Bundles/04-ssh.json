@@ -1,0 +1,133 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 14,
+  "commands": [
+    {
+      "title": "SSH: Connect to server",
+      "body": "ssh {{username}}@{{server}}",
+      "description": "Connect to remote server via SSH",
+      "tags": ["ssh", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Connect with specific key",
+      "body": "ssh -i {{key path}} {{username}}@{{server}}",
+      "description": "Connect using a specific private key file",
+      "tags": ["ssh", "key"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Connect on custom port",
+      "body": "ssh -p {{port}} {{username}}@{{server}}",
+      "description": "Connect to SSH server on non-standard port",
+      "tags": ["ssh", "port"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Generate new key pair",
+      "body": "ssh-keygen -t ed25519 -C \"{{email}}\"",
+      "description": "Generate new ED25519 SSH key pair (modern, secure)",
+      "tags": ["ssh", "keygen"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Copy public key to server",
+      "body": "ssh-copy-id {{username}}@{{server}}",
+      "description": "Copy SSH public key to remote server for passwordless login",
+      "tags": ["ssh", "key", "setup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Local port forwarding",
+      "body": "ssh -L {{local port}}:localhost:{{remote port}} {{username}}@{{server}}",
+      "description": "Forward local port to remote server port (tunnel)",
+      "tags": ["ssh", "tunnel", "port-forward"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Remote port forwarding",
+      "body": "ssh -R {{remote port}}:localhost:{{local port}} {{username}}@{{server}}",
+      "description": "Forward remote server port to local machine",
+      "tags": ["ssh", "tunnel", "port-forward"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SCP: Copy file to remote",
+      "body": "scp {{local file}} {{username}}@{{server}}:{{remote path}}",
+      "description": "Securely copy file from local to remote server",
+      "tags": ["scp", "copy"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SCP: Copy file from remote",
+      "body": "scp {{username}}@{{server}}:{{remote file}} {{local path}}",
+      "description": "Securely copy file from remote server to local",
+      "tags": ["scp", "copy"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SCP: Copy directory recursively",
+      "body": "scp -r {{local directory}} {{username}}@{{server}}:{{remote path}}",
+      "description": "Recursively copy entire directory to remote server",
+      "tags": ["scp", "copy", "recursive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SFTP: Connect to server",
+      "body": "sftp {{username}}@{{server}}",
+      "description": "Start interactive SFTP session for file transfer",
+      "tags": ["sftp", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Run remote command",
+      "body": "ssh {{username}}@{{server}} '{{command}}'",
+      "description": "Execute command on remote server without interactive session",
+      "tags": ["ssh", "command"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: Keep connection alive",
+      "body": "ssh -o ServerAliveInterval=60 {{username}}@{{server}}",
+      "description": "Prevent SSH timeout by sending keepalive packets every 60 seconds",
+      "tags": ["ssh", "keepalive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SSH: SOCKS proxy",
+      "body": "ssh -D {{local port}} -N {{username}}@{{server}}",
+      "description": "Create SOCKS proxy on local port through SSH tunnel",
+      "tags": ["ssh", "proxy", "socks"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

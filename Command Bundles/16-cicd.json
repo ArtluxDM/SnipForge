@@ -1,0 +1,115 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 12,
+  "commands": [
+    {
+      "title": "GitHub Actions: Basic workflow template",
+      "body": "name: {{Workflow Name}}\n\non:\n  push:\n    branches: [ main ]\n  pull_request:\n    branches: [ main ]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    \n    steps:\n    - uses: actions/checkout@v4\n    \n    - name: {{Step Name}}\n      run: {{command}}",
+      "description": "Basic GitHub Actions workflow YAML structure",
+      "tags": ["github-actions", "ci-cd", "yaml"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitHub Actions: Node.js workflow",
+      "body": "name: Node.js CI\n\non: [push, pull_request]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    \n    steps:\n    - uses: actions/checkout@v4\n    \n    - name: Setup Node.js\n      uses: actions/setup-node@v4\n      with:\n        node-version: '{{node version}}'\n        \n    - name: Install dependencies\n      run: npm install\n      \n    - name: Run tests\n      run: npm test",
+      "description": "GitHub Actions workflow for Node.js projects",
+      "tags": ["github-actions", "ci-cd", "nodejs"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitHub Actions: Docker build and push",
+      "body": "name: Docker Build\n\non:\n  push:\n    branches: [ main ]\n\njobs:\n  build:\n    runs-on: ubuntu-latest\n    \n    steps:\n    - uses: actions/checkout@v4\n    \n    - name: Build Docker image\n      run: docker build -t {{image name}}:{{tag}} .\n      \n    - name: Push to registry\n      run: |\n        echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin\n        docker push {{image name}}:{{tag}}",
+      "description": "Build and push Docker images in GitHub Actions",
+      "tags": ["github-actions", "ci-cd", "docker"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitHub Actions: Using secrets",
+      "body": "- name: {{Step with Secret}}\n  env:\n    API_KEY: ${{ secrets.API_KEY }}\n  run: {{command}}",
+      "description": "Access GitHub secrets in workflow steps",
+      "tags": ["github-actions", "ci-cd", "secrets"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitHub Actions: Cron schedule",
+      "body": "on:\n  schedule:\n    - cron: '{{minute}} {{hour}} * * *'  # Daily at specific time",
+      "description": "Trigger workflow on schedule (cron syntax: min hour day month weekday)",
+      "tags": ["github-actions", "ci-cd", "schedule"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Basic pipeline",
+      "body": "stages:\n  - build\n  - test\n  - deploy\n\nbuild:\n  stage: build\n  script:\n    - {{build command}}\n\ntest:\n  stage: test\n  script:\n    - {{test command}}\n\ndeploy:\n  stage: deploy\n  script:\n    - {{deploy command}}\n  only:\n    - main",
+      "description": "Basic GitLab CI/CD pipeline configuration",
+      "tags": ["gitlab-ci", "ci-cd", "yaml"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Docker build job",
+      "body": "docker-build:\n  image: docker:latest\n  services:\n    - docker:dind\n  stage: build\n  script:\n    - docker build -t {{image name}} .\n    - docker push {{image name}}",
+      "description": "Build Docker images in GitLab CI",
+      "tags": ["gitlab-ci", "ci-cd", "docker"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Using variables",
+      "body": "variables:\n  {{VARIABLE_NAME}}: \"{{value}}\"\n\njob:\n  script:\n    - echo ${{VARIABLE_NAME}}",
+      "description": "Define and use variables in GitLab CI",
+      "tags": ["gitlab-ci", "ci-cd", "variables"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Cache dependencies",
+      "body": "cache:\n  paths:\n    - node_modules/\n    - .npm/\n\njob:\n  script:\n    - npm install",
+      "description": "Cache dependencies between pipeline runs",
+      "tags": ["gitlab-ci", "ci-cd", "cache"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Artifacts",
+      "body": "job:\n  script:\n    - {{build command}}\n  artifacts:\n    paths:\n      - {{output directory}}/\n    expire_in: 1 week",
+      "description": "Save build artifacts for download or later stages",
+      "tags": ["gitlab-ci", "ci-cd", "artifacts"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitLab CI: Manual deployment",
+      "body": "deploy:\n  stage: deploy\n  script:\n    - {{deploy command}}\n  when: manual\n  only:\n    - main",
+      "description": "Require manual trigger for deployment job",
+      "tags": ["gitlab-ci", "ci-cd", "manual", "deploy"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "GitHub Actions: Matrix strategy",
+      "body": "jobs:\n  test:\n    runs-on: ubuntu-latest\n    strategy:\n      matrix:\n        node-version: [18, 20, 22]\n    \n    steps:\n    - uses: actions/setup-node@v4\n      with:\n        node-version: ${{ matrix.node-version }}",
+      "description": "Test across multiple versions using matrix strategy",
+      "tags": ["github-actions", "ci-cd", "matrix"],
+      "language": "yaml",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

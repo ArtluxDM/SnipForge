@@ -1,0 +1,142 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 15,
+  "commands": [
+    {
+      "title": "Git: Initialize repository",
+      "body": "git init",
+      "description": "Initialize a new Git repository in the current directory",
+      "tags": ["git", "setup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Clone repository",
+      "body": "git clone {{repository url}}",
+      "description": "Clone a remote repository to your local machine",
+      "tags": ["git", "clone"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Check status",
+      "body": "git status",
+      "description": "Show the working tree status - modified files, staged changes, etc.",
+      "tags": ["git", "status"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Stage all changes",
+      "body": "git add .",
+      "description": "Stage all modified and new files for commit",
+      "tags": ["git", "staging"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Commit with message",
+      "body": "git commit -m \"{{commit message}}\"",
+      "description": "Commit staged changes with a descriptive message",
+      "tags": ["git", "commit"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Push to remote",
+      "body": "git push origin {{branch name}}",
+      "description": "Push commits from local branch to remote repository",
+      "tags": ["git", "push"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Pull latest changes",
+      "body": "git pull origin {{branch name}}",
+      "description": "Fetch and merge changes from remote branch",
+      "tags": ["git", "pull"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Create new branch",
+      "body": "git checkout -b {{branch name}}",
+      "description": "Create and switch to a new branch",
+      "tags": ["git", "branch"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Switch branch",
+      "body": "git checkout {{branch name}}",
+      "description": "Switch to an existing branch",
+      "tags": ["git", "branch"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Undo last commit (keep changes)",
+      "body": "git reset --soft HEAD~1",
+      "description": "Undo the last commit but keep changes staged - useful if you need to modify the commit",
+      "tags": ["git", "undo", "reset"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Interactive rebase",
+      "body": "git rebase -i HEAD~{{number of commits}}",
+      "description": "Interactively rebase last N commits - allows squashing, reordering, or editing commits",
+      "tags": ["git", "rebase"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Stash changes",
+      "body": "git stash save \"{{stash message}}\"",
+      "description": "Temporarily save uncommitted changes without committing",
+      "tags": ["git", "stash"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Apply stashed changes",
+      "body": "git stash pop",
+      "description": "Reapply most recent stashed changes and remove from stash list",
+      "tags": ["git", "stash"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: View commit history",
+      "body": "git log --oneline --graph --all",
+      "description": "Show commit history with branch graph in compact format",
+      "tags": ["git", "log", "history"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Git: Force push with lease",
+      "body": "git push --force-with-lease origin {{branch name}}",
+      "description": "Safer force push - only pushes if remote hasn't changed since last fetch",
+      "tags": ["git", "push", "force"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 16,
+  "commands": [
+    {
+      "title": "MySQL: Connect to database",
+      "body": "mysql -u {{username}} -p -h {{host}} {{database}}",
+      "description": "Connect to MySQL database (prompts for password)",
+      "tags": ["mysql", "database", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Show databases",
+      "body": "SHOW DATABASES;",
+      "description": "List all databases on MySQL server",
+      "tags": ["mysql", "database", "list"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Show tables",
+      "body": "SHOW TABLES;",
+      "description": "List all tables in current database",
+      "tags": ["mysql", "database", "tables"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Describe table",
+      "body": "DESCRIBE {{table name}};",
+      "description": "Show table structure and columns",
+      "tags": ["mysql", "database", "describe"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Create database dump",
+      "body": "mysqldump -u {{username}} -p -h {{host}} {{database}} > {{filename}}.sql",
+      "description": "Export database to SQL file for backup",
+      "tags": ["mysql", "database", "backup", "dump"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Restore from dump",
+      "body": "mysql -u {{username}} -p -h {{host}} {{database}} < {{filename}}.sql",
+      "description": "Import SQL file to restore database",
+      "tags": ["mysql", "database", "restore"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Show processlist",
+      "body": "SHOW PROCESSLIST;",
+      "description": "Display active connections and queries",
+      "tags": ["mysql", "database", "connections"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "MySQL: Kill query",
+      "body": "KILL {{process id}};",
+      "description": "Terminate specific MySQL query or connection",
+      "tags": ["mysql", "database", "kill"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Open database",
+      "body": "sqlite3 {{database.db}}",
+      "description": "Open SQLite database file",
+      "tags": ["sqlite", "database", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: List tables",
+      "body": ".tables",
+      "description": "Show all tables in database (run inside sqlite3)",
+      "tags": ["sqlite", "database", "tables"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Show schema",
+      "body": ".schema {{table name}}",
+      "description": "Display table structure (run inside sqlite3)",
+      "tags": ["sqlite", "database", "schema"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Dump database",
+      "body": ".dump",
+      "description": "Export entire database as SQL (run inside sqlite3)",
+      "tags": ["sqlite", "database", "dump"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Export to file",
+      "body": "sqlite3 {{database.db}} .dump > {{backup.sql}}",
+      "description": "Export SQLite database to SQL file",
+      "tags": ["sqlite", "database", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Import from file",
+      "body": "sqlite3 {{database.db}} < {{backup.sql}}",
+      "description": "Import SQL file into SQLite database",
+      "tags": ["sqlite", "database", "restore"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "SQLite: Enable headers and column mode",
+      "body": ".mode column\n.headers on",
+      "description": "Make query results more readable (run inside sqlite3)",
+      "tags": ["sqlite", "database", "display"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Redis: Connect to server",
+      "body": "redis-cli -h {{host}} -p {{port}}",
+      "description": "Connect to Redis server",
+      "tags": ["redis", "database", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

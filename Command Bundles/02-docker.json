@@ -1,0 +1,169 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 18,
+  "commands": [
+    {
+      "title": "Docker: List running containers",
+      "body": "docker ps",
+      "description": "Show all currently running containers",
+      "tags": ["docker", "containers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: List all containers",
+      "body": "docker ps -a",
+      "description": "Show all containers including stopped ones",
+      "tags": ["docker", "containers"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Run container with port mapping",
+      "body": "docker run -d -p {{host port}}:{{container port}} --name {{container name}} {{image}}",
+      "description": "Run container in detached mode with port mapping",
+      "tags": ["docker", "run"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Execute bash in running container",
+      "body": "docker exec -it {{container name}} /bin/bash",
+      "description": "Open interactive bash shell in running container",
+      "tags": ["docker", "exec"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: View container logs",
+      "body": "docker logs -f --tail {{lines}} {{container name}}",
+      "description": "Follow container logs showing last N lines",
+      "tags": ["docker", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Stop container",
+      "body": "docker stop {{container name}}",
+      "description": "Gracefully stop a running container",
+      "tags": ["docker", "stop"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Remove container",
+      "body": "docker rm {{container name}}",
+      "description": "Remove a stopped container",
+      "tags": ["docker", "remove"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Build image from Dockerfile",
+      "body": "docker build -t {{image name}}:{{tag}} .",
+      "description": "Build Docker image from Dockerfile in current directory",
+      "tags": ["docker", "build"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: List images",
+      "body": "docker images",
+      "description": "List all Docker images on the system",
+      "tags": ["docker", "images"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Remove image",
+      "body": "docker rmi {{image name}}:{{tag}}",
+      "description": "Remove a Docker image",
+      "tags": ["docker", "remove", "images"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Prune unused containers",
+      "body": "docker container prune -f",
+      "description": "Remove all stopped containers without confirmation",
+      "tags": ["docker", "cleanup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Prune unused images",
+      "body": "docker image prune -a -f",
+      "description": "Remove all unused images (not just dangling ones)",
+      "tags": ["docker", "cleanup"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker: Copy file from container",
+      "body": "docker cp {{container name}}:{{container path}} {{host path}}",
+      "description": "Copy files from container to host filesystem",
+      "tags": ["docker", "copy"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Compose: Start services",
+      "body": "docker-compose up -d",
+      "description": "Start all services defined in docker-compose.yml in detached mode",
+      "tags": ["docker-compose", "start"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Compose: Stop services",
+      "body": "docker-compose down",
+      "description": "Stop and remove all containers, networks created by up",
+      "tags": ["docker-compose", "stop"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Compose: View logs",
+      "body": "docker-compose logs -f {{service name}}",
+      "description": "Follow logs for a specific service",
+      "tags": ["docker-compose", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Compose: Rebuild service",
+      "body": "docker-compose up -d --no-deps --build {{service name}}",
+      "description": "Rebuild and restart a specific service without affecting dependencies",
+      "tags": ["docker-compose", "rebuild"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Compose: Execute command in service",
+      "body": "docker-compose exec {{service name}} {{command}}",
+      "description": "Execute a command in a running service container",
+      "tags": ["docker-compose", "exec"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

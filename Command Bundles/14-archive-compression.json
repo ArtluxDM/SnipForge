@@ -1,0 +1,133 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 14,
+  "commands": [
+    {
+      "title": "Tar: Create gzip archive",
+      "body": "tar -czvf {{archive.tar.gz}} {{directory}}",
+      "description": "Create compressed tar.gz archive (c=create, z=gzip, v=verbose, f=file)",
+      "tags": ["tar", "compression", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tar: Extract gzip archive",
+      "body": "tar -xzvf {{archive.tar.gz}}",
+      "description": "Extract tar.gz archive (x=extract)",
+      "tags": ["tar", "extraction", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tar: Extract to specific directory",
+      "body": "tar -xzvf {{archive.tar.gz}} -C {{destination}}",
+      "description": "Extract archive to specific location",
+      "tags": ["tar", "extraction", "directory"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tar: List archive contents",
+      "body": "tar -tvf {{archive.tar.gz}}",
+      "description": "View contents without extracting (t=list)",
+      "tags": ["tar", "list", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tar: Create bzip2 archive",
+      "body": "tar -cjvf {{archive.tar.bz2}} {{directory}}",
+      "description": "Create bzip2 compressed archive (better compression, slower)",
+      "tags": ["tar", "compression", "bzip2"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Zip: Create archive",
+      "body": "zip -r {{archive.zip}} {{directory}}",
+      "description": "Create zip archive recursively",
+      "tags": ["zip", "compression", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Unzip: Extract archive",
+      "body": "unzip {{archive.zip}}",
+      "description": "Extract zip archive to current directory",
+      "tags": ["unzip", "extraction", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Unzip: Extract to directory",
+      "body": "unzip {{archive.zip}} -d {{destination}}",
+      "description": "Extract zip to specific directory",
+      "tags": ["unzip", "extraction", "directory"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Unzip: List contents",
+      "body": "unzip -l {{archive.zip}}",
+      "description": "View zip contents without extracting",
+      "tags": ["unzip", "list", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Gzip: Compress file",
+      "body": "gzip {{file}}",
+      "description": "Compress file (replaces original with .gz version)",
+      "tags": ["gzip", "compression"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Gzip: Keep original file",
+      "body": "gzip -k {{file}}",
+      "description": "Compress file but keep original",
+      "tags": ["gzip", "compression", "keep"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Gunzip: Decompress file",
+      "body": "gunzip {{file.gz}}",
+      "description": "Decompress .gz file",
+      "tags": ["gunzip", "decompression"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "7z: Create archive",
+      "body": "7z a {{archive.7z}} {{directory}}",
+      "description": "Create 7z archive (high compression ratio)",
+      "tags": ["7z", "compression", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "7z: Extract archive",
+      "body": "7z x {{archive.7z}}",
+      "description": "Extract 7z archive",
+      "tags": ["7z", "extraction", "archive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

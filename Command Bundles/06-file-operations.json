@@ -1,0 +1,142 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 15,
+  "commands": [
+    {
+      "title": "Change file permissions (numeric)",
+      "body": "chmod {{permissions}} {{file}}",
+      "description": "Set file permissions using numeric mode (e.g., 755, 644)",
+      "tags": ["linux", "chmod", "permissions"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Change file permissions (symbolic)",
+      "body": "chmod {{u+x}} {{file}}",
+      "description": "Modify permissions symbolically (e.g., u+x adds execute for user)",
+      "tags": ["linux", "chmod", "permissions"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Change permissions recursively",
+      "body": "chmod -R {{permissions}} {{directory}}",
+      "description": "Apply permissions to directory and all contents",
+      "tags": ["linux", "chmod", "permissions", "recursive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Change file owner",
+      "body": "chown {{user}}:{{group}} {{file}}",
+      "description": "Change file ownership to specified user and group",
+      "tags": ["linux", "chown", "ownership"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Change owner recursively",
+      "body": "chown -R {{user}}:{{group}} {{directory}}",
+      "description": "Change ownership of directory and all contents",
+      "tags": ["linux", "chown", "ownership", "recursive"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Find files by name",
+      "body": "find {{directory}} -name \"{{pattern}}\"",
+      "description": "Search for files matching name pattern",
+      "tags": ["linux", "find", "search"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Find files by size",
+      "body": "find {{directory}} -size +{{size}}M",
+      "description": "Find files larger than specified size (M=megabytes, G=gigabytes)",
+      "tags": ["linux", "find", "size"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Find and delete files",
+      "body": "find {{directory}} -name \"{{pattern}}\" -delete",
+      "description": "Find and delete files matching pattern",
+      "tags": ["linux", "find", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Find files modified in last N days",
+      "body": "find {{directory}} -mtime -{{days}}",
+      "description": "Find files modified within last N days",
+      "tags": ["linux", "find", "time"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Create symbolic link",
+      "body": "ln -s {{target}} {{link name}}",
+      "description": "Create symbolic link pointing to target file/directory",
+      "tags": ["linux", "ln", "symlink"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Create hard link",
+      "body": "ln {{target}} {{link name}}",
+      "description": "Create hard link to file (shares same inode)",
+      "tags": ["linux", "ln", "hardlink"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Touch file (create or update timestamp)",
+      "body": "touch {{file}}",
+      "description": "Create empty file or update modification time",
+      "tags": ["linux", "touch"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "File type information",
+      "body": "file {{filename}}",
+      "description": "Determine file type and encoding",
+      "tags": ["linux", "file", "type"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Compare two files",
+      "body": "diff {{file1}} {{file2}}",
+      "description": "Show differences between two files",
+      "tags": ["linux", "diff", "compare"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Tree view of directory",
+      "body": "tree -L {{depth}} {{directory}}",
+      "description": "Display directory structure as tree (limit depth levels)",
+      "tags": ["linux", "tree", "view"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

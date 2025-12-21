@@ -1,0 +1,115 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 12,
+  "commands": [
+    {
+      "title": "Certbot: Obtain certificate (Nginx)",
+      "body": "sudo certbot --nginx -d {{domain}}",
+      "description": "Get Let's Encrypt SSL certificate and auto-configure Nginx",
+      "tags": ["certbot", "ssl", "letsencrypt", "nginx"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Certbot: Obtain certificate (Apache)",
+      "body": "sudo certbot --apache -d {{domain}}",
+      "description": "Get Let's Encrypt SSL certificate and auto-configure Apache",
+      "tags": ["certbot", "ssl", "letsencrypt", "apache"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Certbot: Certificate only (no install)",
+      "body": "sudo certbot certonly --standalone -d {{domain}}",
+      "description": "Get certificate without auto-configuration (manual setup)",
+      "tags": ["certbot", "ssl", "letsencrypt"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Certbot: Renew all certificates",
+      "body": "sudo certbot renew",
+      "description": "Renew all certificates that are due for renewal",
+      "tags": ["certbot", "ssl", "renew"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Certbot: Dry run renewal",
+      "body": "sudo certbot renew --dry-run",
+      "description": "Test renewal process without actually renewing",
+      "tags": ["certbot", "ssl", "test"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Certbot: List certificates",
+      "body": "sudo certbot certificates",
+      "description": "Show all certificates managed by Certbot with expiration dates",
+      "tags": ["certbot", "ssl", "list"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: Generate self-signed certificate",
+      "body": "openssl req -x509 -newkey rsa:4096 -keyout {{key.key}} -out {{cert.crt}} -days {{365}} -nodes -subj \"/CN={{domain}}\"",
+      "description": "Create self-signed SSL certificate for testing (not for production)",
+      "tags": ["openssl", "ssl", "self-signed"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: Check certificate expiration",
+      "body": "openssl x509 -in {{cert.crt}} -noout -enddate",
+      "description": "Display when certificate expires",
+      "tags": ["openssl", "ssl", "check"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: View certificate details",
+      "body": "openssl x509 -in {{cert.crt}} -text -noout",
+      "description": "Display full certificate information",
+      "tags": ["openssl", "ssl", "info"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: Test SSL connection",
+      "body": "openssl s_client -connect {{domain}}:443",
+      "description": "Test SSL/TLS connection to server and view certificate chain",
+      "tags": ["openssl", "ssl", "test"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: Check remote certificate expiry",
+      "body": "echo | openssl s_client -connect {{domain}}:443 2>/dev/null | openssl x509 -noout -dates",
+      "description": "Check expiration dates of remote server's certificate",
+      "tags": ["openssl", "ssl", "remote", "check"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "OpenSSL: Generate CSR",
+      "body": "openssl req -new -newkey rsa:2048 -nodes -keyout {{key.key}} -out {{request.csr}} -subj \"/CN={{domain}}/O={{Organization}}\"",
+      "description": "Generate Certificate Signing Request for CA",
+      "tags": ["openssl", "ssl", "csr"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

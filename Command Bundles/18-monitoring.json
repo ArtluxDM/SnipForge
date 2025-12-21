@@ -1,0 +1,115 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 12,
+  "commands": [
+    {
+      "title": "Systemd: View service logs",
+      "body": "journalctl -u {{service name}} -f",
+      "description": "Follow logs for systemd service in real-time",
+      "tags": ["systemd", "logs", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Systemd: View logs since time",
+      "body": "journalctl -u {{service name}} --since \"{{time}}\"",
+      "description": "View logs since specific time (e.g., '1 hour ago', '2025-01-20 14:00')",
+      "tags": ["systemd", "logs", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Systemd: Service status",
+      "body": "systemctl status {{service name}}",
+      "description": "Check if service is running and view recent logs",
+      "tags": ["systemd", "status", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Systemd: Restart service",
+      "body": "systemctl restart {{service name}}",
+      "description": "Restart systemd service",
+      "tags": ["systemd", "restart"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Stats: Monitor containers",
+      "body": "docker stats",
+      "description": "Live stream of container resource usage (CPU, memory, network)",
+      "tags": ["docker", "monitoring", "stats"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Docker Stats: Specific container",
+      "body": "docker stats {{container name}}",
+      "description": "Monitor resource usage of specific container",
+      "tags": ["docker", "monitoring", "stats"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Free: Memory usage",
+      "body": "free -h",
+      "description": "Show memory usage in human-readable format",
+      "tags": ["linux", "memory", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Iostat: Disk I/O statistics",
+      "body": "iostat -x {{interval}}",
+      "description": "Monitor disk I/O with extended stats, refresh every N seconds",
+      "tags": ["linux", "disk", "monitoring", "io"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Vmstat: System resources",
+      "body": "vmstat {{interval}}",
+      "description": "Report virtual memory, CPU, and I/O statistics",
+      "tags": ["linux", "monitoring", "vmstat"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Lsof: List open files",
+      "body": "lsof -p {{PID}}",
+      "description": "Show all files opened by process",
+      "tags": ["linux", "lsof", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Lsof: Files on specific port",
+      "body": "lsof -i :{{port}}",
+      "description": "Show processes using specific port",
+      "tags": ["linux", "lsof", "port", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Watch: Repeat command",
+      "body": "watch -n {{seconds}} {{command}}",
+      "description": "Execute command repeatedly and display output",
+      "tags": ["linux", "watch", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

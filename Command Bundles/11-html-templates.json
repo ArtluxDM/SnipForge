@@ -1,0 +1,97 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 10,
+  "commands": [
+    {
+      "title": "HTML5 Basic Template",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{Page Title}}</title>\n</head>\n<body>\n    <h1>{{Heading}}</h1>\n</body>\n</html>",
+      "description": "Basic HTML5 document structure",
+      "tags": ["html", "template", "boilerplate"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "HTML5 with CSS and JS",
+      "body": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>{{Page Title}}</title>\n    <style>\n        * {\n            margin: 0;\n            padding: 0;\n            box-sizing: border-box;\n        }\n        body {\n            font-family: Arial, sans-serif;\n        }\n    </style>\n</head>\n<body>\n    <h1>{{Heading}}</h1>\n    \n    <script>\n        console.log('Page loaded');\n    </script>\n</body>\n</html>",
+      "description": "HTML5 template with embedded CSS and JavaScript",
+      "tags": ["html", "css", "javascript", "template"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Responsive Meta Tags",
+      "body": "<meta charset=\"UTF-8\">\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n<meta name=\"description\" content=\"{{Description}}\">\n<meta name=\"keywords\" content=\"{{keywords}}\">\n<meta name=\"author\" content=\"{{Author Name}}\">",
+      "description": "Essential meta tags for responsive and SEO-friendly pages",
+      "tags": ["html", "meta", "seo"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "HTML Form Template",
+      "body": "<form action=\"{{action url}}\" method=\"POST\">\n    <label for=\"name\">Name:</label>\n    <input type=\"text\" id=\"name\" name=\"name\" required>\n    \n    <label for=\"email\">Email:</label>\n    <input type=\"email\" id=\"email\" name=\"email\" required>\n    \n    <label for=\"message\">Message:</label>\n    <textarea id=\"message\" name=\"message\" rows=\"4\" required></textarea>\n    \n    <button type=\"submit\">Submit</button>\n</form>",
+      "description": "Basic contact form structure with validation",
+      "tags": ["html", "form"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "HTML Table Template",
+      "body": "<table>\n    <thead>\n        <tr>\n            <th>{{Header 1}}</th>\n            <th>{{Header 2}}</th>\n            <th>{{Header 3}}</th>\n        </tr>\n    </thead>\n    <tbody>\n        <tr>\n            <td>{{Data 1}}</td>\n            <td>{{Data 2}}</td>\n            <td>{{Data 3}}</td>\n        </tr>\n    </tbody>\n</table>",
+      "description": "Basic table structure with headers and body",
+      "tags": ["html", "table"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Navigation Menu",
+      "body": "<nav>\n    <ul>\n        <li><a href=\"#home\">Home</a></li>\n        <li><a href=\"#about\">About</a></li>\n        <li><a href=\"#services\">Services</a></li>\n        <li><a href=\"#contact\">Contact</a></li>\n    </ul>\n</nav>",
+      "description": "Simple navigation menu structure",
+      "tags": ["html", "navigation"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "HTML Card Component",
+      "body": "<div class=\"card\">\n    <img src=\"{{image url}}\" alt=\"{{image description}}\">\n    <div class=\"card-content\">\n        <h3>{{Card Title}}</h3>\n        <p>{{Card Description}}</p>\n        <a href=\"{{link url}}\" class=\"btn\">Learn More</a>\n    </div>\n</div>",
+      "description": "Card component with image, title, description and link",
+      "tags": ["html", "component", "card"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Open Graph Meta Tags",
+      "body": "<meta property=\"og:title\" content=\"{{Title}}\">\n<meta property=\"og:description\" content=\"{{Description}}\">\n<meta property=\"og:image\" content=\"{{Image URL}}\">\n<meta property=\"og:url\" content=\"{{Page URL}}\">\n<meta property=\"og:type\" content=\"website\">",
+      "description": "Open Graph tags for social media sharing",
+      "tags": ["html", "meta", "social"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Favicon Links",
+      "body": "<link rel=\"icon\" type=\"image/x-icon\" href=\"/favicon.ico\">\n<link rel=\"icon\" type=\"image/png\" sizes=\"32x32\" href=\"/favicon-32x32.png\">\n<link rel=\"icon\" type=\"image/png\" sizes=\"16x16\" href=\"/favicon-16x16.png\">\n<link rel=\"apple-touch-icon\" sizes=\"180x180\" href=\"/apple-touch-icon.png\">",
+      "description": "Favicon links for different devices and browsers",
+      "tags": ["html", "favicon"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "External CSS and JS Links",
+      "body": "<!-- CSS -->\n<link rel=\"stylesheet\" href=\"{{stylesheet url}}\">\n\n<!-- JavaScript -->\n<script src=\"{{script url}}\"></script>\n<script src=\"{{script url}}\" defer></script>",
+      "description": "Link external CSS and JavaScript files (defer loads after HTML parsing)",
+      "tags": ["html", "css", "javascript"],
+      "language": "html",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}

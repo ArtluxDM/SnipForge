@@ -1,0 +1,133 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-21T10:00:00.000Z",
+  "total_commands": 14,
+  "commands": [
+    {
+      "title": "Connect to PostgreSQL",
+      "body": "psql -U {{username}} -h {{host}} -d {{database}}",
+      "description": "Connect to PostgreSQL database",
+      "tags": ["postgresql", "database", "connect"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "List all databases",
+      "body": "\\l",
+      "description": "Show all databases (run inside psql)",
+      "tags": ["postgresql", "database", "list"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Connect to database",
+      "body": "\\c {{database name}}",
+      "description": "Switch to different database (run inside psql)",
+      "tags": ["postgresql", "database", "connect"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "List all tables",
+      "body": "\\dt",
+      "description": "Show all tables in current database (run inside psql)",
+      "tags": ["postgresql", "database", "tables"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Describe table structure",
+      "body": "\\d {{table name}}",
+      "description": "Show columns and structure of table (run inside psql)",
+      "tags": ["postgresql", "database", "describe"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Create database dump",
+      "body": "pg_dump -U {{username}} -h {{host}} -d {{database}} > {{filename}}.sql",
+      "description": "Export database to SQL file for backup",
+      "tags": ["postgresql", "database", "backup", "dump"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Restore database from dump",
+      "body": "psql -U {{username}} -h {{host}} -d {{database}} < {{filename}}.sql",
+      "description": "Import SQL file to restore database",
+      "tags": ["postgresql", "database", "restore"],
+      "language": "bash",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Show active connections",
+      "body": "SELECT * FROM pg_stat_activity;",
+      "description": "List all active database connections and queries",
+      "tags": ["postgresql", "database", "connections"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Kill specific connection",
+      "body": "SELECT pg_terminate_backend({{pid}});",
+      "description": "Terminate a specific database connection by PID",
+      "tags": ["postgresql", "database", "kill"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Show database size",
+      "body": "SELECT pg_size_pretty(pg_database_size('{{database name}}'));",
+      "description": "Display size of database in human-readable format",
+      "tags": ["postgresql", "database", "size"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Show table size",
+      "body": "SELECT pg_size_pretty(pg_total_relation_size('{{table name}}'));",
+      "description": "Display size of table including indexes",
+      "tags": ["postgresql", "database", "size"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Vacuum analyze table",
+      "body": "VACUUM ANALYZE {{table name}};",
+      "description": "Reclaim storage and update statistics for query planner",
+      "tags": ["postgresql", "database", "maintenance"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Create new user",
+      "body": "CREATE USER {{username}} WITH PASSWORD '{{password}}';",
+      "description": "Create new database user with password",
+      "tags": ["postgresql", "database", "users"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    },
+    {
+      "title": "Grant privileges to user",
+      "body": "GRANT ALL PRIVILEGES ON DATABASE {{database}} TO {{username}};",
+      "description": "Grant all permissions on database to user",
+      "tags": ["postgresql", "database", "permissions"],
+      "language": "sql",
+      "created_at": "2025-12-21T10:00:00.000Z",
+      "updated_at": "2025-12-21T10:00:00.000Z"
+    }
+  ]
+}
