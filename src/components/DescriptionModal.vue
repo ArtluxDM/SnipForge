@@ -42,7 +42,7 @@ marked.setOptions({
 
 // Render markdown description with sanitization to prevent XSS
 const renderedDescription = computed(() => {
-  const rawHtml = marked(props.description || '')
+  const rawHtml = marked.parse(props.description || '')
   // Sanitize HTML to prevent XSS attacks from malicious imported commands
   return DOMPurify.sanitize(rawHtml)
 })
