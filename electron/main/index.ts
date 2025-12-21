@@ -140,6 +140,9 @@ async function createWindow() {
     vibrancy: 'sidebar',
     webPreferences: {
       preload,
+      nodeIntegration: false, // SECURITY: Disable Node.js in renderer
+      contextIsolation: true,  // SECURITY: Enable context isolation to prevent XSS → RCE
+      // sandbox: true,        // Disabled: breaks window.prompt() used by RichTextEditor
     },
   })
 
@@ -536,8 +539,9 @@ ipcMain.handle('open-win', (_, arg) => {
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload,
-      nodeIntegration: true,
-      contextIsolation: false,
+      nodeIntegration: false,  // SECURITY: Disable Node.js in renderer
+      contextIsolation: true,  // SECURITY: Enable context isolation to prevent XSS → RCE
+      // sandbox: true,        // Disabled: breaks window.prompt() used by RichTextEditor
     },
   })
 

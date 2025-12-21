@@ -94,25 +94,13 @@
 
                 <div class="form-group">
                     <div class="field-header">
-                        <label for="description">Description (supports Markdown - optional):</label>
+                        <label for="description">Description (Markdown - optional):</label>
                     </div>
-                    <!-- Editable mode: textarea -->
-                    <textarea
-                        v-if="descriptionEditMode"
-                        id="description"
+                    <!-- Always-editable markdown editor -->
+                    <MarkdownEditor
                         v-model="formData.description"
-                        placeholder="Add a description for this snippet (optional)"
-                        rows="3"
-                        @blur="descriptionEditMode = false"
-                        ref="descriptionTextarea"
-                    ></textarea>
-                    <!-- Display mode: rendered markdown -->
-                    <div
-                        v-else
-                        class="markdown-preview description-display"
-                        v-html="renderedDescription"
-                        @click="enterDescriptionEditMode"
-                    ></div>
+                        placeholder="Add a description for this snippet (optional)..."
+                    />
                 </div>
             </div>
             <div class="modal-footer">
@@ -128,7 +116,6 @@
   import { ref, watch, nextTick, computed } from 'vue'
   import { getAllTags } from '../utils/tags'
   import { getInlineSuggestion } from '../utils/autocomplete'
-  import { marked } from 'marked'
   import CodeEditor from './CodeEditor.vue'
   import RichTextEditor from './RichTextEditor.vue'
   import MarkdownEditor from './MarkdownEditor.vue'
@@ -170,10 +157,6 @@
   const tagsInput = ref('')
   const titleInput = ref<HTMLInputElement>()
   const tagsInputRef = ref<HTMLInputElement>()
-  const descriptionTextarea = ref<HTMLTextAreaElement>()
-
-  // Inline edit mode for description
-  const descriptionEditMode = ref(false)
 
   // Helper to determine editor type
   const isCodeLanguage = (language: string): boolean => {
@@ -181,23 +164,6 @@
     return codeLangs.includes(language)
   }
 
-  const enterDescriptionEditMode = () => {
-    descriptionEditMode.value = true
-    nextTick(() => {
-      descriptionTextarea.value?.focus()
-    })
-  }
-
-  // Configure marked for better markdown support
-  marked.setOptions({
-    breaks: true,
-    gfm: true
-  })
-
-  // Rendered content for description
-  const renderedDescription = computed(() => {
-    return marked(formData.value.description || '')
-  })
 
   // Get available tags for autocomplete
   const availableTags = computed(() => {
@@ -229,8 +195,6 @@
       formData.value = { title: '', body: '', description: '', language: 'plaintext' }
       tagsInput.value = ''
     }
-    // Reset edit mode when command changes
-    descriptionEditMode.value = false
   }, { immediate: true })
 
   // Focus title input when modal opens and clear form when closing
@@ -245,8 +209,6 @@
         formData.value = { title: '', body: '', description: '', language: 'plaintext' }
         tagsInput.value = ''
       }
-      // Reset edit mode when closing
-      descriptionEditMode.value = false
     }
   })
 

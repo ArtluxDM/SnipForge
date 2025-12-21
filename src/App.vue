@@ -14,6 +14,7 @@ import { parseSearchQuery, filterCommandsBySearch, type SearchFilter } from './u
 import { autocompleteSearchQuery } from './utils/autocomplete'
 import { getAllTags } from './utils/tags'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import hljs from 'highlight.js'
 
 type Command = {
@@ -308,11 +309,19 @@ const copyCommandTemplate = async (text: string, language: string) => {
   await copyToClipboard(text, language)
 }
 
-// Helper to strip HTML tags for plain text
+// Helper to strip HTML tags for plain text preview
 const stripHtml = (html: string): string => {
   const div = document.createElement('div')
   div.innerHTML = html
   return div.textContent || div.innerText || ''
+}
+
+// Get preview text for command body (strip HTML for richtext)
+const getCommandPreview = (body: string, language: string): string => {
+  if (language === 'richtext' || language === 'markdown') {
+    return stripHtml(body)
+  }
+  return body
 }
 
 // Actual clipboard copy function with HTML generation
@@ -323,13 +332,15 @@ const copyToClipboard = async (text: string, language: string = 'plaintext') => 
     let plainText = text
 
     if (language === 'richtext') {
-      // Rich text is already HTML from TipTap
-      html = text
+      // Rich text is already HTML from TipTap (TipTap sanitizes by default)
+      // Sanitize for extra safety when copying to clipboard
+      html = DOMPurify.sanitize(text)
       // Extract plain text from HTML for plain text clipboard
-      plainText = stripHtml(text)
+      plainText = stripHtml(html)
     } else if (language === 'markdown') {
-      // Convert markdown to HTML
-      html = await marked(text)
+      // Convert markdown to HTML and sanitize to prevent XSS in receiving apps
+      const rawHtml = await marked(text)
+      html = DOMPurify.sanitize(rawHtml)
     } else if (language !== 'plaintext') {
       // Generate syntax highlighted HTML
       try {
@@ -815,7 +826,7 @@ const openDescriptionModal = (title: string, description: string) => {
               <HelpCircle :size="14" />
             </button>
           </div>
-          <div class="command-body">{{ command.body }}</div>
+          <div class="command-body">{{ getCommandPreview(command.body, command.language) }}</div>
         </div>
         <div class="command-actions">
           <button @click.stop="copyCommand(command)" tabindex="-1" title="Copy command">

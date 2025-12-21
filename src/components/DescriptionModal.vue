@@ -18,6 +18,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 
 // Props
 interface Props {
@@ -39,9 +40,11 @@ marked.setOptions({
   gfm: true
 })
 
-// Render markdown description
+// Render markdown description with sanitization to prevent XSS
 const renderedDescription = computed(() => {
-  return marked(props.description || '')
+  const rawHtml = marked(props.description || '')
+  // Sanitize HTML to prevent XSS attacks from malicious imported commands
+  return DOMPurify.sanitize(rawHtml)
 })
 
 // Handle link clicks to open in system browser

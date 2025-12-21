@@ -5,7 +5,9 @@ type Command = {
   id: number
   title: string
   body: string
+  description: string
   tags: string
+  language: string
   created_at: string
   updated_at: string
 }

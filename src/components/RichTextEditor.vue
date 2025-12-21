@@ -53,37 +53,59 @@
       </button>
       <div class="divider"></div>
       <button
-        @click="addLink"
+        @click="openLinkDialog"
         :class="{ 'is-active': editor.isActive('link') }"
         type="button"
-        title="Add Link"
+        title="Link"
       >
         <LinkIcon :size="16" />
-      </button>
-      <button
-        @click="addImage"
-        type="button"
-        title="Add Image"
-      >
-        <ImageIcon :size="16" />
       </button>
     </div>
 
     <!-- Editor -->
     <EditorContent :editor="editor" class="editor-content" />
+
+    <!-- Link Dialog Modal -->
+    <div v-if="showLinkDialog" class="link-dialog-overlay" @click.self="closeLinkDialog">
+      <div class="link-dialog">
+        <h3>Link</h3>
+        <div class="link-input-wrapper">
+          <input
+            ref="linkInput"
+            v-model="linkUrl"
+            type="text"
+            placeholder="https://example.com"
+            @keyup.enter="saveLink"
+            @keyup.esc="closeLinkDialog"
+          />
+          <button
+            v-if="linkUrl"
+            @click="linkUrl = ''"
+            class="clear-btn"
+            type="button"
+            title="Clear"
+          >
+            <X :size="16" />
+          </button>
+        </div>
+        <div class="link-dialog-buttons">
+          <button @click="closeLinkDialog" class="cancel-btn">Cancel</button>
+          <button @click="saveLink" class="save-btn">Save</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import StarterKit from '@tiptap/starter-kit'
-import Link from '@tiptap/extension-link'
 import Image from '@tiptap/extension-image'
 import TaskList from '@tiptap/extension-task-list'
 import TaskItem from '@tiptap/extension-task-item'
 import Placeholder from '@tiptap/extension-placeholder'
-import { Bold, Italic, Strikethrough, List, ListOrdered, ListTodo, Link as LinkIcon, Image as ImageIcon } from 'lucide-vue-next'
+import { Bold, Italic, Strikethrough, List, ListOrdered, ListTodo, Link as LinkIcon, X } from 'lucide-vue-next'
 
 interface Props {
   modelValue: string
@@ -98,15 +120,14 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
+// Link dialog state
+const showLinkDialog = ref(false)
+const linkUrl = ref('')
+const linkInput = ref<HTMLInputElement>()
+
 const editor = useEditor({
   extensions: [
-    StarterKit,
-    Link.configure({
-      openOnClick: false,
-      HTMLAttributes: {
-        class: 'editor-link'
-      }
-    }),
+    StarterKit, // Includes Link extension by default
     Image.configure({
       HTMLAttributes: {
         class: 'editor-image'
@@ -138,32 +159,41 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 
-// Add link
-const addLink = () => {
+// Link dialog functions
+const openLinkDialog = () => {
   if (!editor.value) return
 
+  // Get current link if editing
   const previousUrl = editor.value.getAttributes('link').href
-  const url = prompt('Enter URL:', previousUrl || 'https://')
+  linkUrl.value = previousUrl || ''
+  showLinkDialog.value = true
 
-  if (url === null) return
-
-  if (url === '') {
-    editor.value.chain().focus().extendMarkRange('link').unsetLink().run()
-    return
-  }
-
-  editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
+  // Focus input after modal opens
+  nextTick(() => {
+    linkInput.value?.focus()
+    linkInput.value?.select()
+  })
 }
 
-// Add image
-const addImage = () => {
+const closeLinkDialog = () => {
+  showLinkDialog.value = false
+  linkUrl.value = ''
+}
+
+const saveLink = () => {
   if (!editor.value) return
 
-  const url = prompt('Enter image URL:', 'https://')
+  const url = linkUrl.value.trim()
 
-  if (url) {
-    editor.value.chain().focus().setImage({ src: url }).run()
+  if (url === '') {
+    // Empty URL = remove link
+    editor.value.chain().focus().extendMarkRange('link').unsetLink().run()
+  } else {
+    // Set link
+    editor.value.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
   }
+
+  closeLinkDialog()
 }
 
 onUnmounted(() => {
@@ -407,5 +437,112 @@ onUnmounted(() => {
   margin: 16px 0;
   color: #aaa;
   font-style: italic;
+}
+
+/* Link Dialog Modal */
+.link-dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.link-dialog {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 8px;
+  padding: 24px;
+  min-width: 400px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.link-dialog h3 {
+  margin: 0 0 16px 0;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.link-input-wrapper {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.link-input-wrapper input {
+  width: 100%;
+  padding: 10px 12px;
+  padding-right: 40px; /* Space for X button */
+  background-color: #1a1a1a;
+  border: 1px solid #404040;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 14px;
+}
+
+.link-input-wrapper input:focus {
+  outline: none;
+  border-color: #ec5002ee;
+}
+
+.clear-btn {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #999;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.clear-btn:hover {
+  background-color: #404040;
+  color: #ffffff;
+}
+
+.link-dialog-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.link-dialog-buttons button {
+  padding: 8px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+.cancel-btn {
+  background-color: #404040;
+  color: #ffffff;
+}
+
+.cancel-btn:hover {
+  background-color: #4a4a4a;
+}
+
+.save-btn {
+  background-color: #ec5002ee;
+  color: #ffffff;
+}
+
+.save-btn:hover {
+  background-color: #d4470a;
 }
 </style>
