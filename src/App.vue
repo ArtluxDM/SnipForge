@@ -8,6 +8,7 @@ import SettingsModal from './components/SettingsModal.vue'
 import HelpModal from './components/HelpModal.vue'
 import DescriptionModal from './components/DescriptionModal.vue'
 import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'lucide-vue-next'
+import { VList } from 'virtua/vue'
 import { extractVariables, substituteVariables, hasVariables, type VariableValues } from './utils/variables'
 import { exportCommands, importCommands, validateExportData, generateExportFilename } from './utils/importExport'
 import { parseSearchQuery, filterCommandsBySearch, type SearchFilter } from './utils/searchParser'
@@ -801,46 +802,48 @@ const openDescriptionModal = (title: string, description: string) => {
 
     <!-- Main content area -->
     <div class="main-content">
-      <!-- Container div that will hold the search results -->
-      <div class="results">
-      <!--Command results will go here-->
-      <div
-        v-for="(command, index) in filteredCommands"
-        :key="command.id"
-        class="command-item"
-        :class="{'selected': selectedCommandId === command.id}"
-        :tabindex="selectedCommandId === command.id || (selectedCommandId === null && index === 0) ? 0 : -1"
-        @click="selectedCommandId = command.id"
-        @focus="selectedCommandId = command.id"
+      <!-- Virtual scrolling container for search results -->
+      <VList
+        class="results"
+        :data="filteredCommands"
       >
-        <div class="command-content">
-          <div class="command-title-row">
-            <span class="command-title">{{ command.title }}</span>
-            <button
-              v-if="command.description"
-              class="info-icon"
-              @click.stop="openDescriptionModal(command.title, command.description)"
-              tabindex="-1"
-              :title="getDescriptionTooltip(command.description)"
-            >
-              <HelpCircle :size="14" />
-            </button>
+        <template #default="{ item: command, index }">
+          <div
+            class="command-item"
+            :class="{'selected': selectedCommandId === command.id}"
+            :tabindex="selectedCommandId === command.id || (selectedCommandId === null && index === 0) ? 0 : -1"
+            @click="selectedCommandId = command.id"
+            @focus="selectedCommandId = command.id"
+          >
+            <div class="command-content">
+              <div class="command-title-row">
+                <span class="command-title">{{ command.title }}</span>
+                <button
+                  v-if="command.description"
+                  class="info-icon"
+                  @click.stop="openDescriptionModal(command.title, command.description)"
+                  tabindex="-1"
+                  :title="getDescriptionTooltip(command.description)"
+                >
+                  <HelpCircle :size="14" />
+                </button>
+              </div>
+              <div class="command-body">{{ getCommandPreview(command.body, command.language) }}</div>
+            </div>
+            <div class="command-actions">
+              <button @click.stop="copyCommand(command)" tabindex="-1" title="Copy command">
+                <Copy :size="16" />
+              </button>
+              <button @click.stop="editCommand(command.id)" tabindex="-1" title="Edit command">
+                <Edit :size="16" />
+              </button>
+              <button @click.stop="deleteCommand(command.id)" tabindex="-1" title="Delete command">
+                <Trash2 :size="16" />
+              </button>
+            </div>
           </div>
-          <div class="command-body">{{ getCommandPreview(command.body, command.language) }}</div>
-        </div>
-        <div class="command-actions">
-          <button @click.stop="copyCommand(command)" tabindex="-1" title="Copy command">
-            <Copy :size="16" />
-          </button>
-          <button @click.stop="editCommand(command.id)" tabindex="-1" title="Edit command">
-            <Edit :size="16" />
-          </button>
-          <button @click.stop="deleteCommand(command.id)" tabindex="-1" title="Delete command">
-            <Trash2 :size="16" />
-          </button>
-        </div>
-        </div>
-      </div>
+        </template>
+      </VList>
     </div>
 
     <!-- Command Modal -->
@@ -1228,11 +1231,12 @@ html, body, #app {
   color: #ffffff;
 }
 
-/* Command list */
+/* Command list - Virtual scrolling container */
 .results {
   flex: 1;
-  overflow-y: auto;
+  overflow: hidden; /* VList handles scrolling internally */
   padding: 0;
+  height: 100%; /* VList needs explicit height */
 }
 
 .command-item {

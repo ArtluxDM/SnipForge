@@ -69,6 +69,7 @@
     "dompurify": "^3.3.1",
     "highlight.js": "^11.11.1",
     "lucide-vue-next": "^0.544.0",
-    "marked": "^16.3.0"
+    "marked": "^16.3.0",
+    "virtua": "^0.48.2"
   }
 }
