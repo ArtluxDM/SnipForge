@@ -1,7 +1,7 @@
 <script setup lang="ts">
 console.log('App.vue script is running')
 // Import the ref function from Vue for creating reactive data
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import CommandModal from './components/CommandModal.vue'
 import VariableInputModal from './components/VariableInputModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
@@ -11,8 +11,7 @@ import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'luc
 import { VList } from 'virtua/vue'
 import { extractVariables, substituteVariables, hasVariables, type VariableValues } from './utils/variables'
 import { exportCommands, importCommands, validateExportData, generateExportFilename } from './utils/importExport'
-import { parseSearchQuery, filterCommandsBySearch, type SearchFilter } from './utils/searchParser'
-import { autocompleteSearchQuery } from './utils/autocomplete'
+import { fuzzySearchCommands } from './utils/fuzzySearch'
 import { getAllTags } from './utils/tags'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
@@ -73,10 +72,22 @@ const checkMaximizedState = async () => {
   }
 }
 
-// Create a reactive variable to store the search text
-  // ref() makes the variable reactive - when it changes, the UI updates
-const searchQuery = ref('');
+// Search query refs
+const searchQuery = ref('')  // Immediate value (updates on every keystroke)
+const debouncedSearchQuery = ref('')  // Debounced value (updates after typing stops)
 const searchInputRef = ref<HTMLInputElement>()
+let searchDebounceTimeout: number | null = null
+
+// Debounce search query (wait 200ms after user stops typing)
+watch(searchQuery, (newValue) => {
+  if (searchDebounceTimeout) {
+    clearTimeout(searchDebounceTimeout)
+  }
+
+  searchDebounceTimeout = window.setTimeout(() => {
+    debouncedSearchQuery.value = newValue
+  }, 200)
+})
 
 // Search filter dropdown state
 const showFilterDropdown = ref(false)
@@ -158,6 +169,7 @@ onMounted(() => {
     window.electronAPI.onWindowShown(() => {
       // Clear search and focus input when window is shown via global hotkey
       searchQuery.value = ''
+      debouncedSearchQuery.value = ''
       selectedCommandId.value = null
       showFilterDropdown.value = false
 
@@ -177,112 +189,30 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyboard)
   document.removeEventListener('click', outsideClickHandler)
 })
-//filters commands based on search input with prefix support
+// Fuzzy search commands with typo tolerance and relevance ranking
 const filteredCommands = computed(() => {
-  if (!searchQuery.value) {
-    return commands.value;
-  }
-
-  const parsedSearch = parseSearchQuery(searchQuery.value)
-  return filterCommandsBySearch(commands.value, parsedSearch)
+  return fuzzySearchCommands(commands.value, debouncedSearchQuery.value)
 })
 
-// Add filter syntax to search input
-const addFilter = (type: SearchFilter['type']) => {
-  const currentSearch = searchQuery.value.trim()
-
-  // Check if this filter type already exists in the current search
-  const parsedSearch = parseSearchQuery(currentSearch)
-  const existingFilterTypes = parsedSearch.filters.map(f => f.type)
-
-  if (existingFilterTypes.includes(type)) {
-    // Filter type already exists, do nothing
-    showFilterDropdown.value = false
-    return
-  }
-
-  // Add pipe separator if there's already content
-  const prefix = currentSearch ? ' | ' : ''
-  const filterText = `${prefix}${type}:`
-
-  // Append to search query
-  searchQuery.value = currentSearch + filterText
-
-  // Close dropdown
-  showFilterDropdown.value = false
-
-  // Focus the search input and position cursor after the colon
-  setTimeout(() => {
-    if (searchInputRef.value) {
-      searchInputRef.value.focus()
-      const cursorPos = searchQuery.value.length
-      searchInputRef.value.setSelectionRange(cursorPos, cursorPos)
-    }
-  }, 0)
-}
-
-
-// Toggle filter dropdown
-const toggleFilterDropdown = () => {
-  showFilterDropdown.value = !showFilterDropdown.value
-}
-
-// Close dropdown when clicking outside
-const closeFilterDropdown = () => {
-  showFilterDropdown.value = false
-}
-
-// Check if a filter type is already active in the search
-const isFilterTypeActive = (type: SearchFilter['type']) => {
-  const currentSearch = searchQuery.value.trim()
-  if (!currentSearch) return false
-
-  // Split by pipe and check each segment
-  const segments = currentSearch.split('|').map(s => s.trim())
-  return segments.some(segment => segment.startsWith(`${type}:`))
-}
-
-// Check if any filter is active
-const hasActiveFilters = computed(() => {
-  const currentSearch = searchQuery.value.trim()
-  if (!currentSearch) return false
-
-  // Split by pipe and check if any segment has a filter prefix
-  const segments = currentSearch.split('|').map(s => s.trim())
-  return segments.some(segment => /^(tag|title|body):/.test(segment))
-})
-
-
-// Handle search input autocomplete for tag: prefix
+// Handle search input keyboard events
 const handleSearchKeyDown = (event: KeyboardEvent) => {
-  if (event.key === 'Tab') {
-    const input = event.target as HTMLInputElement
-    const cursorPosition = input.selectionStart || 0
-    const availableTags = getAllTags(commands.value)
-
-    const result = autocompleteSearchQuery(searchQuery.value, cursorPosition, availableTags)
-
-    // Only prevent default if autocomplete succeeded
-    if (result.wasCompleted && result.completed) {
-      event.preventDefault()
-      searchQuery.value = result.completed
-      // Set cursor position after the completed tag
-      setTimeout(() => {
-        const newCursorPos = result.completed!.indexOf(result.suggestion!) + result.suggestion!.length
-        input.setSelectionRange(newCursorPos, newCursorPos)
-      }, 0)
-    }
-    // Otherwise, let Tab work normally (browser focus management)
-  } else if (event.key === 'Enter') {
+  if (event.key === 'Enter') {
     event.preventDefault()
-    // Select first command if available
     if (filteredCommands.value.length > 0) {
       selectedCommandId.value = filteredCommands.value[0].id
-      // Blur the search input
       const input = event.target as HTMLInputElement
       input.blur()
     }
   }
+}
+
+// Toggle filter dropdown (will be redesigned for tag selection in Phase 2)
+const toggleFilterDropdown = () => {
+  showFilterDropdown.value = !showFilterDropdown.value
+}
+
+const closeFilterDropdown = () => {
+  showFilterDropdown.value = false
 }
 
  console.log('✅ Vue setup completed', {
@@ -582,6 +512,7 @@ const handleKeyboard = (event: KeyboardEvent) => {
       ;(target as HTMLInputElement).blur()
     } else if (searchQuery.value) {
       searchQuery.value = ''
+      debouncedSearchQuery.value = ''
     }
     return
   }
@@ -712,50 +643,22 @@ const openDescriptionModal = (title: string, description: string) => {
           <button
             @click="toggleFilterDropdown"
             class="filter-button"
-            title="Add filters"
-            :class="{ active: hasActiveFilters }"
+            title="Filter by tags"
           >
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
             </svg>
           </button>
 
-          <!-- Filter dropdown -->
+          <!-- Filter dropdown - Will be redesigned for tag selection in Phase 2 -->
           <div v-if="showFilterDropdown" class="filter-dropdown" @click.stop>
             <div class="filter-dropdown-header">
-              <span>Add Filter</span>
+              <span>Filter by Tags</span>
               <button @click="closeFilterDropdown" class="close-btn">×</button>
             </div>
-
             <div class="filter-suggestions">
-              <div class="filter-section">
-                <div class="filter-section-title">Filter Types</div>
-                <div class="filter-options">
-                  <button
-                    @click="addFilter('tag')"
-                    class="filter-option"
-                    :class="{ 'filter-active': isFilterTypeActive('tag') }"
-                    :disabled="isFilterTypeActive('tag')"
-                  >
-                    tag: search by tags
-                  </button>
-                  <button
-                    @click="addFilter('title')"
-                    class="filter-option"
-                    :class="{ 'filter-active': isFilterTypeActive('title') }"
-                    :disabled="isFilterTypeActive('title')"
-                  >
-                    title: search in titles
-                  </button>
-                  <button
-                    @click="addFilter('body')"
-                    class="filter-option"
-                    :class="{ 'filter-active': isFilterTypeActive('body') }"
-                    :disabled="isFilterTypeActive('body')"
-                  >
-                    body: search in commands
-                  </button>
-                </div>
+              <div style="padding: 20px; text-align: center; color: #999;">
+                Tag selector coming in Phase 2...
               </div>
             </div>
           </div>
