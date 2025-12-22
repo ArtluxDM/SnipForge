@@ -6,9 +6,9 @@ A desktop application for saving, searching, and managing command snippets with 
 
 - **Multiple Editor Types**: Plain Text, Rich Text (WYSIWYG), Markdown, and Code editors
 - **Syntax Highlighting**: Support for 12+ programming languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash)
-- **Rich Text Editing**: WYSIWYG editor with formatting, lists, task lists, links, and images
+- **Rich Text Editing**: WYSIWYG editor with formatting, lists, task lists, and links.
 - **Markdown Support**: Markdown editor with toolbar and syntax highlighting
-- **Real-time Search**: Search by title and body across all snippets
+- **Real-time Search**: Search by title, body, or tags across all snippets
 - **Global Hotkey**: Quick access with `Cmd+Shift+Space` (macOS) or `Ctrl+Shift+Space` (Windows/Linux)
 - **Clipboard Integration**: One-click copy with variable substitution
 - **Tag System**: Organize snippets with tags and autocomplete
@@ -103,11 +103,11 @@ When copied, you'll be prompted to enter values for each variable.
 - [x] SQLite local storage
 - [x] Custom title bar and window management
 - [x] System tray integration
+- [x] Windows and Linux builds via GitHub Actions
 
 ### 🔄 Upcoming Improvements
-- [ ] Windows and Linux builds via GitHub Actions
 - [ ] Tag management (edit/delete existing tags)
-- [ ] Search improvements (tag filtering, fuzzy search)
+- [ ] Search improvements (fuzzy search)
 - [ ] Command history and favorites
 - [ ] Cloud sync (optional)
 - [ ] Themes and customization
