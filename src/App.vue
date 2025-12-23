@@ -7,6 +7,7 @@ import VariableInputModal from './components/VariableInputModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
 import HelpModal from './components/HelpModal.vue'
 import DescriptionModal from './components/DescriptionModal.vue'
+import TagSelector from './components/TagSelector.vue'
 import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'lucide-vue-next'
 import { VList } from 'virtua/vue'
 import { extractVariables, substituteVariables, hasVariables, type VariableValues } from './utils/variables'
@@ -89,8 +90,28 @@ watch(searchQuery, (newValue) => {
   }, 200)
 })
 
-// Search filter dropdown state
+// Tag filtering state
+const selectedTags = ref<string[]>([])
 const showFilterDropdown = ref(false)
+
+// Tag management functions
+const toggleTag = (tag: string) => {
+  const index = selectedTags.value.indexOf(tag)
+  if (index === -1) {
+    selectedTags.value.push(tag)
+  } else {
+    selectedTags.value.splice(index, 1)
+  }
+}
+
+const clearAllTags = () => {
+  selectedTags.value = []
+}
+
+// Get all available tags from commands
+const availableTags = computed(() => {
+  return getAllTags(commands.value)
+})
 
 // Create a reactive array to store our sample commands for testing. I will connect this later with the DB.
 const commands = ref<Command[]>([])
@@ -189,9 +210,31 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyboard)
   document.removeEventListener('click', outsideClickHandler)
 })
-// Fuzzy search commands with typo tolerance and relevance ranking
+// Two-stage filtering: tags first, then fuzzy search
 const filteredCommands = computed(() => {
-  return fuzzySearchCommands(commands.value, debouncedSearchQuery.value)
+  let dataset = commands.value
+
+  // Stage 1: Filter by selected tags (if any)
+  if (selectedTags.value.length > 0) {
+    dataset = dataset.filter(command => {
+      try {
+        const commandTags = JSON.parse(command.tags) as string[]
+        const normalizedCommandTags = commandTags.map(tag => tag.toLowerCase())
+
+        // Command must have ANY selected tag (OR logic - more tags = more results)
+        return selectedTags.value.some(selectedTag =>
+          normalizedCommandTags.some(commandTag =>
+            commandTag.includes(selectedTag.toLowerCase())
+          )
+        )
+      } catch {
+        return false
+      }
+    })
+  }
+
+  // Stage 2: Fuzzy search within filtered dataset
+  return fuzzySearchCommands(dataset, debouncedSearchQuery.value)
 })
 
 // Handle search input keyboard events
@@ -650,17 +693,14 @@ const openDescriptionModal = (title: string, description: string) => {
             </svg>
           </button>
 
-          <!-- Filter dropdown - Will be redesigned for tag selection in Phase 2 -->
+          <!-- Tag selector dropdown -->
           <div v-if="showFilterDropdown" class="filter-dropdown" @click.stop>
-            <div class="filter-dropdown-header">
-              <span>Filter by Tags</span>
-              <button @click="closeFilterDropdown" class="close-btn">×</button>
-            </div>
-            <div class="filter-suggestions">
-              <div style="padding: 20px; text-align: center; color: #999;">
-                Tag selector coming in Phase 2...
-              </div>
-            </div>
+            <TagSelector
+              :availableTags="availableTags"
+              :selectedTags="selectedTags"
+              @toggle="toggleTag"
+              @clear-all="clearAllTags"
+            />
           </div>
         </div>
 
@@ -953,15 +993,11 @@ html, body, #app {
 .filter-dropdown {
   position: absolute;
   top: 100%;
-  left: 0;
-  right: 0;
-  background: #2d2d2d;
-  border: 1px solid #404040;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  right: -173px;
+  background: transparent;
   z-index: 1000;
   margin-top: 4px;
-  max-width: 400px;
+  width: 200px;
 }
 
 .filter-dropdown-header {
