@@ -212,3 +212,72 @@ function parseTagsFromCommand(tagsJson: string): string[] {
     return []
   }
 }
+
+/**
+ * Detects duplicates between commands to import and existing commands
+ * Duplicate is defined as having the exact same body content (after trimming)
+ *
+ * @param commandsToImport - Commands that will be imported
+ * @param existingCommands - Commands already in the database
+ * @returns Array of duplicates with both new and existing command info
+ */
+export interface DuplicateMatch {
+  importCommand: ImportCommand
+  existingCommand: {
+    id: number
+    title: string
+    body: string
+    description: string
+    tags: string
+    language: string
+    created_at: string
+    updated_at: string
+  }
+}
+
+export function detectDuplicates(
+  commandsToImport: ImportCommand[],
+  existingCommands: Array<{
+    id: number
+    title: string
+    body: string
+    description?: string
+    tags: string
+    language?: string
+    created_at: string
+    updated_at: string
+  }>
+): DuplicateMatch[] {
+  const duplicates: DuplicateMatch[] = []
+
+  // Create a map of existing commands by body for efficient lookup
+  const existingByBody = new Map<string, typeof existingCommands[0]>()
+  existingCommands.forEach(cmd => {
+    const normalizedBody = cmd.body.trim()
+    existingByBody.set(normalizedBody, cmd)
+  })
+
+  // Check each import command for duplicates
+  commandsToImport.forEach(importCmd => {
+    const normalizedBody = importCmd.body.trim()
+    const existing = existingByBody.get(normalizedBody)
+
+    if (existing) {
+      duplicates.push({
+        importCommand: importCmd,
+        existingCommand: {
+          id: existing.id,
+          title: existing.title,
+          body: existing.body,
+          description: existing.description || '',
+          tags: existing.tags,
+          language: existing.language || 'plaintext',
+          created_at: existing.created_at,
+          updated_at: existing.updated_at
+        }
+      })
+    }
+  })
+
+  return duplicates
+}

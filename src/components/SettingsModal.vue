@@ -1,6 +1,6 @@
 <template>
   <div v-if="show" class="modal-overlay" @click.self="$emit('cancel')">
-    <div class="modal-content">
+    <div class="modal-content" @click="closeAllDropdowns">
       <!-- Tab Navigation with close button -->
       <div class="tab-navigation">
         <div class="tabs">
@@ -25,109 +25,11 @@
       <div class="modal-body">
 
         <!-- Tab 1: Settings -->
-        <div v-if="activeTab === 'settings'">
-          <!-- Export Section -->
-          <div class="settings-section">
-          <h3>Export Commands</h3>
-          <p class="section-description">Export your commands to a JSON file</p>
-
-          <div class="form-group">
-            <label>Filter by tags (optional - Press Tab to autocomplete):</label>
-            <div class="export-input-wrapper">
-              <div class="autocomplete-container">
-                <input
-                  ref="exportTagsInputRef"
-                  v-model="exportTags"
-                  type="text"
-                  placeholder="e.g. git, docker (leave empty for all commands)"
-                  class="tag-input"
-                  @input="handleTagInput"
-                  @keydown="handleTagKeydown"
-                  @click="updateInlineSuggestion"
-                  @keyup="updateInlineSuggestion"
-                />
-                <div
-                  v-if="inlineSuggestion"
-                  class="inline-suggestion"
-                  :style="getSuggestionPosition()"
-                >
-                  {{ inlineSuggestion }}
-                </div>
-              </div>
-              <button
-                @click="toggleExportFilterDropdown"
-                class="export-filter-button"
-                title="Select tags from list"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
-                </svg>
-              </button>
-
-              <!-- Filter dropdown -->
-              <div v-if="showExportFilterDropdown" class="export-filter-dropdown" @click.stop>
-                <div class="export-filter-header">
-                  <span>Select Tags</span>
-                  <button @click="closeExportFilterDropdown" class="close-btn">×</button>
-                </div>
-
-                <div class="export-filter-list">
-                  <div
-                    v-for="tag in availableExportTags"
-                    :key="tag"
-                    class="export-filter-item"
-                    :class="{ selected: selectedExportTags.includes(tag) }"
-                    @click="toggleExportTag(tag)"
-                  >
-                    <span class="tag-name">{{ tag }}</span>
-                    <span v-if="selectedExportTags.includes(tag)" class="checkmark">✓</span>
-                  </div>
-                </div>
-
-                <div class="export-filter-footer">
-                  <button @click="clearAllExportTags" class="clear-all-btn">Clear All</button>
-                  <button @click="applyExportTags" class="apply-btn">Apply</button>
-                </div>
-              </div>
-            </div>
-            <small class="help-text">Comma-separated tags. Leave empty to export all commands. Use dropdown to select from available tags.</small>
-          </div>
-
-          <div class="button-group">
-            <button @click="handleExport" class="action-button export-button">
-              <Upload :size="16" />
-              Export Commands
-              <span class="command-counter">({{ exportCommandCount }})</span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Import Section -->
-        <div class="settings-section">
-          <h3>Import Commands</h3>
-          <p class="section-description">Import commands from a JSON file</p>
-
-          <div class="button-group">
-            <button @click="handleImport" class="action-button import-button">
-              <Download :size="16" />
-              Import Commands
-            </button>
-          </div>
-        </div>
-
-          <!-- Statistics Section -->
-          <div class="settings-section">
-            <h3>Statistics</h3>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <span class="stat-label">Total Commands:</span>
-                <span class="stat-value">{{ totalCommands }}</span>
-              </div>
-              <div class="stat-item">
-                <span class="stat-label">Unique Tags:</span>
-                <span class="stat-value">{{ uniqueTags }}</span>
-              </div>
-            </div>
+        <div v-if="activeTab === 'settings'" class="coming-soon-container">
+          <div class="coming-soon-content">
+            <div class="coming-soon-icon">⚙️</div>
+            <h2 class="coming-soon-title">Settings</h2>
+            <p class="coming-soon-text">Coming Soon</p>
           </div>
         </div>
 
@@ -136,9 +38,9 @@
           <!-- Controls Section -->
           <div class="management-controls">
             <div class="controls-row">
-              <!-- Tag Filter -->
-              <div class="filter-section">
-                <button @click="toggleManagementFilterDropdown" class="management-filter-button" title="Filter by tags">
+              <!-- Bulk Selection with Filter Button -->
+              <div class="bulk-selection">
+                <button @click.stop="toggleManagementFilterDropdown" class="management-filter-button" title="Filter by tags">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
                   </svg>
@@ -154,18 +56,24 @@
                     @clear-all="clearManagementTags"
                   />
                 </div>
-              </div>
 
-              <!-- Bulk Selection -->
-              <div class="bulk-selection">
                 <button @click="selectAllCommands" class="control-button">Select All</button>
                 <button @click="deselectAllCommands" class="control-button">Deselect All</button>
+                <span v-if="selectedCommandIds.length > 0" class="selection-counter">
+                  {{ selectedCommandIds.length }} selected
+                </span>
               </div>
 
               <div class="spacer"></div>
 
               <!-- Action Buttons -->
               <div class="action-buttons">
+                <button
+                  @click="handleImport"
+                  class="action-button import-button"
+                >
+                  Import
+                </button>
                 <button
                   @click="handleBulkDelete"
                   :disabled="selectedCommandIds.length === 0"
@@ -215,7 +123,9 @@ interface Props {
     id: number
     title: string
     body: string
+    description?: string
     tags: string
+    language?: string
     created_at: string
     updated_at: string
   }>
@@ -511,6 +421,12 @@ const toggleManagementTag = (tag: string) => {
 
 const clearManagementTags = () => {
   selectedManagementTags.value = []
+}
+
+// Close all dropdowns when clicking outside
+const closeAllDropdowns = () => {
+  showManagementFilterDropdown.value = false
+  showExportFilterDropdown.value = false
 }
 
 // Bulk selection
@@ -920,13 +836,6 @@ const handleBulkExport = () => {
   display: flex;
   align-items: center;
   gap: 12px;
-  border: 2px solid blue; /* DEBUG */
-}
-
-.filter-section {
-  display: flex;
-  align-items: center;
-  border: 2px solid red; /* DEBUG */
 }
 
 .management-filter-button {
@@ -934,7 +843,7 @@ const handleBulkExport = () => {
   height: 32px;
   padding: 0;
   margin: 0;
-  border: 2px solid green !important; /* DEBUG */
+  border: 1px solid #404040;
   border-radius: 16px;
   background: #2a2a2a;
   color: #b3b3b3;
@@ -964,7 +873,13 @@ const handleBulkExport = () => {
   display: flex;
   align-items: center;
   gap: 8px;
-  border: 2px solid yellow; /* DEBUG */
+  position: relative;
+}
+
+.selection-counter {
+  font-size: 13px;
+  color: #999;
+  margin-left: 4px;
 }
 
 .control-button {
@@ -989,14 +904,12 @@ const handleBulkExport = () => {
 
 .spacer {
   flex: 1;
-  border: 2px solid orange; /* DEBUG */
 }
 
 .action-buttons {
   display: flex;
   gap: 8px;
   flex-shrink: 0;
-  border: 2px solid purple; /* DEBUG */
 }
 
 .action-button {
@@ -1060,5 +973,49 @@ const handleBulkExport = () => {
   min-height: 400px;
   display: flex;
   flex-direction: column;
+}
+
+/* Coming Soon Styles */
+.coming-soon-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.coming-soon-content {
+  text-align: center;
+  padding: 60px 40px;
+}
+
+.coming-soon-icon {
+  font-size: 64px;
+  margin-bottom: 24px;
+}
+
+.coming-soon-title {
+  margin: 0 0 12px 0;
+  color: #ffffff;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.coming-soon-text {
+  margin: 0;
+  color: #999;
+  font-size: 16px;
+}
+
+/* Import Button */
+.import-button {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #ffffff;
+}
+
+.import-button:hover {
+  background-color: #ec5002ee;
+  border-color: #ec5002ee;
 }
 </style>

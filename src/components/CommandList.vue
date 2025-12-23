@@ -49,9 +49,9 @@ interface Command {
   id: number
   title: string
   body: string
-  description: string
+  description?: string
   tags: string
-  language: string
+  language?: string
   created_at: string
   updated_at: string
 }

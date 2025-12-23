@@ -8,10 +8,11 @@ import SettingsModal from './components/SettingsModal.vue'
 import HelpModal from './components/HelpModal.vue'
 import DescriptionModal from './components/DescriptionModal.vue'
 import TagSelector from './components/TagSelector.vue'
+import DuplicateResolutionModal from './components/DuplicateResolutionModal.vue'
 import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'lucide-vue-next'
 import { VList } from 'virtua/vue'
 import { extractVariables, substituteVariables, hasVariables, type VariableValues } from './utils/variables'
-import { exportCommands, importCommands, validateExportData, generateExportFilename } from './utils/importExport'
+import { exportCommands, importCommands, validateExportData, generateExportFilename, detectDuplicates, type DuplicateMatch } from './utils/importExport'
 import { fuzzySearchCommands } from './utils/fuzzySearch'
 import { getAllTags } from './utils/tags'
 import { marked } from 'marked'
@@ -135,6 +136,11 @@ const showHelpModal = ref(false)
 const showDescriptionModal = ref(false)
 const descriptionModalTitle = ref('')
 const descriptionModalContent = ref('')
+
+// Duplicate resolution modal state
+const showDuplicateModal = ref(false)
+const pendingDuplicates = ref<DuplicateMatch[]>([])
+const pendingImportCommands = ref<any[]>([])
 
 // Notification state
 const notificationMessage = ref('')
@@ -412,42 +418,110 @@ const handleImport = async () => {
         // Convert to database format
         const commandsToImport = importCommands(importData)
 
-        // Add commands to database
-        let successCount = 0
-        let errorCount = 0
+        // Detect duplicates
+        const duplicates = detectDuplicates(commandsToImport, commands.value)
 
-        for (const command of commandsToImport) {
-          try {
-            const addResult = await window.electronAPI.database.addCommand(command)
-            if (addResult.success) {
-              successCount++
-            } else {
-              errorCount++
-              console.error('Failed to add command:', command.title)
-            }
-          } catch (error) {
-            errorCount++
-            console.error('Error adding command:', error)
-          }
-        }
-
-        // Reload commands and show results
-        await loadCommands()
-
-        if (successCount > 0) {
-          alert(`Successfully imported ${successCount} commands!${errorCount > 0 ? ` (${errorCount} failed)` : ''}`)
+        if (duplicates.length > 0) {
+          // Show duplicate resolution modal
+          pendingDuplicates.value = duplicates
+          pendingImportCommands.value = commandsToImport
+          showDuplicateModal.value = true
         } else {
-          alert('Import failed: No commands were imported')
+          // No duplicates, import all commands directly
+          await processImport(commandsToImport, [])
         }
-
-        // Close settings modal
-        showSettingsModal.value = false
       } else {
         alert('Failed to read import file')
       }
     }
   } catch (error) {
     console.error('Import error:', error)
+    alert('Import failed: ' + (error instanceof Error ? error.message : String(error)))
+  }
+}
+
+// Handle duplicate resolution from modal
+const handleDuplicateResolution = async (actions: ('skip' | 'replace')[]) => {
+  showDuplicateModal.value = false
+
+  // Build list of IDs to replace
+  const idsToReplace: number[] = []
+  const bodiesToSkip = new Set<string>()
+
+  pendingDuplicates.value.forEach((duplicate, index) => {
+    if (actions[index] === 'replace') {
+      idsToReplace.push(duplicate.existingCommand.id)
+    } else {
+      bodiesToSkip.add(duplicate.importCommand.body.trim())
+    }
+  })
+
+  // Filter out skipped commands
+  const commandsToAdd = pendingImportCommands.value.filter(
+    cmd => !bodiesToSkip.has(cmd.body.trim())
+  )
+
+  await processImport(commandsToAdd, idsToReplace)
+}
+
+// Process the actual import
+const processImport = async (commandsToAdd: any[], idsToReplace: number[]) => {
+  try {
+    // Delete existing commands if replacing
+    if (idsToReplace.length > 0) {
+      for (const id of idsToReplace) {
+        await window.electronAPI.database.deleteCommand(id)
+      }
+    }
+
+    // Add commands to database
+    let successCount = 0
+    let errorCount = 0
+
+    for (const command of commandsToAdd) {
+      try {
+        const addResult = await window.electronAPI.database.addCommand(command)
+        if (addResult.success) {
+          successCount++
+        } else {
+          errorCount++
+          console.error('Failed to add command:', command.title)
+        }
+      } catch (error) {
+        errorCount++
+        console.error('Error adding command:', error)
+      }
+    }
+
+    // Reload commands and show results
+    await loadCommands()
+
+    const replacedCount = idsToReplace.length
+    const skippedCount = pendingDuplicates.value.length - replacedCount
+
+    let message = `Successfully imported ${successCount} command(s)!`
+    if (replacedCount > 0) {
+      message += `\nReplaced ${replacedCount} existing command(s).`
+    }
+    if (skippedCount > 0) {
+      message += `\nKept ${skippedCount} existing command(s).`
+    }
+    if (errorCount > 0) {
+      message += `\n${errorCount} failed.`
+    }
+
+    if (successCount > 0 || replacedCount > 0) {
+      alert(message)
+    } else {
+      alert('Import completed: No new commands were added.')
+    }
+
+    // Close settings modal and clear pending data
+    showSettingsModal.value = false
+    pendingDuplicates.value = []
+    pendingImportCommands.value = []
+  } catch (error) {
+    console.error('Import processing error:', error)
     alert('Import failed: ' + (error instanceof Error ? error.message : String(error)))
   }
 }
@@ -637,6 +711,8 @@ const handleKeyboard = (event: KeyboardEvent) => {
       handleVariableCancel()
     } else if (showModal.value) {
       handleModalCancel()
+    } else if (showDuplicateModal.value) {
+      showDuplicateModal.value = false
     } else if (showSettingsModal.value) {
       showSettingsModal.value = false
     } else if (showHelpModal.value) {
@@ -669,7 +745,7 @@ const handleKeyboard = (event: KeyboardEvent) => {
   }
 
   // Don't process hotkeys when modal is open or filter dropdown is open
-  if (showModal.value || showVariableModal.value || showSettingsModal.value || showHelpModal.value || showDescriptionModal.value || showFilterDropdown.value) return
+  if (showModal.value || showVariableModal.value || showSettingsModal.value || showHelpModal.value || showDescriptionModal.value || showDuplicateModal.value || showFilterDropdown.value) return
 
   // Don't process hotkeys when user is typing in an input field
   if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') return
@@ -926,6 +1002,14 @@ const openDescriptionModal = (title: string, description: string) => {
       :title="descriptionModalTitle"
       :description="descriptionModalContent"
       @cancel="showDescriptionModal = false"
+    />
+
+    <!-- Duplicate Resolution Modal -->
+    <DuplicateResolutionModal
+      :show="showDuplicateModal"
+      :duplicates="pendingDuplicates"
+      @cancel="showDuplicateModal = false"
+      @apply="handleDuplicateResolution"
     />
 
     <!-- Notification Toast -->
