@@ -1,6 +1,6 @@
 # SnipForge
 
-A desktop application for saving, searching, and managing command snippets with global hotkey access.
+A desktop application for saving, searching, and managing commands and text snippets.
 
 ## Features
 
