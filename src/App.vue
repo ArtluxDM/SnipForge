@@ -451,6 +451,102 @@ const handleImport = async () => {
     alert('Import failed: ' + (error instanceof Error ? error.message : String(error)))
   }
 }
+
+// Bulk delete functionality
+const handleBulkDelete = async (ids: number[]) => {
+  if (ids.length === 0) return
+
+  const confirmDelete = confirm(
+    `Are you sure you want to delete ${ids.length} command${ids.length > 1 ? 's' : ''}?\n\nThis action cannot be undone.`
+  )
+
+  if (!confirmDelete) {
+    console.log('Bulk deletion cancelled')
+    return
+  }
+
+  try {
+    let successCount = 0
+    let errorCount = 0
+
+    for (const id of ids) {
+      try {
+        const result = await window.electronAPI.database.deleteCommand(id)
+        if (result.success) {
+          successCount++
+        } else {
+          errorCount++
+          console.error('Failed to delete command ID:', id)
+        }
+      } catch (error) {
+        errorCount++
+        console.error('Error deleting command ID:', id, error)
+      }
+    }
+
+    // Reload commands
+    await loadCommands()
+
+    // Show notification
+    if (successCount > 0) {
+      showNotificationToast(
+        `Deleted ${successCount} command${successCount > 1 ? 's' : ''}${errorCount > 0 ? ` (${errorCount} failed)` : ''}`
+      )
+    } else {
+      showNotificationToast('Failed to delete commands')
+    }
+  } catch (error) {
+    console.error('Bulk delete error:', error)
+    showNotificationToast('Failed to delete commands')
+  }
+}
+
+// Bulk export functionality
+const handleBulkExport = async (ids: number[]) => {
+  if (ids.length === 0) return
+
+  try {
+    // Get selected commands
+    const selectedCommands = commands.value.filter(cmd => ids.includes(cmd.id))
+
+    // Create export data
+    const exportData = {
+      version: '2.0',
+      export_date: new Date().toISOString(),
+      total_commands: selectedCommands.length,
+      commands: selectedCommands.map(cmd => ({
+        title: cmd.title,
+        body: cmd.body,
+        description: cmd.description,
+        tags: JSON.parse(cmd.tags),
+        language: cmd.language
+      }))
+    }
+
+    const filename = `snipforge_selected_${selectedCommands.length}_commands.json`
+
+    // Show save dialog
+    const result = await window.electronAPI.file.saveDialog(filename)
+    if (result.success && result.filePath) {
+      // Write file
+      const writeResult = await window.electronAPI.file.writeFile(
+        result.filePath,
+        JSON.stringify(exportData, null, 2)
+      )
+      if (writeResult.success) {
+        console.log('Export successful:', result.filePath)
+        showNotificationToast(`Exported ${selectedCommands.length} command${selectedCommands.length > 1 ? 's' : ''}`)
+      } else {
+        console.error('Export failed:', writeResult.error)
+        showNotificationToast('Failed to save export file')
+      }
+    }
+  } catch (error) {
+    console.error('Bulk export error:', error)
+    showNotificationToast('Export failed')
+  }
+}
+
 // Function to delete a command by id
 const deleteCommand = async (id: number) => {
   const selectedCommand = commands.value.find(cmd => cmd.id === id)
@@ -813,6 +909,8 @@ const openDescriptionModal = (title: string, description: string) => {
       :commands="commands"
       @export="handleExport"
       @import="handleImport"
+      @bulk-delete="handleBulkDelete"
+      @bulk-export="handleBulkExport"
       @cancel="showSettingsModal = false"
     />
 

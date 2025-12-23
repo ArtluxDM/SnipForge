@@ -1,14 +1,33 @@
 <template>
   <div v-if="show" class="modal-overlay" @click.self="$emit('cancel')">
     <div class="modal-content">
-      <div class="modal-header">
-        <h2>Settings</h2>
+      <!-- Tab Navigation with close button -->
+      <div class="tab-navigation">
+        <div class="tabs">
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'settings' }"
+            @click="activeTab = 'settings'"
+          >
+            Settings
+          </button>
+          <button
+            class="tab-button"
+            :class="{ active: activeTab === 'management' }"
+            @click="activeTab = 'management'"
+          >
+            Manage Commands
+          </button>
+        </div>
         <button class="close-button" @click="$emit('cancel')">×</button>
       </div>
+
       <div class="modal-body">
 
-        <!-- Export Section -->
-        <div class="settings-section">
+        <!-- Tab 1: Settings -->
+        <div v-if="activeTab === 'settings'">
+          <!-- Export Section -->
+          <div class="settings-section">
           <h3>Export Commands</h3>
           <p class="section-description">Export your commands to a JSON file</p>
 
@@ -96,18 +115,83 @@
           </div>
         </div>
 
-        <!-- Statistics Section -->
-        <div class="settings-section">
-          <h3>Statistics</h3>
-          <div class="stats-grid">
-            <div class="stat-item">
-              <span class="stat-label">Total Commands:</span>
-              <span class="stat-value">{{ totalCommands }}</span>
+          <!-- Statistics Section -->
+          <div class="settings-section">
+            <h3>Statistics</h3>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-label">Total Commands:</span>
+                <span class="stat-value">{{ totalCommands }}</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">Unique Tags:</span>
+                <span class="stat-value">{{ uniqueTags }}</span>
+              </div>
             </div>
-            <div class="stat-item">
-              <span class="stat-label">Unique Tags:</span>
-              <span class="stat-value">{{ uniqueTags }}</span>
+          </div>
+        </div>
+
+        <!-- Tab 2: Command Management -->
+        <div v-if="activeTab === 'management'" class="management-tab">
+          <!-- Controls Section -->
+          <div class="management-controls">
+            <div class="controls-row">
+              <!-- Tag Filter -->
+              <div class="filter-section">
+                <button @click="toggleManagementFilterDropdown" class="management-filter-button" title="Filter by tags">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46"></polygon>
+                  </svg>
+                </button>
+
+                <!-- Filter dropdown -->
+                <div v-if="showManagementFilterDropdown" class="filter-dropdown" @click.stop>
+                  <TagSelector
+                    :available-tags="availableTags"
+                    :selected-tags="selectedManagementTags"
+                    title="Filter by Tags"
+                    @toggle="toggleManagementTag"
+                    @clear-all="clearManagementTags"
+                  />
+                </div>
+              </div>
+
+              <!-- Bulk Selection -->
+              <div class="bulk-selection">
+                <button @click="selectAllCommands" class="control-button">Select All</button>
+                <button @click="deselectAllCommands" class="control-button">Deselect All</button>
+              </div>
+
+              <div class="spacer"></div>
+
+              <!-- Action Buttons -->
+              <div class="action-buttons">
+                <button
+                  @click="handleBulkDelete"
+                  :disabled="selectedCommandIds.length === 0"
+                  class="action-button delete-button"
+                >
+                  Delete
+                </button>
+                <button
+                  @click="handleBulkExport"
+                  :disabled="selectedCommandIds.length === 0"
+                  class="action-button export-button"
+                >
+                  Export
+                </button>
+              </div>
             </div>
+          </div>
+
+          <!-- Command List -->
+          <div class="command-list-container">
+            <CommandList
+              :commands="filteredManagementCommands"
+              :selected-ids="selectedCommandIds"
+              @toggle="toggleCommandSelection"
+              :empty-message="managementEmptyMessage"
+            />
           </div>
         </div>
 
@@ -121,6 +205,8 @@ import { ref, computed, nextTick } from 'vue'
 import { Download, Upload } from 'lucide-vue-next'
 import { getAllTags } from '../utils/tags'
 import { getInlineSuggestion } from '../utils/autocomplete'
+import CommandList from './CommandList.vue'
+import TagSelector from './TagSelector.vue'
 
 // Props
 interface Props {
@@ -142,7 +228,13 @@ const emit = defineEmits<{
   cancel: []
   export: [tags: string[]]
   import: []
+  'bulk-delete': [ids: number[]]
+  'bulk-export': [ids: number[]]
 }>()
+
+// Tab state
+type Tab = 'settings' | 'management'
+const activeTab = ref<Tab>('settings')
 
 // Form data
 const exportTags = ref('')
@@ -155,6 +247,11 @@ const cursorPosition = ref(0)
 // Export filter dropdown state
 const showExportFilterDropdown = ref(false)
 const selectedExportTags = ref<string[]>([])
+
+// Command Management state
+const selectedCommandIds = ref<number[]>([])
+const selectedManagementTags = ref<string[]>([])
+const showManagementFilterDropdown = ref(false)
 
 // Get available tags for autocomplete and dropdown
 const availableTags = computed(() => {
@@ -367,9 +464,96 @@ const applyExportTags = () => {
 const handleImport = () => {
   emit('import')
 }
+
+// Command Management - Filtered commands based on selected tags (OR logic)
+const filteredManagementCommands = computed(() => {
+  if (selectedManagementTags.value.length === 0) {
+    return props.commands
+  }
+
+  return props.commands.filter(command => {
+    try {
+      const commandTags = JSON.parse(command.tags) as string[]
+      const normalizedCommandTags = commandTags.map(tag => tag.toLowerCase())
+
+      // OR logic: command matches if it has ANY of the selected tags
+      return selectedManagementTags.value.some(selectedTag =>
+        normalizedCommandTags.some(commandTag =>
+          commandTag.includes(selectedTag.toLowerCase())
+        )
+      )
+    } catch {
+      return false
+    }
+  })
+})
+
+const managementEmptyMessage = computed(() => {
+  if (selectedManagementTags.value.length > 0) {
+    return 'No commands match the selected tags'
+  }
+  return 'No commands available'
+})
+
+// Management filter dropdown
+const toggleManagementFilterDropdown = () => {
+  showManagementFilterDropdown.value = !showManagementFilterDropdown.value
+}
+
+const toggleManagementTag = (tag: string) => {
+  const index = selectedManagementTags.value.indexOf(tag)
+  if (index === -1) {
+    selectedManagementTags.value.push(tag)
+  } else {
+    selectedManagementTags.value.splice(index, 1)
+  }
+}
+
+const clearManagementTags = () => {
+  selectedManagementTags.value = []
+}
+
+// Bulk selection
+const selectAllCommands = () => {
+  selectedCommandIds.value = filteredManagementCommands.value.map(cmd => cmd.id)
+}
+
+const deselectAllCommands = () => {
+  selectedCommandIds.value = []
+}
+
+const toggleCommandSelection = (id: number) => {
+  const index = selectedCommandIds.value.indexOf(id)
+  if (index === -1) {
+    selectedCommandIds.value.push(id)
+  } else {
+    selectedCommandIds.value.splice(index, 1)
+  }
+}
+
+// Bulk actions
+const handleBulkDelete = () => {
+  if (selectedCommandIds.value.length === 0) return
+  emit('bulk-delete', [...selectedCommandIds.value])
+  selectedCommandIds.value = []
+}
+
+const handleBulkExport = () => {
+  if (selectedCommandIds.value.length === 0) return
+  emit('bulk-export', [...selectedCommandIds.value])
+}
 </script>
 
 <style scoped>
+/* Override modal-body for tabs */
+.modal-body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: calc(90vh - 100px);
+  overflow: hidden;
+}
+
 /* Component-specific styles */
 .settings-section {
   margin-bottom: 32px;
@@ -655,5 +839,226 @@ const handleImport = () => {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.7);
   font-weight: normal;
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1a1a1a;
+  padding: 0 12px;
+  border-bottom: 1px solid #404040;
+  gap: 8px;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  flex: 1;
+}
+
+.tab-button {
+  padding: 12px 16px;
+  background: transparent;
+  border: none;
+  color: #999;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  border-bottom: 2px solid transparent;
+}
+
+.tab-button:hover {
+  color: #ffffff;
+}
+
+.tab-button.active {
+  color: #ffffff;
+  border-bottom-color: #ec5002ee;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  color: #999;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  margin-bottom: 4px;
+}
+
+.close-button:hover {
+  background: #404040;
+  color: #ffffff;
+}
+
+/* Command Management Tab */
+.management-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.management-controls {
+  padding-bottom: 16px;
+  border-bottom: 1px solid #404040;
+  flex-shrink: 0;
+}
+
+.controls-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 2px solid blue; /* DEBUG */
+}
+
+.filter-section {
+  display: flex;
+  align-items: center;
+  border: 2px solid red; /* DEBUG */
+}
+
+.management-filter-button {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  margin: 0;
+  border: 2px solid green !important; /* DEBUG */
+  border-radius: 16px;
+  background: #2a2a2a;
+  color: #b3b3b3;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  vertical-align: middle;
+}
+
+.management-filter-button:hover {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 1000;
+  width: 200px;
+}
+
+.bulk-selection {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 2px solid yellow; /* DEBUG */
+}
+
+.control-button {
+  padding: 8px 12px;
+  background: #2a2a2a;
+  border: 1px solid #404040;
+  border-radius: 6px;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s;
+  height: 32px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+}
+
+.control-button:hover {
+  background: #3a3a3a;
+}
+
+.spacer {
+  flex: 1;
+  border: 2px solid orange; /* DEBUG */
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  border: 2px solid purple; /* DEBUG */
+}
+
+.action-button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  min-width: 80px;
+  height: 32px;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.delete-button {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #ffffff;
+}
+
+.delete-button:hover:not(:disabled) {
+  background-color: #d32f2f;
+  border-color: #d32f2f;
+}
+
+.delete-button:disabled {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.export-button {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #ffffff;
+}
+
+.export-button:hover:not(:disabled) {
+  background-color: #ec5002ee;
+  border-color: #ec5002ee;
+}
+
+.export-button:disabled {
+  background-color: #2a2a2a;
+  border: 1px solid #404040;
+  color: #666;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.command-list-container {
+  flex: 1;
+  overflow: hidden;
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
 }
 </style>
