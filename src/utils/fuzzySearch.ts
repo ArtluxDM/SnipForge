@@ -1,4 +1,4 @@
-import Fuse from 'fuse.js'
+import Fuse, { type IFuseOptions } from 'fuse.js'
 
 export interface Command {
   id: number
@@ -11,7 +11,7 @@ export interface Command {
   updated_at: string
 }
 
-const fuseOptions: Fuse.IFuseOptions<Command> = {
+const fuseOptions: IFuseOptions<Command> = {
   keys: [
     { name: 'title', weight: 2 },
     { name: 'tags', weight: 1.5 },
