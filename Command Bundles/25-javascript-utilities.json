@@ -1,0 +1,277 @@
+{
+  "version": "2.6.1",
+  "exported_at": "2025-12-24T01:50:00.000Z",
+  "total_commands": 30,
+  "commands": [
+    {
+      "title": "JS: Compare two emails (case-insensitive)",
+      "body": "const email1 = '{{email1}}';\nconst email2 = '{{email2}}';\nconst areEqual = email1.toLowerCase().trim() === email2.toLowerCase().trim();\nconsole.log(`Emails ${areEqual ? 'match' : 'do not match'}`);\nreturn areEqual;",
+      "description": "Compare two email addresses ignoring case and whitespace - common support task (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String)",
+      "tags": ["javascript", "email", "validation", "comparison"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Validate email format (regex)",
+      "body": "const email = '{{email}}';\nconst emailRegex = /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$/;\nconst isValid = emailRegex.test(email);\nconsole.log(`Email is ${isValid ? 'valid' : 'invalid'}`);\nreturn isValid;",
+      "description": "Validate email format using regex pattern - basic email validation (mailtrap.io/blog/javascript-email-validation/)",
+      "tags": ["javascript", "email", "validation", "regex"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Validate and parse JSON safely",
+      "body": "const jsonString = '{{json-string}}';\ntry {\n  const parsed = JSON.parse(jsonString);\n  console.log('Valid JSON:', parsed);\n  return { valid: true, data: parsed };\n} catch (error) {\n  console.error('Invalid JSON:', error.message);\n  return { valid: false, error: error.message };\n}",
+      "description": "Parse JSON with error handling - prevent crashes on invalid JSON (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse)",
+      "tags": ["javascript", "json", "validation", "parsing"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Deep compare two objects",
+      "body": "const obj1 = {{object1}};\nconst obj2 = {{object2}};\nconst deepEqual = JSON.stringify(obj1) === JSON.stringify(obj2);\nconsole.log(`Objects are ${deepEqual ? 'equal' : 'different'}`);\nreturn deepEqual;",
+      "description": "Compare two objects deeply using JSON stringify - simple equality check (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify)",
+      "tags": ["javascript", "object", "comparison", "deep-equal"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Extract domain from email",
+      "body": "const email = '{{email}}';\nconst domain = email.split('@')[1];\nconsole.log('Domain:', domain);\nreturn domain;",
+      "description": "Extract domain portion from email address - useful for filtering or grouping (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split)",
+      "tags": ["javascript", "email", "parsing", "string"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Format date to ISO string",
+      "body": "const date = new Date('{{date}}');\nconst isoString = date.toISOString();\nconsole.log('ISO Date:', isoString);\nreturn isoString;",
+      "description": "Convert date to ISO 8601 format - standard date format for APIs (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString)",
+      "tags": ["javascript", "date", "formatting", "iso"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Calculate time difference in hours",
+      "body": "const start = new Date('{{start-date}}');\nconst end = new Date('{{end-date}}');\nconst diffMs = end - start;\nconst diffHours = diffMs / (1000 * 60 * 60);\nconsole.log(`Difference: ${diffHours.toFixed(2)} hours`);\nreturn diffHours;",
+      "description": "Calculate time difference between two dates in hours - useful for SLA tracking (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date)",
+      "tags": ["javascript", "date", "calculation", "time"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Remove duplicates from array",
+      "body": "const array = {{array}};\nconst unique = [...new Set(array)];\nconsole.log('Unique items:', unique);\nreturn unique;",
+      "description": "Remove duplicate values from array using Set - clean data (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)",
+      "tags": ["javascript", "array", "deduplication", "set"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Filter array by property",
+      "body": "const items = {{array}};\nconst property = '{{property}}';\nconst value = '{{value}}';\nconst filtered = items.filter(item => item[property] === value);\nconsole.log('Filtered items:', filtered);\nreturn filtered;",
+      "description": "Filter array of objects by property value - data filtering (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/filter)",
+      "tags": ["javascript", "array", "filter", "objects"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Group array by property",
+      "body": "const items = {{array}};\nconst property = '{{property}}';\nconst grouped = items.reduce((acc, item) => {\n  const key = item[property];\n  if (!acc[key]) acc[key] = [];\n  acc[key].push(item);\n  return acc;\n}, {});\nconsole.log('Grouped:', grouped);\nreturn grouped;",
+      "description": "Group array of objects by property - organize data (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/reduce)",
+      "tags": ["javascript", "array", "grouping", "reduce"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Flatten nested array",
+      "body": "const nested = {{nested-array}};\nconst flat = nested.flat(Infinity);\nconsole.log('Flattened:', flat);\nreturn flat;",
+      "description": "Flatten deeply nested array structure - simplify data (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/flat)",
+      "tags": ["javascript", "array", "flatten", "nested"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Sort array of objects",
+      "body": "const items = {{array}};\nconst property = '{{property}}';\nconst sorted = items.sort((a, b) => {\n  if (a[property] < b[property]) return -1;\n  if (a[property] > b[property]) return 1;\n  return 0;\n});\nconsole.log('Sorted:', sorted);\nreturn sorted;",
+      "description": "Sort array of objects by property value - organize data (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)",
+      "tags": ["javascript", "array", "sort", "objects"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Chunk array into smaller arrays",
+      "body": "const array = {{array}};\nconst size = {{chunk-size}};\nconst chunks = [];\nfor (let i = 0; i < array.length; i += size) {\n  chunks.push(array.slice(i, i + size));\n}\nconsole.log('Chunks:', chunks);\nreturn chunks;",
+      "description": "Split array into smaller chunks of specified size - batch processing (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/slice)",
+      "tags": ["javascript", "array", "chunk", "batch"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Merge two objects (shallow)",
+      "body": "const obj1 = {{object1}};\nconst obj2 = {{object2}};\nconst merged = { ...obj1, ...obj2 };\nconsole.log('Merged:', merged);\nreturn merged;",
+      "description": "Merge two objects with spread operator - obj2 properties override obj1 (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Spread_syntax)",
+      "tags": ["javascript", "object", "merge", "spread"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Extract specific properties from object",
+      "body": "const obj = {{object}};\nconst properties = {{properties-array}};\nconst extracted = {};\nproperties.forEach(prop => {\n  if (prop in obj) extracted[prop] = obj[prop];\n});\nconsole.log('Extracted:', extracted);\nreturn extracted;",
+      "description": "Extract only specified properties from object - clean data (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/in)",
+      "tags": ["javascript", "object", "extract", "filter"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Check if string contains substring (case-insensitive)",
+      "body": "const text = '{{text}}';\nconst search = '{{search}}';\nconst contains = text.toLowerCase().includes(search.toLowerCase());\nconsole.log(`Text ${contains ? 'contains' : 'does not contain'} search term`);\nreturn contains;",
+      "description": "Search for substring ignoring case - flexible text search (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/includes)",
+      "tags": ["javascript", "string", "search", "contains"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Generate random UUID",
+      "body": "const uuid = crypto.randomUUID();\nconsole.log('UUID:', uuid);\nreturn uuid;",
+      "description": "Generate random UUID v4 - useful for creating unique identifiers (developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID)",
+      "tags": ["javascript", "uuid", "random", "identifier"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Encode string to Base64",
+      "body": "const text = '{{text}}';\nconst encoded = Buffer.from(text).toString('base64');\nconsole.log('Base64:', encoded);\nreturn encoded;",
+      "description": "Encode string to Base64 format - useful for API authentication (nodejs.org/api/buffer.html)",
+      "tags": ["javascript", "base64", "encode", "buffer"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Decode Base64 string",
+      "body": "const encoded = '{{base64-string}}';\nconst decoded = Buffer.from(encoded, 'base64').toString('utf-8');\nconsole.log('Decoded:', decoded);\nreturn decoded;",
+      "description": "Decode Base64 string to text - reverse Base64 encoding (nodejs.org/api/buffer.html)",
+      "tags": ["javascript", "base64", "decode", "buffer"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Calculate object size in bytes",
+      "body": "const obj = {{object}};\nconst jsonString = JSON.stringify(obj);\nconst bytes = new TextEncoder().encode(jsonString).length;\nconst kb = (bytes / 1024).toFixed(2);\nconsole.log(`Size: ${bytes} bytes (${kb} KB)`);\nreturn { bytes, kb };",
+      "description": "Calculate approximate size of object in bytes - useful for size limits (developer.mozilla.org/en-US/docs/Web/API/TextEncoder)",
+      "tags": ["javascript", "object", "size", "bytes"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Truncate string with ellipsis",
+      "body": "const text = '{{text}}';\nconst maxLength = {{max-length}};\nconst truncated = text.length > maxLength \n  ? text.substring(0, maxLength) + '...' \n  : text;\nconsole.log('Truncated:', truncated);\nreturn truncated;",
+      "description": "Truncate long strings with ellipsis - display formatting (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/substring)",
+      "tags": ["javascript", "string", "truncate", "formatting"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Slugify string (URL-safe)",
+      "body": "const text = '{{text}}';\nconst slug = text\n  .toLowerCase()\n  .trim()\n  .replace(/[^\\w\\s-]/g, '')\n  .replace(/[\\s_-]+/g, '-')\n  .replace(/^-+|-+$/g, '');\nconsole.log('Slug:', slug);\nreturn slug;",
+      "description": "Convert string to URL-safe slug - create clean URLs (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/replace)",
+      "tags": ["javascript", "string", "slug", "url"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Parse query string to object",
+      "body": "const queryString = '{{query-string}}';\nconst params = new URLSearchParams(queryString);\nconst obj = Object.fromEntries(params);\nconsole.log('Parsed:', obj);\nreturn obj;",
+      "description": "Parse URL query string into object - extract URL parameters (developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)",
+      "tags": ["javascript", "url", "query-string", "parsing"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Build query string from object",
+      "body": "const params = {{object}};\nconst queryString = new URLSearchParams(params).toString();\nconsole.log('Query string:', queryString);\nreturn queryString;",
+      "description": "Build URL query string from object - construct URLs (developer.mozilla.org/en-US/docs/Web/API/URLSearchParams)",
+      "tags": ["javascript", "url", "query-string", "build"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Retry function with exponential backoff",
+      "body": "async function retryWithBackoff(fn, maxRetries = 3, baseDelay = 1000) {\n  for (let i = 0; i < maxRetries; i++) {\n    try {\n      return await fn();\n    } catch (error) {\n      if (i === maxRetries - 1) throw error;\n      const delay = baseDelay * Math.pow(2, i);\n      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms`);\n      await new Promise(resolve => setTimeout(resolve, delay));\n    }\n  }\n}\n\n// Usage: await retryWithBackoff(() => fetchData())",
+      "description": "Retry async function with exponential backoff - handle transient failures (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise)",
+      "tags": ["javascript", "async", "retry", "error-handling"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Debounce function",
+      "body": "function debounce(func, wait) {\n  let timeout;\n  return function executedFunction(...args) {\n    const later = () => {\n      clearTimeout(timeout);\n      func(...args);\n    };\n    clearTimeout(timeout);\n    timeout = setTimeout(later, wait);\n  };\n}\n\n// Usage: const debouncedFn = debounce(() => console.log('Called'), 1000);",
+      "description": "Create debounced function - limit function execution rate (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Function)",
+      "tags": ["javascript", "debounce", "performance", "throttle"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Deep clone object",
+      "body": "const original = {{object}};\nconst cloned = JSON.parse(JSON.stringify(original));\nconsole.log('Cloned:', cloned);\nreturn cloned;",
+      "description": "Create deep copy of object - avoid reference issues (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON)",
+      "tags": ["javascript", "object", "clone", "deep-copy"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Check if object is empty",
+      "body": "const obj = {{object}};\nconst isEmpty = Object.keys(obj).length === 0;\nconsole.log(`Object is ${isEmpty ? 'empty' : 'not empty'}`);\nreturn isEmpty;",
+      "description": "Check if object has no properties - validation helper (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/keys)",
+      "tags": ["javascript", "object", "validation", "empty"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Format number with commas",
+      "body": "const number = {{number}};\nconst formatted = number.toLocaleString('en-US');\nconsole.log('Formatted:', formatted);\nreturn formatted;",
+      "description": "Format number with thousand separators - improve readability (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/toLocaleString)",
+      "tags": ["javascript", "number", "formatting", "locale"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    },
+    {
+      "title": "JS: Generate random string",
+      "body": "const length = {{length}};\nconst chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';\nconst random = Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');\nconsole.log('Random string:', random);\nreturn random;",
+      "description": "Generate random alphanumeric string of specified length - create tokens (developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random)",
+      "tags": ["javascript", "random", "string", "generator"],
+      "language": "javascript",
+      "created_at": "2025-12-24T01:50:00.000Z",
+      "updated_at": "2025-12-24T01:50:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,322 @@
+{
+  "version": "2.6.1",
+  "exported_at": "2025-12-24T01:35:00.000Z",
+  "total_commands": 35,
+  "commands": [
+    {
+      "title": "n8n Health: Check instance health",
+      "body": "curl {{n8n-url}}/healthz",
+      "description": "Check if n8n instance is reachable - returns 200 when healthy (docs.n8n.io/hosting/logging-monitoring/monitoring/)",
+      "tags": ["n8n", "health", "monitoring", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Health: Check readiness",
+      "body": "curl {{n8n-url}}/healthz/readiness",
+      "description": "Check if n8n instance is ready to accept requests - useful for k8s readiness probes (docs.n8n.io/hosting/logging-monitoring/monitoring/)",
+      "tags": ["n8n", "health", "monitoring", "kubernetes", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Health: Get Prometheus metrics",
+      "body": "curl {{n8n-url}}/metrics",
+      "description": "Retrieve Prometheus-format metrics from n8n - includes workflow execution stats, API calls, etc (docs.n8n.io/hosting/logging-monitoring/monitoring/)",
+      "tags": ["n8n", "metrics", "prometheus", "monitoring", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test webhook (GET)",
+      "body": "curl -X GET \"{{n8n-url}}/webhook/{{webhook-path}}\"",
+      "description": "Test n8n webhook with GET request - basic webhook connectivity test (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)",
+      "tags": ["n8n", "webhook", "test", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test webhook (POST with JSON)",
+      "body": "curl -X POST \"{{n8n-url}}/webhook/{{webhook-path}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"test\": \"data\", \"timestamp\": \"2025-01-20T10:00:00Z\"}'",
+      "description": "Test n8n webhook with POST request and JSON payload - simulates webhook trigger (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)",
+      "tags": ["n8n", "webhook", "test", "curl", "json"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test webhook with custom headers",
+      "body": "curl -X POST \"{{n8n-url}}/webhook/{{webhook-path}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -H \"X-Custom-Header: {{value}}\" \\\n  -H \"Authorization: Bearer {{token}}\" \\\n  -d '{\"event\": \"test\"}'",
+      "description": "Test webhook with custom headers - useful for testing authentication and header parsing (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)",
+      "tags": ["n8n", "webhook", "test", "curl", "headers"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test webhook (form data)",
+      "body": "curl -X POST \"{{n8n-url}}/webhook/{{webhook-path}}\" \\\n  -F \"field1={{value1}}\" \\\n  -F \"field2={{value2}}\"",
+      "description": "Test webhook with form data submission - simulates HTML form POST (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)",
+      "tags": ["n8n", "webhook", "test", "curl", "form"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test webhook with query parameters",
+      "body": "curl -X GET \"{{n8n-url}}/webhook/{{webhook-path}}?param1={{value1}}&param2={{value2}}\"",
+      "description": "Test webhook with URL query parameters - verify parameter extraction (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/)",
+      "tags": ["n8n", "webhook", "test", "curl", "query"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Verbose test with headers",
+      "body": "curl -v -X POST \"{{n8n-url}}/webhook/{{webhook-path}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"test\": true}'",
+      "description": "Test webhook with verbose output showing request/response headers - useful for debugging (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/common-issues/)",
+      "tags": ["n8n", "webhook", "debug", "curl", "verbose"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Webhook: Test production webhook URL",
+      "body": "curl -X POST \"{{n8n-url}}/webhook-prod/{{webhook-path}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"production\": true}'",
+      "description": "Test production webhook URL (different from test URL) - production webhooks stay active (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/workflow-development/)",
+      "tags": ["n8n", "webhook", "production", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n OAuth2: Test OAuth2 callback endpoint",
+      "body": "curl \"{{n8n-url}}/rest/oauth2-credential/callback?code={{auth-code}}&state={{state}}\"",
+      "description": "Test OAuth2 callback endpoint - simulates OAuth2 provider callback (docs.n8n.io/integrations/builtin/credentials/google/oauth-generic/)",
+      "tags": ["n8n", "oauth2", "test", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n OAuth2: Verify OAuth2 endpoint accessibility",
+      "body": "curl -I \"{{n8n-url}}/rest/oauth2-credential/callback\"",
+      "description": "Check if OAuth2 callback endpoint is accessible - returns headers only (github.com/n8n-io/n8n/issues/10973)",
+      "tags": ["n8n", "oauth2", "debug", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Logs: View Docker container logs (real-time)",
+      "body": "docker logs -f --tail 100 {{container-name}}",
+      "description": "Follow n8n Docker container logs in real-time - shows last 100 lines (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "logs", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Logs: View logs with timestamp",
+      "body": "docker logs --timestamps {{container-name}}",
+      "description": "View n8n container logs with timestamps - useful for correlating events (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Logs: Search logs for errors",
+      "body": "docker logs {{container-name}} 2>&1 | grep -i error",
+      "description": "Search n8n logs for error messages - quick error detection (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "logs", "error"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Logs: Search logs for webhook events",
+      "body": "docker logs {{container-name}} 2>&1 | grep -i webhook",
+      "description": "Search n8n logs for webhook-related events - troubleshoot webhook issues (docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/common-issues/)",
+      "tags": ["n8n", "docker", "logs", "webhook"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Logs: Export logs to file",
+      "body": "docker logs {{container-name}} > n8n-logs-$(date +%Y%m%d-%H%M%S).log 2>&1",
+      "description": "Export n8n logs to timestamped file - useful for sending logs to support (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "logs", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Env: Check environment variables in container",
+      "body": "docker exec {{container-name}} env | grep N8N",
+      "description": "List all n8n environment variables in container - verify configuration (docs.n8n.io/hosting/configuration/environment-variables/)",
+      "tags": ["n8n", "docker", "env", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Env: Check WEBHOOK_URL setting",
+      "body": "docker exec {{container-name}} env | grep WEBHOOK_URL",
+      "description": "Verify WEBHOOK_URL environment variable - most common webhook issue (docs.n8n.io/hosting/configuration/environment-variables/endpoints/)",
+      "tags": ["n8n", "docker", "webhook", "env"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Env: Check database configuration",
+      "body": "docker exec {{container-name}} env | grep DB_",
+      "description": "View database environment variables - troubleshoot connection issues (docs.n8n.io/hosting/configuration/environment-variables/deployment/)",
+      "tags": ["n8n", "docker", "database", "env"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Env: Check encryption key is set",
+      "body": "docker exec {{container-name}} env | grep N8N_ENCRYPTION_KEY",
+      "description": "Verify encryption key is configured - required for credential storage (docs.n8n.io/hosting/configuration/environment-variables/deployment/)",
+      "tags": ["n8n", "docker", "security", "env"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n DB: Test PostgreSQL connection",
+      "body": "docker exec {{container-name}} pg_isready -h {{db-host}} -p {{db-port}} -U {{db-user}}",
+      "description": "Test if PostgreSQL database is reachable from n8n container (community.n8n.io/t/how-to-migrate-from-sqlite-to-postgres/97414)",
+      "tags": ["n8n", "postgresql", "database", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n DB: Connect to PostgreSQL from container",
+      "body": "docker exec -it {{container-name}} psql -h {{db-host}} -U {{db-user}} -d {{db-name}}",
+      "description": "Open PostgreSQL shell from n8n container - verify database access (community.n8n.io/t/how-to-migrate-from-sqlite-to-postgres/97414)",
+      "tags": ["n8n", "postgresql", "database"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n DB: Check n8n database tables",
+      "body": "docker exec {{container-name}} psql -h {{db-host}} -U {{db-user}} -d {{db-name}} -c \"\\dt\"",
+      "description": "List all tables in n8n database - verify database schema (community.n8n.io/t/how-to-migrate-from-sqlite-to-postgres/97414)",
+      "tags": ["n8n", "postgresql", "database"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Redis: Test Redis connection",
+      "body": "docker exec {{container-name}} redis-cli -h {{redis-host}} -p {{redis-port}} ping",
+      "description": "Test Redis connectivity from n8n container - should return PONG (docs.n8n.io/hosting/scaling/queue-mode/)",
+      "tags": ["n8n", "redis", "queue-mode", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Redis: Check queue length",
+      "body": "docker exec {{redis-container}} redis-cli llen bull:jobs:waiting",
+      "description": "Check number of jobs waiting in Redis queue - diagnose queue processing (community.n8n.io/t/n8n-v1-95-2-docker-workers-not-processing-jobs-from-redis-queue-in-queue-mode/125680)",
+      "tags": ["n8n", "redis", "queue-mode", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Redis: List all queue keys",
+      "body": "docker exec {{redis-container}} redis-cli keys \"bull:*\"",
+      "description": "List all n8n queue-related keys in Redis - debug queue issues (github.com/n8n-io/n8n/issues/17395)",
+      "tags": ["n8n", "redis", "queue-mode", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Redis: Monitor Redis in real-time",
+      "body": "docker exec {{redis-container}} redis-cli monitor",
+      "description": "Watch all Redis commands in real-time - see queue activity live (docs.n8n.io/hosting/scaling/queue-mode/)",
+      "tags": ["n8n", "redis", "queue-mode", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Network: Test external API connectivity",
+      "body": "docker exec {{container-name}} curl -v https://{{external-api.com}}/endpoint",
+      "description": "Test if n8n container can reach external APIs - debug network/firewall issues (community.n8n.io/t/connection-refused-errors)",
+      "tags": ["n8n", "docker", "network", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Network: Check DNS resolution",
+      "body": "docker exec {{container-name}} nslookup {{hostname}}",
+      "description": "Test DNS resolution from n8n container - verify hostname lookup works (community.n8n.io/t/connection-refused-errors)",
+      "tags": ["n8n", "docker", "network", "dns"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Performance: Check container resource usage",
+      "body": "docker stats {{container-name}} --no-stream",
+      "description": "View CPU, memory, and network usage of n8n container - identify resource issues (docs.n8n.io/hosting/scaling/)",
+      "tags": ["n8n", "docker", "performance", "monitoring"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Performance: Check container memory limit",
+      "body": "docker inspect {{container-name}} | grep -i memory",
+      "description": "Check if container has memory limits set - debug out-of-memory issues (community.n8n.io/t/the-n8n-keeps-crashing-and-going-offline/43215)",
+      "tags": ["n8n", "docker", "performance", "memory"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Debug: Check file permissions in container",
+      "body": "docker exec {{container-name}} ls -la /home/node/.n8n",
+      "description": "Verify n8n data directory permissions - debug permission errors (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "permissions", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Debug: Test webhook from inside container",
+      "body": "docker exec {{container-name}} curl -X POST http://localhost:5678/webhook/{{webhook-path}} -H \"Content-Type: application/json\" -d '{\"test\":true}'",
+      "description": "Test webhook from inside container - isolate internal vs external connectivity issues (community.n8n.io/t/webhook-production-url-only-working-in-test/80228)",
+      "tags": ["n8n", "docker", "webhook", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    },
+    {
+      "title": "n8n Debug: Generate diagnostic report",
+      "body": "echo \"=== n8n Diagnostic Report ===\"\necho \"Version: $(docker exec {{container-name}} n8n --version)\"\necho \"Environment:\"\ndocker exec {{container-name}} env | grep N8N\necho \"Health:\"\ncurl -s {{n8n-url}}/healthz\necho \"Container Stats:\"\ndocker stats {{container-name}} --no-stream",
+      "description": "Generate comprehensive diagnostic report - collect key troubleshooting info (mathias.rocks/blog/2025-01-19-5-common-n8n-errors)",
+      "tags": ["n8n", "docker", "debug", "diagnostics"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:35:00.000Z",
+      "updated_at": "2025-12-24T01:35:00.000Z"
+    }
+  ]
+}

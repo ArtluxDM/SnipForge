@@ -1,0 +1,251 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-24T02:00:00.000Z",
+  "total_commands": 26,
+  "description": "Extended Docker commands bundle - advanced container and system operations",
+  "commands": [
+    {
+      "title": "Docker: Create network",
+      "body": "docker network create {{network name}}",
+      "description": "Create a new custom bridge network for container communication",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: List networks",
+      "body": "docker network ls",
+      "description": "List all Docker networks on the system",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Inspect network",
+      "body": "docker network inspect {{network name}}",
+      "description": "Show detailed information about a network including connected containers",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Connect container to network",
+      "body": "docker network connect {{network name}} {{container name}}",
+      "description": "Attach a running container to a network",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Disconnect container from network",
+      "body": "docker network disconnect {{network name}} {{container name}}",
+      "description": "Detach a container from a network",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Remove network",
+      "body": "docker network rm {{network name}}",
+      "description": "Delete a custom network",
+      "tags": ["docker", "network"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Create volume",
+      "body": "docker volume create {{volume name}}",
+      "description": "Create a named volume for persistent data storage",
+      "tags": ["docker", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: List volumes",
+      "body": "docker volume ls",
+      "description": "List all Docker volumes on the system",
+      "tags": ["docker", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Inspect volume",
+      "body": "docker volume inspect {{volume name}}",
+      "description": "Show detailed information about a volume including mount path",
+      "tags": ["docker", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Remove volume",
+      "body": "docker volume rm {{volume name}}",
+      "description": "Delete a named volume",
+      "tags": ["docker", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: System disk usage",
+      "body": "docker system df",
+      "description": "Show Docker disk usage - images, containers, volumes breakdown",
+      "tags": ["docker", "system"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: System prune all",
+      "body": "docker system prune -a --volumes",
+      "description": "Remove all unused images, containers, volumes, and networks",
+      "tags": ["docker", "system", "cleanup"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Inspect container",
+      "body": "docker inspect {{container name}}",
+      "description": "Show detailed information about a container including config and state",
+      "tags": ["docker", "inspect"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Create image from container",
+      "body": "docker commit {{container name}} {{image name}}:{{tag}}",
+      "description": "Create a new image from a modified container - useful for saving container state",
+      "tags": ["docker", "commit"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Save image to file",
+      "body": "docker save {{image name}}:{{tag}} -o {{filename}}.tar",
+      "description": "Export Docker image to tar file for backup or transfer",
+      "tags": ["docker", "save"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Load image from file",
+      "body": "docker load -i {{filename}}.tar",
+      "description": "Import Docker image from tar file",
+      "tags": ["docker", "load"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Container resource usage",
+      "body": "docker stats",
+      "description": "Display CPU, memory, network, and block I/O stats for all containers",
+      "tags": ["docker", "stats"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Container stats for specific container",
+      "body": "docker stats {{container name}}",
+      "description": "Show live resource usage statistics for a specific container",
+      "tags": ["docker", "stats"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Check health status",
+      "body": "docker inspect --format='{{.State.Health.Status}}' {{container name}}",
+      "description": "Check health status of a container with health checks configured",
+      "tags": ["docker", "health"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: View events",
+      "body": "docker events --filter type={{type}}",
+      "description": "Monitor real-time Docker events - use type=container, image, network, etc.",
+      "tags": ["docker", "events"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Export container filesystem",
+      "body": "docker export {{container name}} -o {{filename}}.tar",
+      "description": "Export container filesystem to tar file",
+      "tags": ["docker", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Push image to registry",
+      "body": "docker push {{registry}}/{{image name}}:{{tag}}",
+      "description": "Push Docker image to remote registry",
+      "tags": ["docker", "push"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Pull image from registry",
+      "body": "docker pull {{registry}}/{{image name}}:{{tag}}",
+      "description": "Download Docker image from remote registry",
+      "tags": ["docker", "pull"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Tag image",
+      "body": "docker tag {{source image}}:{{tag}} {{target image}}:{{tag}}",
+      "description": "Create a new tag for an image pointing to existing image",
+      "tags": ["docker", "tag"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Rename container",
+      "body": "docker rename {{old name}} {{new name}}",
+      "description": "Rename a container",
+      "tags": ["docker", "rename"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Pause container",
+      "body": "docker pause {{container name}}",
+      "description": "Suspend processes in a running container without stopping it",
+      "tags": ["docker", "pause"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Docker: Unpause container",
+      "body": "docker unpause {{container name}}",
+      "description": "Resume processes in a paused container",
+      "tags": ["docker", "unpause"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "version": "2.6.1",
+  "exported_at": "2025-12-24T01:30:00.000Z",
+  "total_commands": 25,
+  "commands": [
+    {
+      "title": "n8n CLI: Export all workflows",
+      "body": "n8n export:workflow --all --output={{output-file.json}}",
+      "description": "Export all workflows from n8n database to a single JSON file - useful for backups (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "export", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export all workflows (backup mode)",
+      "body": "n8n export:workflow --backup --output={{output-directory}}",
+      "description": "Export each workflow to separate JSON files in specified directory - creates individual backup files (docs.n8n.io/workflows/export-import/)",
+      "tags": ["n8n", "cli", "export", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export workflow by ID",
+      "body": "n8n export:workflow --id={{workflow-id}} --output={{workflow.json}}",
+      "description": "Export specific workflow by ID - use for selective backup or migration (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export workflow (pretty JSON)",
+      "body": "n8n export:workflow --id={{workflow-id}} --pretty --output={{workflow.json}}",
+      "description": "Export workflow with formatted/pretty JSON for easier readability - useful for debugging (latenode.com/blog/n8n-export-import-workflows-complete-json-guide-troubleshooting-common-failures-2025)",
+      "tags": ["n8n", "cli", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Import workflow from file",
+      "body": "n8n import:workflow --input={{workflow.json}}",
+      "description": "Import workflow(s) from JSON file - WARNING: overwrites workflows with same IDs (docs.n8n.io/workflows/export-import/)",
+      "tags": ["n8n", "cli", "import"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Import multiple workflows (separate files)",
+      "body": "n8n import:workflow --separate --input={{directory}}",
+      "description": "Import multiple workflow JSON files from directory - useful for batch restore (community.n8n.io/t/importing-workflows-and-credentials/45142)",
+      "tags": ["n8n", "cli", "import"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export all credentials",
+      "body": "n8n export:credentials --all --output={{credentials.json}}",
+      "description": "Export all credentials (encrypted) - requires same N8N_ENCRYPTION_KEY for import (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "credentials", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export credentials (backup mode)",
+      "body": "n8n export:credentials --backup --output={{output-directory}}",
+      "description": "Export each credential to separate JSON files - creates individual backup files (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "credentials", "export", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Export credentials (decrypted)",
+      "body": "n8n export:credentials --all --decrypted --output={{credentials-decrypted.json}}",
+      "description": "Export credentials in decrypted format - SECURITY WARNING: contains plaintext secrets, handle with extreme care (community.n8n.io/t/how-to-export-import-all-my-workflows-using-cli-with-decrypted-flag/124578)",
+      "tags": ["n8n", "cli", "credentials", "export", "security"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Import credentials from file",
+      "body": "n8n import:credentials --input={{credentials.json}}",
+      "description": "Import credentials from JSON file - requires matching N8N_ENCRYPTION_KEY (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "credentials", "import"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Import multiple credentials (separate files)",
+      "body": "n8n import:credentials --separate --input={{directory}}",
+      "description": "Import multiple credential JSON files from directory (community.n8n.io/t/importing-workflows-and-credentials/45142)",
+      "tags": ["n8n", "cli", "credentials", "import"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: List all workflows",
+      "body": "n8n list:workflow",
+      "description": "List all workflows in the database with their IDs and names - useful for finding workflow IDs (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "list"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Uninstall community node",
+      "body": "n8n remove:community-node {{package-name}}",
+      "description": "Remove/uninstall a community node package - useful if node causes instability or crashes (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "community-nodes", "remove"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Reset user management",
+      "body": "n8n user-management:reset",
+      "description": "Reset user management to pre-setup state - WARNING: removes all user accounts (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "user-management", "reset"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Run security audit",
+      "body": "n8n audit",
+      "description": "Run security audit on n8n instance - checks for potential security issues like exposed credentials (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "security", "audit"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Start n8n with tunnel",
+      "body": "n8n start --tunnel",
+      "description": "Start n8n with tunnel for external webhook access - DEV/TESTING ONLY, not for production (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "start", "development", "tunnel"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Export workflows from container",
+      "body": "docker exec -u node -it {{container-name}} n8n export:workflow --all --output=/tmp/workflows.json",
+      "description": "Export all workflows from n8n Docker container to file inside container - run as 'node' user to avoid permission issues (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "cli", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Copy exported file from container",
+      "body": "docker cp {{container-name}}:/tmp/workflows.json ./workflows-backup.json",
+      "description": "Copy exported workflow file from container to host filesystem - complete the backup process (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "backup"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Import workflows to container",
+      "body": "docker cp {{workflows.json}} {{container-name}}:/tmp/workflows.json && docker exec -u node -it {{container-name}} n8n import:workflow --input=/tmp/workflows.json",
+      "description": "Copy workflow file to container and import - two-step process for Docker environments (community.n8n.io/t/importing-workflows-and-credentials/45142)",
+      "tags": ["n8n", "docker", "cli", "import"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Run CLI command in container",
+      "body": "docker exec -u node -it {{container-name}} n8n {{command}}",
+      "description": "Execute any n8n CLI command inside Docker container as 'node' user (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "cli"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Check n8n version in container",
+      "body": "docker exec -u node {{container-name}} n8n --version",
+      "description": "Display n8n version running in Docker container - useful for troubleshooting version-specific issues (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "version"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Execute workflow from command line",
+      "body": "n8n execute --id={{workflow-id}}",
+      "description": "Execute a workflow directly from CLI - useful for testing and debugging (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "execute", "testing"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Activate workflow",
+      "body": "n8n update:workflow --id={{workflow-id}} --active=true",
+      "description": "Activate a workflow via CLI without using the UI - useful for automation (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "workflow", "activate"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Deactivate workflow",
+      "body": "n8n update:workflow --id={{workflow-id}} --active=false",
+      "description": "Deactivate a workflow via CLI - useful for emergency stops or troubleshooting (docs.n8n.io/hosting/cli-commands/)",
+      "tags": ["n8n", "cli", "workflow", "deactivate"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    },
+    {
+      "title": "n8n CLI: Complete backup script (workflows + credentials)",
+      "body": "n8n export:workflow --all --output=backup-$(date +%Y%m%d)-workflows.json && n8n export:credentials --all --output=backup-$(date +%Y%m%d)-credentials.json",
+      "description": "Complete backup of workflows and credentials with timestamp in filename - best practice for regular backups (community.n8n.io/t/back-up-your-n8n-workflows-to-github/1534)",
+      "tags": ["n8n", "cli", "backup", "export"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:30:00.000Z",
+      "updated_at": "2025-12-24T01:30:00.000Z"
+    }
+  ]
+}

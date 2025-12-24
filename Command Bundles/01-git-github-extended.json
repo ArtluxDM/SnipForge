@@ -1,0 +1,278 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-24T02:00:00.000Z",
+  "total_commands": 24,
+  "description": "Extended Git and GitHub commands bundle - advanced operations",
+  "commands": [
+    {
+      "title": "Git: Cherry-pick commit",
+      "body": "git cherry-pick {{commit hash}}",
+      "description": "Apply a specific commit from another branch to current branch",
+      "tags": ["git", "cherry-pick", "advanced"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Bisect start debugging",
+      "body": "git bisect start\ngit bisect bad {{bad commit}}\ngit bisect good {{good commit}}",
+      "description": "Start binary search to find the commit that introduced a bug - bisect helps identify bad commits efficiently",
+      "tags": ["git", "bisect", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Bisect mark current as good",
+      "body": "git bisect good",
+      "description": "Mark current commit as good when using git bisect",
+      "tags": ["git", "bisect", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Bisect mark current as bad",
+      "body": "git bisect bad",
+      "description": "Mark current commit as bad when using git bisect",
+      "tags": ["git", "bisect", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Bisect reset",
+      "body": "git bisect reset",
+      "description": "End bisect session and return to original branch",
+      "tags": ["git", "bisect"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: View reference logs",
+      "body": "git reflog",
+      "description": "Show reference logs - useful to recover lost commits or find previous HEAD positions",
+      "tags": ["git", "reflog", "recovery"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Create lightweight tag",
+      "body": "git tag {{tag name}}",
+      "description": "Create a lightweight tag pointing to current commit",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Create annotated tag",
+      "body": "git tag -a {{tag name}} -m \"{{tag message}}\"",
+      "description": "Create annotated tag with message - includes tagger info and date",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: List all tags",
+      "body": "git tag -l",
+      "description": "List all tags in repository",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: List tags with message",
+      "body": "git tag -l -n{{number}}",
+      "description": "List tags with first N lines of annotation message",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Push tags to remote",
+      "body": "git push origin --tags",
+      "description": "Push all tags to remote repository",
+      "tags": ["git", "tags", "push"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Push single tag",
+      "body": "git push origin {{tag name}}",
+      "description": "Push a specific tag to remote repository",
+      "tags": ["git", "tags", "push"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Delete local tag",
+      "body": "git tag -d {{tag name}}",
+      "description": "Delete a tag from local repository",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Delete remote tag",
+      "body": "git push origin --delete {{tag name}}",
+      "description": "Delete a tag from remote repository",
+      "tags": ["git", "tags"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Add remote",
+      "body": "git remote add {{remote name}} {{repository url}}",
+      "description": "Add a new remote repository",
+      "tags": ["git", "remote"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Remove remote",
+      "body": "git remote remove {{remote name}}",
+      "description": "Remove a remote repository from configuration",
+      "tags": ["git", "remote"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: List remotes with URLs",
+      "body": "git remote -v",
+      "description": "Show all configured remotes with their URLs",
+      "tags": ["git", "remote"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Change remote URL",
+      "body": "git remote set-url {{remote name}} {{new url}}",
+      "description": "Update the URL for a remote repository",
+      "tags": ["git", "remote"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Show who changed what (blame)",
+      "body": "git blame {{file path}}",
+      "description": "Show who last modified each line of a file - useful for understanding change history",
+      "tags": ["git", "blame", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Blame with date",
+      "body": "git blame -e {{file path}}",
+      "description": "Show blame with author email and commit date",
+      "tags": ["git", "blame"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Clean untracked files",
+      "body": "git clean -fd",
+      "description": "Remove untracked files and directories from working directory - useful for cleanup",
+      "tags": ["git", "clean"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Clean untracked files (dry run)",
+      "body": "git clean -fdn",
+      "description": "Preview what will be deleted without actually removing files",
+      "tags": ["git", "clean"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Create worktree",
+      "body": "git worktree add {{path}} {{branch}}",
+      "description": "Create a new worktree allowing multiple branches to be checked out simultaneously",
+      "tags": ["git", "worktree"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: List worktrees",
+      "body": "git worktree list",
+      "description": "Show all linked working trees",
+      "tags": ["git", "worktree"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Git: Remove worktree",
+      "body": "git worktree remove {{path}}",
+      "description": "Delete a linked working tree",
+      "tags": ["git", "worktree"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "GitHub CLI: List pull requests",
+      "body": "gh pr list --state {{state}}",
+      "description": "List pull requests - state can be open, closed, or merged",
+      "tags": ["github", "gh", "pr"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "GitHub CLI: Create pull request",
+      "body": "gh pr create --title \"{{title}}\" --body \"{{description}}\"",
+      "description": "Create a new pull request from command line",
+      "tags": ["github", "gh", "pr"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "GitHub CLI: List issues",
+      "body": "gh issue list --state {{state}}",
+      "description": "List issues - state can be open, closed, or all",
+      "tags": ["github", "gh", "issue"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "GitHub CLI: Create release",
+      "body": "gh release create {{tag}} --title \"{{release name}}\" --notes \"{{release notes}}\"",
+      "description": "Create a GitHub release with notes and assets",
+      "tags": ["github", "gh", "release"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "GitHub CLI: View repository",
+      "body": "gh repo view",
+      "description": "Display information about the repository",
+      "tags": ["github", "gh", "repo"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    }
+  ]
+}

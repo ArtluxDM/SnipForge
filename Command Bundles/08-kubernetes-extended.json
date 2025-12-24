@@ -1,0 +1,296 @@
+{
+  "version": "2.4.0",
+  "exported_at": "2025-12-24T02:00:00.000Z",
+  "total_commands": 33,
+  "description": "Extended Kubernetes commands bundle - advanced configuration, storage, and operations",
+  "commands": [
+    {
+      "title": "Kubectl: Create ConfigMap",
+      "body": "kubectl create configmap {{configmap name}} --from-literal={{key}}={{value}} -n {{namespace}}",
+      "description": "Create ConfigMap from literal key-value pairs",
+      "tags": ["kubernetes", "k8s", "configmap"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Create ConfigMap from file",
+      "body": "kubectl create configmap {{configmap name}} --from-file={{file path}} -n {{namespace}}",
+      "description": "Create ConfigMap from file contents",
+      "tags": ["kubernetes", "k8s", "configmap"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get ConfigMap",
+      "body": "kubectl get configmap {{configmap name}} -n {{namespace}} -o yaml",
+      "description": "Retrieve ConfigMap configuration in YAML format",
+      "tags": ["kubernetes", "k8s", "configmap"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe ConfigMap",
+      "body": "kubectl describe configmap {{configmap name}} -n {{namespace}}",
+      "description": "Show detailed information about ConfigMap",
+      "tags": ["kubernetes", "k8s", "configmap"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Create Secret",
+      "body": "kubectl create secret generic {{secret name}} --from-literal={{key}}={{value}} -n {{namespace}}",
+      "description": "Create generic Secret from literal values",
+      "tags": ["kubernetes", "k8s", "secret"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Create Secret from file",
+      "body": "kubectl create secret generic {{secret name}} --from-file={{file path}} -n {{namespace}}",
+      "description": "Create Secret from file contents",
+      "tags": ["kubernetes", "k8s", "secret"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get Secret",
+      "body": "kubectl get secret {{secret name}} -n {{namespace}} -o yaml",
+      "description": "Retrieve Secret in YAML format (values will be base64 encoded)",
+      "tags": ["kubernetes", "k8s", "secret"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Decode Secret value",
+      "body": "kubectl get secret {{secret name}} -n {{namespace}} -o jsonpath='{.data.{{key}}}' | base64 -d",
+      "description": "Decode base64-encoded Secret value",
+      "tags": ["kubernetes", "k8s", "secret"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Create Job",
+      "body": "kubectl create job {{job name}} --image={{image}} -n {{namespace}}",
+      "description": "Create a Job that runs a container",
+      "tags": ["kubernetes", "k8s", "job"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get Job status",
+      "body": "kubectl get job {{job name}} -n {{namespace}} -o wide",
+      "description": "Show Job status including completions and duration",
+      "tags": ["kubernetes", "k8s", "job"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Create CronJob",
+      "body": "kubectl create cronjob {{cronjob name}} --image={{image}} --schedule=\"{{cron schedule}}\" -n {{namespace}}",
+      "description": "Create a CronJob that runs periodically - schedule format: minute hour day month weekday",
+      "tags": ["kubernetes", "k8s", "cronjob"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe Job",
+      "body": "kubectl describe job {{job name}} -n {{namespace}}",
+      "description": "Show detailed information about Job including history and pods",
+      "tags": ["kubernetes", "k8s", "job"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get StatefulSets",
+      "body": "kubectl get statefulsets -n {{namespace}}",
+      "description": "List StatefulSets in namespace",
+      "tags": ["kubernetes", "k8s", "statefulset"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Scale StatefulSet",
+      "body": "kubectl scale statefulset {{statefulset name}} --replicas={{count}} -n {{namespace}}",
+      "description": "Scale StatefulSet to specified number of replicas",
+      "tags": ["kubernetes", "k8s", "statefulset"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe StatefulSet",
+      "body": "kubectl describe statefulset {{statefulset name}} -n {{namespace}}",
+      "description": "Show detailed information about StatefulSet",
+      "tags": ["kubernetes", "k8s", "statefulset"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get Ingress",
+      "body": "kubectl get ingress -n {{namespace}}",
+      "description": "List all Ingress resources in namespace",
+      "tags": ["kubernetes", "k8s", "ingress"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe Ingress",
+      "body": "kubectl describe ingress {{ingress name}} -n {{namespace}}",
+      "description": "Show detailed information about Ingress including routes",
+      "tags": ["kubernetes", "k8s", "ingress"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Edit resource",
+      "body": "kubectl edit {{resource type}} {{resource name}} -n {{namespace}}",
+      "description": "Edit a resource in your default editor - resource type can be deployment, pod, service, etc.",
+      "tags": ["kubernetes", "k8s", "edit"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Patch resource",
+      "body": "kubectl patch {{resource type}} {{resource name}} -p '{\"spec\":{\"{{field}}\":\"{{value}}\"}}' -n {{namespace}}",
+      "description": "Apply JSON patch to update specific resource fields",
+      "tags": ["kubernetes", "k8s", "patch"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Diff changes",
+      "body": "kubectl diff -f {{file.yaml}}",
+      "description": "Show differences between current and desired resource state",
+      "tags": ["kubernetes", "k8s", "diff"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Apply with prune",
+      "body": "kubectl apply -f {{file.yaml}} --prune -l {{label selector}}",
+      "description": "Apply configuration and delete resources removed from manifest",
+      "tags": ["kubernetes", "k8s", "apply"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get PersistentVolumes",
+      "body": "kubectl get pv",
+      "description": "List all PersistentVolumes in cluster",
+      "tags": ["kubernetes", "k8s", "storage", "pv"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe PersistentVolume",
+      "body": "kubectl describe pv {{pv name}}",
+      "description": "Show detailed information about PersistentVolume",
+      "tags": ["kubernetes", "k8s", "storage", "pv"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get PersistentVolumeClaims",
+      "body": "kubectl get pvc -n {{namespace}}",
+      "description": "List PersistentVolumeClaims in namespace",
+      "tags": ["kubernetes", "k8s", "storage", "pvc"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Describe PersistentVolumeClaim",
+      "body": "kubectl describe pvc {{pvc name}} -n {{namespace}}",
+      "description": "Show detailed information about PersistentVolumeClaim",
+      "tags": ["kubernetes", "k8s", "storage", "pvc"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get StorageClasses",
+      "body": "kubectl get storageclass",
+      "description": "List all StorageClasses available in cluster",
+      "tags": ["kubernetes", "k8s", "storage"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Apply configuration file",
+      "body": "kubectl apply -f {{file.yaml}} -n {{namespace}}",
+      "description": "Apply Kubernetes configuration from YAML file in specific namespace",
+      "tags": ["kubernetes", "k8s", "apply"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Delete resource",
+      "body": "kubectl delete {{resource type}} {{resource name}} -n {{namespace}}",
+      "description": "Delete a resource - type can be pod, deployment, service, configmap, etc.",
+      "tags": ["kubernetes", "k8s", "delete"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get all resources",
+      "body": "kubectl get all -n {{namespace}}",
+      "description": "List all resources in namespace",
+      "tags": ["kubernetes", "k8s", "get"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Watch pods",
+      "body": "kubectl get pods -n {{namespace}} --watch",
+      "description": "Watch pods in namespace with live updates",
+      "tags": ["kubernetes", "k8s", "watch"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Get pod events",
+      "body": "kubectl get events -n {{namespace}} --sort-by='.lastTimestamp'",
+      "description": "Show all events in namespace sorted by timestamp",
+      "tags": ["kubernetes", "k8s", "events"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    },
+    {
+      "title": "Kubectl: Port forward to service",
+      "body": "kubectl port-forward svc/{{service name}} {{local port}}:{{service port}} -n {{namespace}}",
+      "description": "Forward local port to service for direct access",
+      "tags": ["kubernetes", "k8s", "port-forward"],
+      "language": "bash",
+      "created_at": "2025-12-24T02:00:00.000Z",
+      "updated_at": "2025-12-24T02:00:00.000Z"
+    }
+  ]
+}

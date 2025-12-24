@@ -1,0 +1,358 @@
+{
+  "version": "2.6.1",
+  "exported_at": "2025-12-24T01:45:00.000Z",
+  "total_commands": 40,
+  "commands": [
+    {
+      "title": "n8n Docker: Full docker-compose stack",
+      "body": "version: '3.8'\nservices:\n  n8n:\n    image: n8nio/n8n:latest\n    container_name: n8n\n    restart: unless-stopped\n    ports:\n      - \"5678:5678\"\n    environment:\n      - N8N_HOST={{your-domain.com}}\n      - N8N_PROTOCOL=https\n      - WEBHOOK_URL=https://{{your-domain.com}}\n      - N8N_ENCRYPTION_KEY={{your-encryption-key}}\n      - DB_TYPE=postgresdb\n      - DB_POSTGRESDB_HOST=postgres\n      - DB_POSTGRESDB_DATABASE=n8n\n      - DB_POSTGRESDB_USER=n8n\n      - DB_POSTGRESDB_PASSWORD={{db-password}}\n    volumes:\n      - n8n_data:/home/node/.n8n\n    depends_on:\n      - postgres\n  \n  postgres:\n    image: postgres:16\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=n8n\n      - POSTGRES_USER=n8n\n      - POSTGRES_PASSWORD={{db-password}}\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n\nvolumes:\n  n8n_data:\n  postgres_data:",
+      "description": "Production-ready docker-compose for n8n with PostgreSQL - complete setup (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "postgresql"],
+      "language": "yaml",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Queue mode docker-compose",
+      "body": "version: '3.8'\nservices:\n  n8n-main:\n    image: n8nio/n8n:latest\n    container_name: n8n-main\n    restart: unless-stopped\n    ports:\n      - \"5678:5678\"\n    environment:\n      - EXECUTIONS_MODE=queue\n      - QUEUE_BULL_REDIS_HOST=redis\n      - DB_TYPE=postgresdb\n      - DB_POSTGRESDB_HOST=postgres\n      - N8N_ENCRYPTION_KEY={{encryption-key}}\n    depends_on:\n      - postgres\n      - redis\n  \n  n8n-worker:\n    image: n8nio/n8n:latest\n    restart: unless-stopped\n    command: worker\n    environment:\n      - EXECUTIONS_MODE=queue\n      - QUEUE_BULL_REDIS_HOST=redis\n      - DB_TYPE=postgresdb\n      - DB_POSTGRESDB_HOST=postgres\n      - N8N_ENCRYPTION_KEY={{encryption-key}}\n    depends_on:\n      - postgres\n      - redis\n  \n  redis:\n    image: redis:7-alpine\n    restart: unless-stopped\n  \n  postgres:\n    image: postgres:16\n    restart: unless-stopped\n    environment:\n      - POSTGRES_DB=n8n\n      - POSTGRES_USER=n8n\n      - POSTGRES_PASSWORD={{password}}\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n\nvolumes:\n  postgres_data:",
+      "description": "n8n queue mode with workers for horizontal scaling - production setup (docs.n8n.io/hosting/scaling/queue-mode/)",
+      "tags": ["n8n", "docker", "docker-compose", "queue-mode", "redis", "scaling"],
+      "language": "yaml",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Start n8n with docker-compose",
+      "body": "docker-compose up -d",
+      "description": "Start all n8n services in detached mode - begins n8n stack (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "start"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Stop and remove containers",
+      "body": "docker-compose down",
+      "description": "Stop and remove all n8n containers - preserves volumes (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "stop"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: View all service logs",
+      "body": "docker-compose logs -f",
+      "description": "Follow logs from all services (n8n, postgres, redis) - comprehensive monitoring (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "docker-compose", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: View specific service logs",
+      "body": "docker-compose logs -f {{service-name}}",
+      "description": "Follow logs for specific service (e.g., n8n, postgres, n8n-worker) - isolated debugging (docs.n8n.io/hosting/logging-monitoring/logging/)",
+      "tags": ["n8n", "docker", "docker-compose", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Restart specific service",
+      "body": "docker-compose restart {{service-name}}",
+      "description": "Restart specific service without affecting others - quick troubleshooting (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "restart"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Pull latest n8n image",
+      "body": "docker-compose pull n8n",
+      "description": "Pull latest n8n image before updating - check for new version (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "update"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Update n8n to latest",
+      "body": "docker-compose pull && docker-compose up -d",
+      "description": "Pull latest images and recreate containers - safe update process (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "update"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Check running containers",
+      "body": "docker-compose ps",
+      "description": "List all containers and their status - verify all services running (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "status"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Execute command in n8n container",
+      "body": "docker-compose exec n8n {{command}}",
+      "description": "Run command in running n8n container - alternative to docker exec (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "exec"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Open bash shell in container",
+      "body": "docker-compose exec n8n /bin/sh",
+      "description": "Open interactive shell in n8n container for debugging - direct container access (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "docker-compose", "shell"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Scale workers",
+      "body": "docker-compose up -d --scale n8n-worker={{number}}",
+      "description": "Scale number of worker containers for queue mode - horizontal scaling (docs.n8n.io/hosting/scaling/queue-mode/)",
+      "tags": ["n8n", "docker", "docker-compose", "scaling", "workers"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: View container resource usage",
+      "body": "docker-compose stats",
+      "description": "Monitor CPU, memory, network for all containers - real-time resource monitoring (docs.n8n.io/hosting/scaling/)",
+      "tags": ["n8n", "docker", "docker-compose", "monitoring", "performance"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Backup n8n data volume",
+      "body": "docker run --rm -v n8n_data:/data -v $(pwd):/backup alpine tar czf /backup/n8n-data-backup-$(date +%Y%m%d).tar.gz -C /data .",
+      "description": "Create compressed backup of n8n data volume - includes workflows, credentials, logs (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "backup", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Restore n8n data volume",
+      "body": "docker run --rm -v n8n_data:/data -v $(pwd):/backup alpine sh -c \"cd /data && tar xzf /backup/{{backup-file.tar.gz}} --strip 1\"",
+      "description": "Restore n8n data from backup archive - recover from backup (docs.n8n.io/hosting/installation/docker/)",
+      "tags": ["n8n", "docker", "restore", "volume"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Clean up stopped containers and volumes",
+      "body": "docker-compose down -v",
+      "description": "Remove containers AND volumes - WARNING: deletes all data (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "cleanup"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n Docker: Rebuild containers",
+      "body": "docker-compose up -d --build --force-recreate",
+      "description": "Force rebuild and recreate all containers - useful after config changes (docs.n8n.io/hosting/installation/server-setups/docker-compose/)",
+      "tags": ["n8n", "docker", "docker-compose", "rebuild"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Install n8n with Helm",
+      "body": "helm repo add community-charts https://community-charts.github.io/helm-charts\nhelm repo update\nkubectl create namespace n8n\nhelm install n8n community-charts/n8n --namespace n8n",
+      "description": "Install n8n on Kubernetes using Helm chart - quick deployment (community-charts.github.io/docs/charts/n8n/usage)",
+      "tags": ["n8n", "kubernetes", "helm", "install"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Install n8n with custom values",
+      "body": "helm install n8n community-charts/n8n \\\n  --namespace n8n \\\n  --set config.host={{your-domain.com}} \\\n  --set config.protocol=https \\\n  --set postgresql.enabled=true \\\n  --set redis.enabled=true \\\n  --set scaling.enabled=true",
+      "description": "Install n8n with custom configuration - production-ready setup (community-charts.github.io/docs/charts/n8n/usage)",
+      "tags": ["n8n", "kubernetes", "helm", "install", "production"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get n8n pods",
+      "body": "kubectl get pods -n n8n",
+      "description": "List all n8n pods in namespace - check deployment status (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "pods"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get n8n pod logs",
+      "body": "kubectl logs -f -n n8n -l app.kubernetes.io/name=n8n",
+      "description": "Follow n8n pod logs in real-time - monitor application (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "logs"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get worker pod logs",
+      "body": "kubectl logs -f -n n8n -l app.kubernetes.io/component=worker",
+      "description": "Follow n8n worker pod logs - debug queue processing (community-charts.github.io/docs/charts/n8n/queue-mode)",
+      "tags": ["n8n", "kubernetes", "logs", "workers"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Describe n8n pod",
+      "body": "kubectl describe pod -n n8n {{pod-name}}",
+      "description": "Show detailed pod information including events - troubleshoot pod issues (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Execute command in pod",
+      "body": "kubectl exec -it -n n8n {{pod-name}} -- /bin/sh",
+      "description": "Open shell in n8n pod for debugging - direct pod access (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "exec"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Port forward to n8n service",
+      "body": "kubectl port-forward -n n8n svc/n8n 5678:5678",
+      "description": "Forward local port to n8n service - access n8n locally for testing (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "port-forward"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Scale workers",
+      "body": "kubectl scale deployment -n n8n n8n-worker --replicas={{number}}",
+      "description": "Scale n8n worker deployment - adjust processing capacity (community-charts.github.io/docs/charts/n8n/queue-mode)",
+      "tags": ["n8n", "kubernetes", "scaling", "workers"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Restart n8n deployment",
+      "body": "kubectl rollout restart deployment -n n8n n8n",
+      "description": "Trigger rolling restart of n8n pods - apply configuration changes (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "restart"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Check rollout status",
+      "body": "kubectl rollout status deployment -n n8n n8n",
+      "description": "Monitor deployment rollout progress - verify update completion (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "deployment"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get n8n service details",
+      "body": "kubectl get svc -n n8n",
+      "description": "List n8n services and their endpoints - verify network configuration (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "service"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get n8n ingress",
+      "body": "kubectl get ingress -n n8n",
+      "description": "Show ingress configuration - verify external access setup (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "ingress"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get persistent volumes",
+      "body": "kubectl get pvc -n n8n",
+      "description": "List persistent volume claims - verify storage configuration (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "storage", "pvc"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get configmaps",
+      "body": "kubectl get configmap -n n8n",
+      "description": "List configuration maps - check configuration storage (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "configmap"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get secrets",
+      "body": "kubectl get secrets -n n8n",
+      "description": "List secrets in namespace - verify credentials storage (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "secrets"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: View Helm values",
+      "body": "helm get values n8n -n n8n",
+      "description": "Show current Helm chart values - review configuration (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "helm"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Upgrade n8n with Helm",
+      "body": "helm upgrade n8n community-charts/n8n -n n8n",
+      "description": "Upgrade n8n to latest chart version - apply updates (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "helm", "upgrade"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Uninstall n8n",
+      "body": "helm uninstall n8n -n n8n",
+      "description": "Remove n8n from Kubernetes - WARNING: may delete data (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "helm", "uninstall"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Check pod resource usage",
+      "body": "kubectl top pods -n n8n",
+      "description": "Show CPU and memory usage for n8n pods - monitor resource consumption (community-charts.github.io/docs/charts/n8n/monitoring)",
+      "tags": ["n8n", "kubernetes", "monitoring", "resources"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    },
+    {
+      "title": "n8n K8s: Get events in namespace",
+      "body": "kubectl get events -n n8n --sort-by='.lastTimestamp'",
+      "description": "Show recent events sorted by time - troubleshoot pod failures (community-charts.github.io/docs/charts/n8n/)",
+      "tags": ["n8n", "kubernetes", "events", "debug"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:45:00.000Z",
+      "updated_at": "2025-12-24T01:45:00.000Z"
+    }
+  ]
+}

@@ -1,0 +1,277 @@
+{
+  "version": "2.6.1",
+  "exported_at": "2025-12-24T01:40:00.000Z",
+  "total_commands": 30,
+  "commands": [
+    {
+      "title": "n8n API: Get all workflows",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List all workflows in n8n instance - returns workflow metadata (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get workflow by ID",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get specific workflow details by ID - includes nodes and connections (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Create new workflow",
+      "body": "curl -X POST \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"name\": \"{{workflow-name}}\",\n    \"nodes\": [],\n    \"connections\": {},\n    \"active\": false\n  }'",
+      "description": "Create new workflow via API - useful for programmatic workflow creation (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "create", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Update workflow",
+      "body": "curl -X PATCH \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\": \"{{new-name}}\"}'",
+      "description": "Update workflow properties - can modify name, nodes, active status etc (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "update", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Delete workflow",
+      "body": "curl -X DELETE \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\"",
+      "description": "Delete workflow by ID - WARNING: this is permanent (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "delete", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Activate workflow",
+      "body": "curl -X PATCH \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"active\": true}'",
+      "description": "Activate workflow via API - enables triggers and webhooks (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "activate", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Deactivate workflow",
+      "body": "curl -X PATCH \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"active\": false}'",
+      "description": "Deactivate workflow via API - stops all triggers and webhooks (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "deactivate", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Execute workflow (manual)",
+      "body": "curl -X POST \"{{n8n-url}}/api/v1/workflows/{{workflow-id}}/execute\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\"",
+      "description": "Trigger manual workflow execution via API - available in n8n v1.95+ (github.com/n8n-io/n8n/pull/20234)",
+      "tags": ["n8n", "api", "workflows", "execute", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get all executions",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/executions\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List all workflow executions - returns execution history (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "executions", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get executions by workflow ID",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/executions?workflowId={{workflow-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Filter executions by workflow ID - useful for workflow-specific debugging (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "executions", "filter", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get execution by ID (with data)",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/executions/{{execution-id}}?includeData=true\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get execution details including all node data - full execution trace (community.n8n.io/t/tutorial-listing-running-workflow-exections-with-api/172501)",
+      "tags": ["n8n", "api", "executions", "debug", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get running executions",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/executions?status=running\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List currently running executions - monitor active workflows (community.n8n.io/t/tutorial-listing-running-workflow-exections-with-api/172501)",
+      "tags": ["n8n", "api", "executions", "monitoring", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get failed executions",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/executions?status=error\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List failed executions - quickly identify errors (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "executions", "error", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Delete execution",
+      "body": "curl -X DELETE \"{{n8n-url}}/api/v1/executions/{{execution-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\"",
+      "description": "Delete specific execution record - clean up execution history (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "executions", "delete", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get all credentials",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/credentials\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List all credentials (without sensitive data) - credential inventory (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get credential by ID",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/credentials/{{credential-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get specific credential details (without sensitive data) - verify credential config (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get credential schema",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/credentials/schema/{{credential-type}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get credential type schema - see required fields and options (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "schema", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Create credential",
+      "body": "curl -X POST \"{{n8n-url}}/api/v1/credentials\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"name\": \"{{credential-name}}\",\n    \"type\": \"{{credential-type}}\",\n    \"data\": {}\n  }'",
+      "description": "Create new credential programmatically - automate credential setup (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "create", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Update credential",
+      "body": "curl -X PATCH \"{{n8n-url}}/api/v1/credentials/{{credential-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"name\": \"{{new-name}}\"}'",
+      "description": "Update credential properties - modify credential configuration (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "update", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Delete credential",
+      "body": "curl -X DELETE \"{{n8n-url}}/api/v1/credentials/{{credential-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\"",
+      "description": "Delete credential by ID - WARNING: workflows using it will fail (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "credentials", "delete", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get all users",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/users\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "List all users in n8n instance - user management (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "users", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get user by ID",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/users/{{user-id}}\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get specific user details - verify user configuration (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "users", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Test API authentication",
+      "body": "curl -v -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\" 2>&1 | grep -E '(HTTP/|X-N8N)'",
+      "description": "Test API key authentication with verbose output - verify API access (docs.n8n.io/api/authentication/)",
+      "tags": ["n8n", "api", "auth", "debug", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get API with pagination",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/workflows?limit=10&offset=0\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\"",
+      "description": "Get paginated results - useful for large datasets (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "pagination", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get workflows (pretty JSON)",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\" | jq .",
+      "description": "Get workflows with formatted JSON output using jq - easier to read (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "jq", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Extract workflow names with jq",
+      "body": "curl -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" \\\n  -H \"Accept: application/json\" | jq '.data[] | {id: .id, name: .name, active: .active}'",
+      "description": "Extract specific workflow fields using jq - create custom reports (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "jq", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Count active workflows",
+      "body": "curl -s -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" | jq '[.data[] | select(.active == true)] | length'",
+      "description": "Count number of active workflows using jq - quick statistics (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "statistics", "jq", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Export all workflows via API",
+      "body": "curl -s -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" | jq '.data' > workflows-export-$(date +%Y%m%d).json",
+      "description": "Export all workflows to file using API - alternative to CLI export (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "export", "backup", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Find workflows by name pattern",
+      "body": "curl -s -X GET \"{{n8n-url}}/api/v1/workflows\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" | jq '.data[] | select(.name | contains(\"{{search-term}}\"))'",
+      "description": "Search workflows by name using jq pattern matching - find specific workflows (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "workflows", "search", "jq", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    },
+    {
+      "title": "n8n API: Get execution error details",
+      "body": "curl -s -X GET \"{{n8n-url}}/api/v1/executions/{{execution-id}}?includeData=true\" \\\n  -H \"X-N8N-API-KEY: {{api-key}}\" | jq '.data.resultData.error'",
+      "description": "Extract error details from failed execution using jq - debug workflow failures (docs.n8n.io/api/api-reference/)",
+      "tags": ["n8n", "api", "executions", "error", "debug", "jq", "curl"],
+      "language": "bash",
+      "created_at": "2025-12-24T01:40:00.000Z",
+      "updated_at": "2025-12-24T01:40:00.000Z"
+    }
+  ]
+}

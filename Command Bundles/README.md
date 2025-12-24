@@ -2,7 +2,9 @@
 
 Complete collection of command snippets for developers, sysadmins, DevOps engineers, and support staff.
 
-## 📦 Bundles Included (20 total, 279 commands)
+**Special Focus**: Enhanced n8n support bundles for troubleshooting self-hosted and cloud deployments.
+
+## 📦 Bundles Included (25 total, 439 commands)
 
 ### Development Tools
 1. **01-git-github.json** (15 commands)
@@ -67,9 +69,44 @@ Complete collection of command snippets for developers, sysadmins, DevOps engine
 19. **15-network-diagnostics.json** (16 commands)
     - ping, traceroute, netstat, nmap, DNS
 
-### Automation
+### Automation & n8n Support
 20. **19-n8n.json** (18 commands)
-    - n8n CLI for workflows, exports, user management
+    - Basic n8n CLI for workflows, exports, user management
+
+21. **21-n8n-cli-commands.json** (25 commands) ⭐ NEW
+    - Comprehensive n8n CLI commands with Docker integration
+    - Workflow/credential export and import with all flags
+    - Backup strategies, activation/deactivation, security audits
+
+22. **22-n8n-troubleshooting.json** (35 commands) ⭐ NEW
+    - Health checks, webhook testing (GET/POST/headers)
+    - OAuth2 endpoint testing and debugging
+    - Log analysis, environment variable checks
+    - Database and Redis connection testing
+    - Performance monitoring and diagnostics
+
+23. **23-n8n-api-testing.json** (30 commands) ⭐ NEW
+    - Complete REST API commands for workflows, executions, credentials
+    - Authentication testing, pagination, filtering
+    - API-based workflow management and monitoring
+    - Advanced jq queries for data extraction
+
+24. **24-n8n-docker-kubernetes.json** (40 commands) ⭐ NEW
+    - Production docker-compose templates (PostgreSQL, queue mode)
+    - Container management, logs, updates, backups
+    - Helm chart installation and configuration
+    - Kubernetes pod management, scaling, monitoring
+    - Worker scaling for queue mode
+
+### JavaScript Utilities
+25. **25-javascript-utilities.json** (30 commands) ⭐ NEW
+    - Email validation and comparison
+    - JSON parsing, validation, and manipulation
+    - Date/time calculations and formatting
+    - Array operations (filter, group, chunk, sort)
+    - Object manipulation (merge, extract, clone)
+    - String utilities (slugify, truncate, Base64)
+    - Common support engineering helpers
 
 ## 🚀 How to Import
 
@@ -97,17 +134,32 @@ Each command includes:
 
 ## 🔧 Technologies Covered
 
-**Languages & Runtimes**: Node.js, Python  
-**Version Control**: Git, GitHub  
-**Containers**: Docker, Docker Compose, Kubernetes  
-**Databases**: PostgreSQL, MySQL, SQLite, Redis  
-**Web Servers**: Nginx  
-**CI/CD**: GitHub Actions, GitLab CI  
-**Security**: SSL/TLS, OpenSSL, Certbot  
-**Automation**: n8n  
-**Monitoring**: systemd, Docker, Linux tools  
-**Networking**: SSH, DNS, diagnostics  
-**Text Processing**: grep, sed, awk, jq  
+**Languages & Runtimes**: Node.js, Python, JavaScript
+**Version Control**: Git, GitHub
+**Containers**: Docker, Docker Compose, Kubernetes, Helm
+**Databases**: PostgreSQL, MySQL, SQLite, Redis
+**Web Servers**: Nginx
+**CI/CD**: GitHub Actions, GitLab CI
+**Security**: SSL/TLS, OpenSSL, Certbot
+**Automation**: n8n (extensive coverage with 5 specialized bundles)
+**Monitoring**: systemd, Docker, Linux tools, Prometheus
+**Networking**: SSH, DNS, diagnostics
+**Text Processing**: grep, sed, awk, jq
+**APIs**: REST API testing with curl, webhook testing, OAuth2
+
+## 🎯 n8n Support Engineer Toolkit
+
+The command bundles now include **extensive n8n support resources** based on:
+- Official n8n documentation and community forums
+- Common troubleshooting scenarios from production deployments
+- Real-world issues from self-hosted and cloud environments
+- Best practices for Docker and Kubernetes deployments
+
+**Perfect for**:
+- n8n support team members
+- DevOps engineers managing n8n infrastructure
+- Developers troubleshooting workflow issues
+- System administrators handling n8n deployments  
 
 ## 📄 License
 
@@ -115,6 +167,21 @@ These command snippets are provided as-is for use with SnipForge.
 
 ---
 
-**Total Commands**: 279 across 20 bundles  
-**Created**: December 2025  
-**Format Version**: 2.4.0
+**Total Commands**: 439 across 25 bundles
+**Created**: December 2025
+**Last Updated**: December 2025 (v2.6.1 - Added n8n support bundles)
+**Format Version**: 2.6.1
+
+## 📚 Documentation Sources
+
+All n8n commands include inline references to official documentation:
+- docs.n8n.io - Official n8n documentation
+- community.n8n.io - n8n community forum
+- github.com/n8n-io/n8n - Official n8n repository
+- community-charts.github.io - Kubernetes Helm charts
+
+Commands are researched and verified from:
+- Official documentation and API references
+- Community troubleshooting threads
+- Production deployment best practices
+- Common support scenarios and solutions
