@@ -98,7 +98,30 @@ updated_at TEXT NOT NULL
 
 ## Release Process
 
-When creating a new release after making changes:
+### Automated Release (Recommended)
+
+Use the Release Manager Agent for consistent, automated releases:
+
+```bash
+/release auto          # Analyze commits and auto-determine version bump
+/release patch         # Force patch bump
+/release minor         # Force minor bump
+/release major         # Force major bump
+```
+
+The agent will:
+1. Analyze commits since last release
+2. Determine appropriate version bump
+3. Generate formatted changelog
+4. Show preview and ask for confirmation
+5. Update package.json, create tag, and push
+6. Monitor GitHub Actions build status
+
+See `.claude/README.md` for detailed agent documentation.
+
+### Manual Release Process
+
+If you need to release manually:
 
 1. **Commit Changes:**
    ```bash
@@ -106,21 +129,17 @@ When creating a new release after making changes:
    git commit -m "fix: description of changes"
    ```
 
-2. **Create Git Tag:**
-   ```bash
-   git tag v2.0.1  # increment version appropriately
-   ```
-
-3. **Update Package Version:**
-   - Edit `package.json` to match the git tag version
+2. **Update Package Version:**
+   - Edit `package.json` to increment version
    - Example: change `"version": "2.0.0"` to `"version": "2.0.1"`
 
-4. **Push to GitHub:**
+3. **Create Git Tag:**
    ```bash
-   git push origin main --tags
+   git commit -m "chore: bump version to 2.0.1"
+   git tag v2.0.1
    ```
 
-5. **Push Tag to Trigger GitHub Actions:**
+4. **Push to GitHub:**
    ```bash
    git push origin main --tags
    ```
