@@ -400,6 +400,27 @@ const handleExport = async (filterTags: string[]) => {
   }
 }
 
+// Deduplicate commands within import bundle (keep only unique bodies)
+const deduplicateImportBundle = (commands: any[]): any[] => {
+  const seen = new Map<string, any>()
+  const duplicatesFound: string[] = []
+
+  commands.forEach(cmd => {
+    const normalizedBody = cmd.body.trim()
+    if (seen.has(normalizedBody)) {
+      duplicatesFound.push(cmd.title)
+    } else {
+      seen.set(normalizedBody, cmd)
+    }
+  })
+
+  if (duplicatesFound.length > 0) {
+    console.log(`Removed ${duplicatesFound.length} internal duplicates from import bundle:`, duplicatesFound)
+  }
+
+  return Array.from(seen.values())
+}
+
 // Import functionality
 const handleImport = async () => {
   try {
@@ -416,9 +437,18 @@ const handleImport = async () => {
         validateExportData(importData)
 
         // Convert to database format
-        const commandsToImport = importCommands(importData)
+        let commandsToImport = importCommands(importData)
 
-        // Detect duplicates
+        // Deduplicate within the import bundle itself (remove internal duplicates)
+        const originalCount = commandsToImport.length
+        commandsToImport = deduplicateImportBundle(commandsToImport)
+        const internalDuplicatesRemoved = originalCount - commandsToImport.length
+
+        if (internalDuplicatesRemoved > 0) {
+          console.log(`Removed ${internalDuplicatesRemoved} internal duplicate(s) from import bundle`)
+        }
+
+        // Detect duplicates with existing library
         const duplicates = detectDuplicates(commandsToImport, commands.value)
 
         if (duplicates.length > 0) {
@@ -444,22 +474,79 @@ const handleImport = async () => {
 const handleDuplicateResolution = async (actions: ('skip' | 'replace')[]) => {
   showDuplicateModal.value = false
 
-  // Build list of IDs to replace
-  const idsToReplace: number[] = []
-  const bodiesToSkip = new Set<string>()
+  // Build set of all duplicate bodies for fast lookup
+  const duplicateBodies = new Set<string>()
+  pendingDuplicates.value.forEach(duplicate => {
+    duplicateBodies.add(duplicate.importCommand.body.trim())
+  })
 
-  pendingDuplicates.value.forEach((duplicate, index) => {
-    if (actions[index] === 'replace') {
-      idsToReplace.push(duplicate.existingCommand.id)
+  // Separate import commands into duplicates and new commands
+  const duplicateCommands: any[] = []
+  const newCommands: any[] = []
+
+  pendingImportCommands.value.forEach(cmd => {
+    const normalizedBody = cmd.body.trim()
+    if (duplicateBodies.has(normalizedBody)) {
+      duplicateCommands.push(cmd)
     } else {
-      bodiesToSkip.add(duplicate.importCommand.body.trim())
+      newCommands.push(cmd)
     }
   })
 
-  // Filter out skipped commands
-  const commandsToAdd = pendingImportCommands.value.filter(
-    cmd => !bodiesToSkip.has(cmd.body.trim())
-  )
+  // Process user's choice for each duplicate
+  const idsToReplace: number[] = []
+  const duplicatesToImport: any[] = []
+
+  pendingDuplicates.value.forEach((duplicate, index) => {
+    if (actions[index] === 'replace') {
+      // Mark existing command for deletion
+      idsToReplace.push(duplicate.existingCommand.id)
+      // Add import command to import list (find by body match)
+      const importCmd = duplicateCommands.find(
+        cmd => cmd.body.trim() === duplicate.importCommand.body.trim()
+      )
+      if (importCmd) {
+        // Create a clean copy to avoid Vue reactivity issues
+        const cleanCmd = {
+          title: importCmd.title,
+          body: importCmd.body,
+          description: importCmd.description,
+          tags: importCmd.tags,
+          language: importCmd.language
+        }
+        // Check if not already added (by body comparison)
+        const alreadyAdded = duplicatesToImport.some(
+          cmd => cmd.body.trim() === cleanCmd.body.trim()
+        )
+        if (!alreadyAdded) {
+          duplicatesToImport.push(cleanCmd)
+        }
+      }
+    }
+    // If action is 'skip', we don't add to either list (existing stays, import skipped)
+  })
+
+  // ALWAYS import new commands + import duplicates marked for replacement
+  // Create clean copies of new commands too
+  const cleanNewCommands = newCommands.map(cmd => ({
+    title: cmd.title,
+    body: cmd.body,
+    description: cmd.description,
+    tags: cmd.tags,
+    language: cmd.language
+  }))
+
+  const commandsToAdd = [...cleanNewCommands, ...duplicatesToImport]
+
+  console.log('Import resolution:', {
+    totalInBundle: pendingImportCommands.value.length,
+    duplicatesDetected: pendingDuplicates.value.length,
+    newCommands: newCommands.length,
+    duplicatesToReplace: duplicatesToImport.length,
+    duplicatesToKeep: pendingDuplicates.value.length - duplicatesToImport.length,
+    totalToImport: commandsToAdd.length,
+    existingToDelete: idsToReplace.length
+  })
 
   await processImport(commandsToAdd, idsToReplace)
 }
@@ -499,21 +586,30 @@ const processImport = async (commandsToAdd: any[], idsToReplace: number[]) => {
     const replacedCount = idsToReplace.length
     const skippedCount = pendingDuplicates.value.length - replacedCount
 
-    let message = `Successfully imported ${successCount} command(s)!`
+    // Build detailed message
+    const parts: string[] = []
+
+    if (successCount > 0) {
+      parts.push(`✓ Imported ${successCount} command(s)`)
+    }
     if (replacedCount > 0) {
-      message += `\nReplaced ${replacedCount} existing command(s).`
+      parts.push(`✓ Replaced ${replacedCount} existing command(s)`)
     }
     if (skippedCount > 0) {
-      message += `\nKept ${skippedCount} existing command(s).`
+      parts.push(`• Kept ${skippedCount} existing command(s) unchanged`)
     }
     if (errorCount > 0) {
-      message += `\n${errorCount} failed.`
+      parts.push(`✗ Failed to import ${errorCount} command(s)`)
     }
 
+    const message = parts.length > 0 ? parts.join('\n') : 'Import completed: No changes made.'
+
     if (successCount > 0 || replacedCount > 0) {
-      alert(message)
+      alert('Import Successful!\n\n' + message)
+    } else if (errorCount > 0) {
+      alert('Import Failed!\n\n' + message)
     } else {
-      alert('Import completed: No new commands were added.')
+      alert(message)
     }
 
     // Close settings modal and clear pending data
