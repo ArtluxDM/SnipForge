@@ -125,6 +125,8 @@ interface Props {
     body: string
     description?: string
     tags: string
+    tagsArray: string[]
+    tagsNormalized: string[]
     language?: string
     created_at: string
     updated_at: string
@@ -382,19 +384,13 @@ const filteredManagementCommands = computed(() => {
   }
 
   return props.commands.filter(command => {
-    try {
-      const commandTags = JSON.parse(command.tags) as string[]
-      const normalizedCommandTags = commandTags.map(tag => tag.toLowerCase())
-
-      // OR logic: command matches if it has ANY of the selected tags
-      return selectedManagementTags.value.some(selectedTag =>
-        normalizedCommandTags.some(commandTag =>
-          commandTag.includes(selectedTag.toLowerCase())
-        )
+    // Use pre-normalized tags for performance (from optimization)
+    // OR logic: command matches if it has ANY of the selected tags
+    return selectedManagementTags.value.some(selectedTag =>
+      command.tagsNormalized.some(commandTag =>
+        commandTag.includes(selectedTag.toLowerCase())
       )
-    } catch {
-      return false
-    }
+    )
   })
 })
 
