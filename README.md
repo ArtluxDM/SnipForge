@@ -5,7 +5,7 @@ A desktop application for saving, searching, and managing commands and text snip
 ## Features
 
 - **Multiple Editor Types**: Plain Text, Rich Text (WYSIWYG), Markdown, and Code editors
-- **Syntax Highlighting**: Support for 12+ programming languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash)
+- **Syntax Highlighting**: Support for 15+ programming languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash, PHP, XML, and more)
 - **Rich Text Editing**: WYSIWYG editor with formatting, lists, task lists, and links.
 - **Markdown Support**: Markdown editor with toolbar and syntax highlighting
 - **Real-time Search**: Search by title, body, or tags across all snippets
@@ -88,26 +88,31 @@ When copied, you'll be prompted to enter values for each variable.
 
 ### ✅ Completed Features
 - [x] Multiple editor types (Plain Text, Rich Text, Markdown, Code)
-- [x] Syntax highlighting for 12+ programming languages
+- [x] Syntax highlighting for 15+ programming languages
 - [x] WYSIWYG rich text editor with custom checkboxes
 - [x] Markdown editor with toolbar
 - [x] Global hotkey access
 - [x] Command CRUD operations (Create, Read, Update, Delete)
 - [x] Real-time search filtering
+- [x] Fuzzy search with weighted scoring (Fuse.js)
+- [x] Tag filtering with AND logic
 - [x] Variable substitution system
 - [x] Tag system with autocomplete
 - [x] Keyboard navigation and shortcuts
-- [x] Clipboard integration
+- [x] Clipboard integration (multi-format: HTML + plain text)
 - [x] Export/Import with tag filtering
+- [x] Duplicate detection on import
 - [x] Built-in help system with markdown rendering
+- [x] Virtual scrolling for performance
+- [x] Description field with markdown support
+- [x] Content sanitization (DOMPurify for XSS protection)
+- [x] Syntax highlighting in copied code (highlight.js)
 - [x] SQLite local storage
 - [x] Custom title bar and window management
 - [x] System tray integration
 - [x] Windows and Linux builds via GitHub Actions
 
 ### 🔄 Upcoming Improvements
-- [ ] Tag management (edit/delete existing tags)
-- [ ] Search improvements (fuzzy search)
 - [ ] Command history and favorites
 - [ ] Cloud sync (optional)
 - [ ] Themes and customization

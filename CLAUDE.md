@@ -29,9 +29,9 @@ pnpm install
 pnpm dev        # starts Electron + Vite dev server
 
 # Core dependencies
-pnpm add better-sqlite3 lucide-vue-next marked
+pnpm add better-sqlite3 lucide-vue-next marked fuse.js highlight.js dompurify virtua
 pnpm add codemirror @codemirror/lang-* @tiptap/vue-3 @tiptap/starter-kit @tiptap/extension-*
-pnpm add -D @types/better-sqlite3
+pnpm add -D @types/better-sqlite3 @types/dompurify
 
 # Build
 pnpm build      # production build
@@ -43,8 +43,10 @@ pnpm build      # production build
 - Desktop: Electron + Vue 3 + Vite + TypeScript
 - Database: SQLite via better-sqlite3 (synchronous, local storage)
 - Editors: CodeMirror 6 (code/markdown), TipTap (rich text)
-- Search: Client-side text matching
-- UI: Lucide icons, Marked for markdown rendering
+- Search: Fuse.js (fuzzy search with weighted scoring)
+- UI: Lucide icons, Marked for markdown rendering, highlight.js for syntax highlighting
+- Security: DOMPurify for HTML sanitization
+- Performance: Virtua for virtual scrolling
 - OS Integration: Electron's globalShortcut, clipboard, system tray
 
 **Process Architecture:**
@@ -70,7 +72,7 @@ updated_at TEXT NOT NULL
    - **Plain Text:** Simple text input
    - **Rich Text:** WYSIWYG editor with formatting, lists, task lists, links, images (TipTap)
    - **Markdown:** Syntax-highlighted markdown with toolbar (CodeMirror)
-   - **Code:** Syntax highlighting for 12+ languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash)
+   - **Code:** Syntax highlighting for 15+ languages (JavaScript, TypeScript, Python, Go, Rust, Java, HTML, CSS, YAML, JSON, SQL, Bash, PHP, XML, and more)
 
 2. **Global Hotkey:** Opens search palette (default: Ctrl/Cmd+Shift+Space)
 3. **Text Search:** Real-time search across title, body, and description
@@ -100,13 +102,13 @@ updated_at TEXT NOT NULL
 
 ### Automated Release (Recommended)
 
-Use the Release Manager Agent for consistent, automated releases:
+Use the Release Manager Agent for consistent, automated releases. Since this is a Claude subagent (not a slash command), invoke it by asking:
 
-```bash
-/release auto          # Analyze commits and auto-determine version bump
-/release patch         # Force patch bump
-/release minor         # Force minor bump
-/release major         # Force major bump
+```
+"Use the release manager agent to create an auto release"
+"Use release-manager to bump patch version"
+"I want to create a new release"
+"Check release status using the release manager"
 ```
 
 The agent will:
