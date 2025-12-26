@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, onUnmounted } from 'vue'
 import { EditorView, basicSetup } from 'codemirror'
-import { EditorState } from '@codemirror/state'
+import { EditorState, Compartment } from '@codemirror/state'
 import { javascript } from '@codemirror/lang-javascript'
 import { python } from '@codemirror/lang-python'
 import { html } from '@codemirror/lang-html'
@@ -30,6 +30,9 @@ const emit = defineEmits<{
 
 const editorRef = ref<HTMLElement>()
 let editorView: EditorView | null = null
+
+// Compartment for dynamic language reconfiguration (avoid editor destruction)
+const languageCompartment = new Compartment()
 
 // Get language extension based on language prop
 const getLanguageExtension = (lang: string) => {
@@ -92,12 +95,10 @@ onMounted(() => {
       '.cm-activeLine': {
         backgroundColor: '#2a2a2a'
       }
-    })
+    }),
+    // Use compartment for dynamic language switching
+    languageCompartment.of(languageExtension || [])
   ]
-
-  if (languageExtension) {
-    extensions.push(languageExtension)
-  }
 
   const state = EditorState.create({
     doc: props.modelValue,
@@ -123,94 +124,13 @@ watch(() => props.modelValue, (newValue) => {
   }
 })
 
-// Watch for language changes
-watch(() => props.language, () => {
-  if (editorView && editorRef.value) {
-    const currentValue = editorView.state.doc.toString()
-    editorView.destroy()
-
-    const languageExtension = getLanguageExtension(props.language)
-    const extensions = [
-      basicSetup,
-      EditorView.updateListener.of((update) => {
-        if (update.docChanged) {
-          emit('update:modelValue', update.state.doc.toString())
-        }
-      }),
-      EditorView.theme({
-        '&': {
-          fontSize: '14px',
-          backgroundColor: '#1a1a1a',
-          color: '#ffffff'
-        },
-        '.cm-content': {
-          caretColor: '#ec5002ee',
-          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, monospace'
-        },
-        '.cm-cursor': {
-          borderLeftColor: '#ec5002ee'
-        },
-        '.cm-selectionBackground, ::selection': {
-          backgroundColor: '#3a3a3a !important'
-        },
-        '&.cm-focused .cm-selectionBackground, &.cm-focused ::selection': {
-          backgroundColor: '#3a3a3a !important'
-        },
-        '.cm-gutters': {
-          backgroundColor: '#1a1a1a',
-          color: '#666',
-          border: 'none'
-        },
-        '.cm-activeLineGutter': {
-          backgroundColor: '#2a2a2a'
-        },
-        '.cm-activeLine': {
-          backgroundColor: '#2a2a2a'
-        },
-        '.cm-tooltip': {
-          backgroundColor: '#2a2a2a',
-          border: '1px solid #404040',
-          borderRadius: '4px',
-          color: '#e3e3e3'
-        },
-        '.cm-tooltip.cm-tooltip-autocomplete > ul': {
-          fontFamily: 'Monaco, Menlo, "Ubuntu Mono", Consolas, monospace',
-          fontSize: '13px'
-        },
-        '.cm-tooltip.cm-tooltip-autocomplete > ul > li': {
-          color: '#e3e3e3',
-          padding: '4px 8px'
-        },
-        '.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected]': {
-          backgroundColor: '#ec5002ee',
-          color: '#ffffff'
-        },
-        '.cm-completionLabel': {
-          color: '#e3e3e3'
-        },
-        '.cm-completionDetail': {
-          color: '#999',
-          fontStyle: 'italic'
-        },
-        '.cm-completionMatchedText': {
-          color: '#ec5002ee',
-          fontWeight: 'bold'
-        }
-      })
-    ]
-
-    if (languageExtension) {
-      extensions.push(languageExtension)
-    }
-
-    const state = EditorState.create({
-      doc: currentValue,
-      extensions
-    })
-
-    editorView = new EditorView({
-      state,
-      parent: editorRef.value
+// Watch for language changes - use reconfiguration instead of destroy/recreate
+watch(() => props.language, (newLang) => {
+  if (editorView) {
+    const newExtension = getLanguageExtension(newLang)
+    // Reconfigure the language compartment instead of destroying the editor
+    editorView.dispatch({
+      effects: languageCompartment.reconfigure(newExtension || [])
     })
   }
 })

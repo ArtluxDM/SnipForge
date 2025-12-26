@@ -29,11 +29,7 @@ package-lock.json
 yarn.lock
 
 # Learning project files (keep local only)
-COURSE.md
 QUIZZES.md
-SnipForge_MVP_Plan.md
-research.md
-for_the_future.md
 
 # Claude Code agents (personal workflow)
 .claude/

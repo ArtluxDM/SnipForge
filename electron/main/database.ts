@@ -34,7 +34,11 @@ try {
             language TEXT DEFAULT 'plaintext',
             created_at TEXT NOT NULL,
             updated_at TEXT NOT NULL
-        )
+        );
+
+        -- Performance indices for frequently queried columns
+        CREATE INDEX IF NOT EXISTS idx_commands_title ON commands(title);
+        CREATE INDEX IF NOT EXISTS idx_commands_updated_at ON commands(updated_at DESC);
     `)
 
     // Add description column to existing tables (migration)

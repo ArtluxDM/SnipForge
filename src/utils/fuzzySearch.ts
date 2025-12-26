@@ -6,6 +6,8 @@ export interface Command {
   body: string
   description: string
   tags: string
+  tagsArray: string[] // Pre-parsed tags for performance
+  tagsNormalized: string[] // Pre-normalized (lowercase) for filtering
   language: string
   created_at: string
   updated_at: string
@@ -24,6 +26,10 @@ const fuseOptions: IFuseOptions<Command> = {
   shouldSort: true
 }
 
+// Cache for Fuse.js instance to avoid recreation on every search
+let cachedFuse: Fuse<Command> | null = null
+let cachedCommands: Command[] | null = null
+
 export function fuzzySearchCommands(
   commands: Command[],
   query: string
@@ -32,8 +38,13 @@ export function fuzzySearchCommands(
     return commands
   }
 
-  const fuse = new Fuse(commands, fuseOptions)
-  const results = fuse.search(query)
+  // Recreate Fuse instance only if commands array reference changed
+  if (cachedCommands !== commands) {
+    cachedFuse = new Fuse(commands, fuseOptions)
+    cachedCommands = commands
+  }
+
+  const results = cachedFuse!.search(query)
 
   return results.map(result => result.item)
 }

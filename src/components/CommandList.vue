@@ -27,8 +27,8 @@
             </div>
             <div class="command-meta">
               <span class="command-language">{{ command.language }}</span>
-              <span v-if="parsedTags(command.tags).length > 0" class="command-tags">
-                {{ parsedTags(command.tags).join(', ') }}
+              <span v-if="command.tagsArray.length > 0" class="command-tags">
+                {{ command.tagsArray.join(', ') }}
               </span>
             </div>
           </div>
@@ -51,6 +51,8 @@ interface Command {
   body: string
   description?: string
   tags: string
+  tagsArray: string[] // Pre-parsed tags
+  tagsNormalized: string[] // Pre-normalized (lowercase) for filtering
   language?: string
   created_at: string
   updated_at: string
@@ -72,15 +74,6 @@ defineEmits<{
 
 const isSelected = (id: number): boolean => {
   return props.selectedIds.includes(id)
-}
-
-const parsedTags = (tagsJson: string): string[] => {
-  try {
-    const tags = JSON.parse(tagsJson)
-    return Array.isArray(tags) ? tags : []
-  } catch {
-    return []
-  }
 }
 </script>
 

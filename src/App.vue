@@ -2,6 +2,7 @@
 console.log('App.vue script is running')
 // Import the ref function from Vue for creating reactive data
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { refDebounced } from '@vueuse/core'
 import CommandModal from './components/CommandModal.vue'
 import VariableInputModal from './components/VariableInputModal.vue'
 import SettingsModal from './components/SettingsModal.vue'
@@ -25,6 +26,8 @@ type Command = {
   body: string
   description: string
   tags: string
+  tagsArray: string[] // Pre-parsed tags for performance
+  tagsNormalized: string[] // Pre-normalized (lowercase) for filtering
   language: string
   created_at: string
   updated_at: string
@@ -76,20 +79,8 @@ const checkMaximizedState = async () => {
 
 // Search query refs
 const searchQuery = ref('')  // Immediate value (updates on every keystroke)
-const debouncedSearchQuery = ref('')  // Debounced value (updates after typing stops)
+const debouncedSearchQuery = refDebounced(searchQuery, 200)  // Debounced value (updates after typing stops)
 const searchInputRef = ref<HTMLInputElement>()
-let searchDebounceTimeout: number | null = null
-
-// Debounce search query (wait 200ms after user stops typing)
-watch(searchQuery, (newValue) => {
-  if (searchDebounceTimeout) {
-    clearTimeout(searchDebounceTimeout)
-  }
-
-  searchDebounceTimeout = window.setTimeout(() => {
-    debouncedSearchQuery.value = newValue
-  }, 200)
-})
 
 // Tag filtering state
 const selectedTags = ref<string[]>([])
@@ -166,7 +157,15 @@ const loadCommands = async () => {
   try {
     // call the API to get all commands
     const dbCommands = await window.electronAPI.database.getAllCommands()
-    commands.value = dbCommands
+    // Pre-parse and pre-normalize tags for performance
+    commands.value = dbCommands.map(cmd => {
+      const tagsArray = JSON.parse(cmd.tags || '[]')
+      return {
+        ...cmd,
+        tagsArray,
+        tagsNormalized: tagsArray.map((tag: string) => tag.toLowerCase())
+      }
+    })
     console.log('Commands loaded from database:', dbCommands.length)
   }catch(error){
     console.error('Error loading commands from database:', error)
@@ -195,8 +194,7 @@ onMounted(() => {
   if (window.electronAPI) {
     window.electronAPI.onWindowShown(() => {
       // Clear search and focus input when window is shown via global hotkey
-      searchQuery.value = ''
-      debouncedSearchQuery.value = ''
+      searchQuery.value = '' // refDebounced will automatically clear debouncedSearchQuery
       selectedCommandId.value = null
       showFilterDropdown.value = false
 
@@ -223,19 +221,13 @@ const filteredCommands = computed(() => {
   // Stage 1: Filter by selected tags (if any)
   if (selectedTags.value.length > 0) {
     dataset = dataset.filter(command => {
-      try {
-        const commandTags = JSON.parse(command.tags) as string[]
-        const normalizedCommandTags = commandTags.map(tag => tag.toLowerCase())
-
-        // Command must have ANY selected tag (OR logic - more tags = more results)
-        return selectedTags.value.some(selectedTag =>
-          normalizedCommandTags.some(commandTag =>
-            commandTag.includes(selectedTag.toLowerCase())
-          )
+      // Use pre-normalized tags for performance (avoid runtime toLowerCase)
+      // Command must have ANY selected tag (OR logic - more tags = more results)
+      return selectedTags.value.some(selectedTag =>
+        command.tagsNormalized.some(commandTag =>
+          commandTag.includes(selectedTag.toLowerCase())
         )
-      } catch {
-        return false
-      }
+      )
     })
   }
 
@@ -304,6 +296,10 @@ const getCommandPreview = (body: string, language: string): string => {
   return body
 }
 
+// LRU cache for rendered content (markdown/HTML) - max 100 entries
+const renderedContentCache = new Map<string, { html: string, plain: string }>()
+const MAX_CACHE_SIZE = 100
+
 // Actual clipboard copy function with HTML generation
 const copyToClipboard = async (text: string, language: string = 'plaintext') => {
   try {
@@ -311,18 +307,41 @@ const copyToClipboard = async (text: string, language: string = 'plaintext') => 
     let html: string | undefined
     let plainText = text
 
-    if (language === 'richtext') {
-      // Rich text is already HTML from TipTap (TipTap sanitizes by default)
-      // Sanitize for extra safety when copying to clipboard
-      html = DOMPurify.sanitize(text)
-      // Extract plain text from HTML for plain text clipboard
-      plainText = stripHtml(html)
-    } else if (language === 'markdown') {
-      // Convert markdown to HTML and sanitize to prevent XSS in receiving apps
-      const rawHtml = marked.parse(text, { async: false })
-      html = DOMPurify.sanitize(rawHtml)
+    if (language === 'richtext' || language === 'markdown') {
+      // Use cache for expensive rendering operations
+      const cacheKey = `${language}:${text}`
+      let cached = renderedContentCache.get(cacheKey)
+
+      if (!cached) {
+        // Not cached - compute and cache
+        if (language === 'richtext') {
+          // Rich text is already HTML from TipTap (TipTap sanitizes by default)
+          // Sanitize for extra safety when copying to clipboard
+          html = DOMPurify.sanitize(text)
+          // Extract plain text from HTML for plain text clipboard
+          plainText = stripHtml(html)
+        } else if (language === 'markdown') {
+          // Convert markdown to HTML and sanitize to prevent XSS in receiving apps
+          const rawHtml = marked.parse(text, { async: false })
+          html = DOMPurify.sanitize(rawHtml)
+          plainText = text // For markdown, keep original as plain text
+        }
+
+        // Cache the result
+        cached = { html: html!, plain: plainText }
+        renderedContentCache.set(cacheKey, cached)
+
+        // LRU eviction: Keep cache size reasonable
+        if (renderedContentCache.size > MAX_CACHE_SIZE) {
+          const firstKey = renderedContentCache.keys().next().value
+          renderedContentCache.delete(firstKey!)
+        }
+      }
+
+      html = cached.html
+      plainText = cached.plain
     } else if (language !== 'plaintext') {
-      // Generate syntax highlighted HTML
+      // Generate syntax highlighted HTML (no caching for code - less frequently copied)
       try {
         const highlighted = hljs.highlight(text, { language }).value
         html = `<pre><code class="hljs language-${language}">${highlighted}</code></pre>`
@@ -822,8 +841,7 @@ const handleKeyboard = (event: KeyboardEvent) => {
     } else if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
       ;(target as HTMLInputElement).blur()
     } else if (searchQuery.value) {
-      searchQuery.value = ''
-      debouncedSearchQuery.value = ''
+      searchQuery.value = '' // refDebounced will automatically clear debouncedSearchQuery
     }
     return
   }
@@ -900,9 +918,18 @@ marked.setOptions({
   gfm: true
 })
 
+// Cache for description tooltips to avoid redundant regex operations
+const descriptionTooltipCache = new Map<number, string>()
+
 // Get plain text from markdown description for tooltip (strip markdown syntax)
-const getDescriptionTooltip = (description: string): string => {
+const getDescriptionTooltip = (commandId: number, description: string): string => {
   if (!description) return ''
+
+  // Check cache first
+  if (descriptionTooltipCache.has(commandId)) {
+    return descriptionTooltipCache.get(commandId)!
+  }
+
   // Strip markdown syntax for plain text display
   let plainText = description
     .replace(/\*\*(.+?)\*\*/g, '$1')  // **bold**
@@ -914,8 +941,18 @@ const getDescriptionTooltip = (description: string): string => {
   // Take first 100 characters or first 2 lines, whichever is shorter
   const lines = plainText.split('\n').slice(0, 2)
   const preview = lines.join(' ')
-  return preview.length > 100 ? preview.substring(0, 100) + '...' : preview
+  const result = preview.length > 100 ? preview.substring(0, 100) + '...' : preview
+
+  // Cache the result
+  descriptionTooltipCache.set(commandId, result)
+
+  return result
 }
+
+// Clear tooltip cache when commands change
+watch(commands, () => {
+  descriptionTooltipCache.clear()
+})
 
 // Open description modal
 const openDescriptionModal = (title: string, description: string) => {
@@ -1017,6 +1054,7 @@ const openDescriptionModal = (title: string, description: string) => {
       <VList
         class="results"
         :data="filteredCommands"
+        :item-key="(command: Command) => command.id"
       >
         <template #default="{ item: command, index }">
           <div
@@ -1034,7 +1072,7 @@ const openDescriptionModal = (title: string, description: string) => {
                   class="info-icon"
                   @click.stop="openDescriptionModal(command.title, command.description)"
                   tabindex="-1"
-                  :title="getDescriptionTooltip(command.description)"
+                  :title="getDescriptionTooltip(command.id, command.description)"
                 >
                   <HelpCircle :size="14" />
                 </button>
