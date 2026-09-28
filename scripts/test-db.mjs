@@ -28,6 +28,10 @@ function run(command, args) {
 
 const vitestArgs = process.argv.slice(2).filter((arg) => arg !== '--')
 
+// A fresh pnpm install may lack the Electron binary; parallel Vitest imports
+// must not race electron/index.js's on-demand downloader.
+run('pnpm', ['rebuild', 'electron'])
+run(process.execPath, ['-e', "const fs = require('node:fs'); if (!fs.existsSync(require('electron'))) throw new Error('Electron binary missing after rebuild')"])
 // pnpm rebuild selects the invoking Node runtime, not Electron's ABI.
 run('pnpm', ['rebuild', 'better-sqlite3'])
 run(process.execPath, ['-e', "const db = new (require('better-sqlite3'))(':memory:'); db.close(); console.log('Node native ABI:', process.versions.modules)"])
