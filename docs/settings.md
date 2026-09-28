@@ -56,6 +56,17 @@ const { settings, updateSetting } = useSettings()
 
 SettingsModal consumes this composable. Other components can too (e.g., App.vue for hotkey display).
 
+### Palette search on reopen (issue [#83](https://github.com/ArtluxDM/SnipForge/issues/83))
+
+When the global hotkey shows the palette, the search field should regain focus without changing its query or filtered results. The user can then continue editing the previous search. Explicit clearing through the keyboard remains available.
+
+Plan:
+- [x] Keep the current search value in the renderer's `window-shown` handler and focus the search input.
+- [x] Cover reopening with a populated search in a renderer regression test.
+- [x] Run the focused test and renderer and main type checks.
+
+Implementation: `App.vue` now leaves the query untouched on `window-shown`, closes the filter dropdown, clears command selection, and focuses the search input through its Vue ref. The regression test confirms that the query and filtered commands survive reopening. Verified with `pnpm exec vitest run tests/app-copy.test.ts`, `pnpm typecheck:renderer`, and `pnpm typecheck:main`.
+
 ---
 
 ## Tab Structure

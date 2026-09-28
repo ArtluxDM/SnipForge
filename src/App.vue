@@ -247,17 +247,13 @@ onMounted(async () => {
   // Listen for window-shown event from main process
   if (window.electronAPI) {
     cleanupWindowShown = window.electronAPI.onWindowShown(() => {
-      // Clear search and focus input when window is shown via global hotkey
-      searchQuery.value = '' // refDebounced will automatically clear debouncedSearchQuery
+      // Keep the current search when the palette is reopened.
       selectedCommandId.value = null
       showFilterDropdown.value = false
 
       // Focus the search input
       setTimeout(() => {
-        const searchInput = document.querySelector('input[type="text"]') as HTMLInputElement
-        if (searchInput) {
-          searchInput.focus()
-        }
+        searchInputRef.value?.focus()
       }, 100)
     })
 
