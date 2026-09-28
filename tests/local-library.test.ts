@@ -5,6 +5,7 @@ import { execFile } from 'node:child_process'
 import { promises as fs } from 'node:fs'
 import { pathToFileURL } from 'node:url'
 import { promisify } from 'node:util'
+import AdmZip from 'adm-zip'
 import * as db from '../electron/main/database'
 import * as settings from '../electron/main/settings'
 import {
@@ -16,6 +17,7 @@ import {
     getLibraryWorkingTreeStatus,
     deleteLocalLibraryCommands,
     deleteLocalLibraryCommand,
+    exportAsLibrary,
     migrateLegacyDbOnlyCommandsToDefaultLibrary,
     migrateRemoteLibrariesToLocalWorkingCopies,
     openLocalFolder,
@@ -53,6 +55,40 @@ beforeEach(async () => {
 afterEach(async () => {
     db.closeDatabase()
     await fs.rm(tmpDir, { recursive: true, force: true })
+})
+
+// ── exportAsLibrary ─────────────────────────────────────────────
+
+describe('exportAsLibrary', () => {
+    it('creates a portable library ZIP with manifest and command files', async () => {
+        const now = new Date().toISOString()
+
+        const zipPath = await exportAsLibrary({
+            name: 'Security Export',
+            description: 'ZIP export smoke test',
+            commands: [{
+                title: 'Hello World',
+                body: 'echo hello',
+                description: 'basic command',
+                tags: ['security', 'zip'],
+                language: 'plaintext',
+                created_at: now,
+                updated_at: now,
+            }],
+        })
+
+        const zip = new AdmZip(zipPath)
+        const entries = zip.getEntries().map(entry => entry.entryName).sort()
+
+        expect(entries).toContain('security-export/.snipforge.json')
+        expect(entries).toContain('security-export/hello-world.json')
+
+        const manifest = JSON.parse(zip.readAsText('security-export/.snipforge.json'))
+        const command = JSON.parse(zip.readAsText('security-export/hello-world.json'))
+
+        expect(manifest).toMatchObject({ snipforge: 'library', name: 'Security Export' })
+        expect(command).toMatchObject({ title: 'Hello World', body: 'echo hello' })
+    })
 })
 
 // ── slugify ─────────────────────────────────────────────────────
