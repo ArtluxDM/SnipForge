@@ -379,7 +379,7 @@ async function createWindow() {
 
     // Prevent window from closing completely, hide instead (like menu bar apps)
     // But allow closing when the app is actually quitting
-    if (!isAppQuiting) {
+    if (!isAppQuiting && win && !win.isDestroyed()) {
       event.preventDefault()
       win.hide()
     }
@@ -593,7 +593,7 @@ secureIpcHandle('file:writeFile', async (_, filePath: string, content: string) =
     return { success: true }
   } catch (error) {
     console.error('Error writing file:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 })
 
@@ -609,7 +609,7 @@ secureIpcHandle('file:readFile', async (_, filePath: string) => {
     return { success: true, content }
   } catch (error) {
     console.error('Error reading file:', error)
-    return { success: false, error: error.message }
+    return { success: false, error: error instanceof Error ? error.message : String(error) }
   }
 })
 secureIpcHandle('dialog:showInputDialog', async (_,title: string, label: string,defaultValue: string = '') =>

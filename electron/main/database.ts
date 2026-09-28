@@ -10,7 +10,7 @@ type LibraryRow = Omit<Library, 'local_path' | 'origin' | 'working_copy'> & {
 }
 // Initialize and export the database connection
 let db: Database.Database | null = null;
-export function initializeDatabase(customDbPath?: string) {
+export function initializeDatabase(customDbPath?: string): Database.Database {
     console.log('Initializing database...')
     // get the path where electron stores user data
     const dbPath = customDbPath || path.join(app.getPath('userData'), 'snipforge.db')

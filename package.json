@@ -1,6 +1,7 @@
 {
   "name": "snipforge",
   "version": "2.13.1",
+  "packageManager": "pnpm@10.16.0",
   "main": "dist-electron/main/index.js",
   "description": "A desktop app for saving, searching, and managing command snippets.",
   "author": "Artluxdm",
@@ -34,8 +35,11 @@
     "dev:debug": "node scripts/dev-app.mjs 9222",
     "build": "vue-tsc --noEmit && vite build && electron-builder",
     "preview": "vite preview",
-    "test:db": "node scripts/test-db.mjs",
-    "test": "vitest run",
+    "test:db": "node scripts/test-db.mjs tests/database.test.ts",
+    "test": "node scripts/test-db.mjs",
+    "native:electron": "node scripts/prepare-electron-native.mjs",
+    "typecheck:main": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:renderer": "vue-tsc --noEmit -p tsconfig.json",
     "test:watch": "vitest"
   },
   "devDependencies": {

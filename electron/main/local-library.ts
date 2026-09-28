@@ -1131,7 +1131,7 @@ function toWorkingCopyCommandPath(remotePath: string, manifestPath: string | nul
     return remotePath.startsWith(prefix) ? remotePath.slice(prefix.length) : remotePath
 }
 
-function resolveLibraryBackedCommand(commandId: number): { command: db.Command; library: Library } | null {
+function resolveLibraryBackedCommand(commandId: number): { command: db.Command & { remote_path: string }; library: Library } | null {
     const command = db.getAllCommands().find(c => c.id === commandId)
     if (!command || command.source !== 'remote' || !command.library_id || !command.remote_path) {
         return null
@@ -1142,10 +1142,10 @@ function resolveLibraryBackedCommand(commandId: number): { command: db.Command; 
         return null
     }
 
-    return { command, library }
+    return { command: { ...command, remote_path: command.remote_path }, library }
 }
 
-function resolveWritableFileBackedCommand(commandId: number): { command: db.Command; library: Library } | null {
+function resolveWritableFileBackedCommand(commandId: number): { command: db.Command & { remote_path: string }; library: Library } | null {
     const target = resolveLibraryBackedCommand(commandId)
     if (!target || !isWritableLocalLibrary(target.library)) {
         return null

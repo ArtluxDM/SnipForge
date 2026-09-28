@@ -28,5 +28,7 @@ function run(command, args) {
 
 const vitestArgs = process.argv.slice(2).filter((arg) => arg !== '--')
 
+// pnpm rebuild selects the invoking Node runtime, not Electron's ABI.
 run('pnpm', ['rebuild', 'better-sqlite3'])
-run('pnpm', ['exec', 'vitest', 'run', 'tests/database.test.ts', ...vitestArgs])
+run(process.execPath, ['-e', "const db = new (require('better-sqlite3'))(':memory:'); db.close(); console.log('Node native ABI:', process.versions.modules)"])
+run('pnpm', ['exec', 'vitest', 'run', ...vitestArgs])
