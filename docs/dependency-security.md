@@ -7,7 +7,7 @@ SnipForge depends on an Electron runtime plus renderer/main-process libraries th
 ## GitHub issue
 
 - Issue: [#68 — Triage and update security-sensitive dependencies](https://github.com/ArtluxDM/SnipForge/issues/68)
-- Source review: `review-2026-09-28-findings.md` finding 1 / `temp-1-security-dependencies.md`
+- Source review: finding 1, captured in the tracked issue #68 and the baseline/final notes below (local review scratch is not required to use this doc).
 
 ## Plan before code changes
 

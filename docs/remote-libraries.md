@@ -29,7 +29,7 @@ Delete or fold it into shorter historical notes once all of the following are tr
 
 ---
 
-The remainder of this file is preserved as legacy implementation history from the older remote-library model.
+The remainder of this file is preserved as legacy implementation history from the older remote-library model. In particular, its token-storage and subscription-flow descriptions are not current security or setup guidance; see `docs/schema.md` and `docs/library-working-copies.md`.
 
 Remote Libraries let teams share command snippets via GitHub repositories. A curator maintains a repo with command files, and team members subscribe to pull those commands into their local SnipForge.
 

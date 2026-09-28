@@ -24,7 +24,7 @@
 
 You have hundreds of commands across Docker, Kubernetes, Git, SSH, APIs, and internal tooling. Some live in Notion, some in Slack messages, some you just google every time. SnipForge puts them all in one place — a global hotkey palette that opens from anywhere, searches instantly, and copies to your clipboard with variable substitution.
 
-Teams use it to share command libraries via GitHub repos. New members subscribe to the team library and have every command at their fingertips.
+Teams can share command libraries through GitHub repos. Adding a GitHub library creates a local working copy of its command files; a local folder works without GitHub.
 
 ## Features
 
@@ -42,9 +42,9 @@ Teams use it to share command libraries via GitHub repos. New members subscribe 
 
 **Multi-format editors** — Plain text, rich text (TipTap), Markdown, and syntax-highlighted code for 15+ languages (JavaScript, Python, Go, Rust, Bash, SQL, YAML, and more).
 
-**Team libraries** — Share command collections through GitHub repos or local folders. Curators publish, members subscribe. Auto-sync keeps everyone current.
+**Libraries** — Keep commands as JSON files in local folders; optionally link a library to a GitHub repo for library-level fetch, commit, push, or PR workflows. Auto-sync can refresh the local index.
 
-**Privacy-first** — Everything stays on your machine. SQLite database, no cloud, no accounts required, no telemetry. GitHub auth is optional and only used for team library sync.
+**Local-first** — Command files live in folders you choose; SQLite indexes them and stores app settings. No account is needed for local libraries. Optional GitHub features use GitHub's API and local Git working copies; update checks contact GitHub Releases when enabled. No telemetry is built in.
 
 **Keyboard-driven** — Full navigation without a mouse. Customizable shortcuts for every action.
 
@@ -66,9 +66,9 @@ Get the latest stable release from the [Releases page](https://github.com/Artlux
 
 ## Quick Start
 
-1. Install and launch SnipForge
+1. Install and launch SnipForge; choose a folder for your default writable library when prompted (commands are stored there as JSON files)
 2. Press `Cmd+Shift+Space` (or `Ctrl+Shift+Space`) to open the palette
-3. Start typing to search — results update in real time
+3. Create a command or open an existing library folder, then type to search
 4. Press `Enter` or `C` to copy a command
 5. If the command has `{{variables}}`, fill in the values when prompted
 
@@ -89,23 +89,27 @@ All shortcuts are customizable in Settings > General.
 
 ### Team Libraries
 
-1. Open Settings > **Libraries**
-2. Sign in with GitHub (Settings > Connectors)
-3. Enter a repo URL (e.g., `org/team-commands`)
-4. Click **Subscribe** — commands sync to your palette
+1. Open Settings > **Libraries**; open a local folder for an offline library, or connect GitHub in Settings > Connectors to add a repo-backed one
+2. Enter a GitHub repo URL (or `org/team-commands`) and click **Subscribe** (the current UI label); choose a library if the repo contains more than one
+3. SnipForge clones the repo into a local working copy and indexes its command files. Use the library's management view for refresh and Git workflows; available write actions depend on permissions and working-copy state
 
-Libraries support auto-sync, local folders, and role-based permissions (owner/curator/consumer). See [docs/remote-libraries.md](docs/remote-libraries.md) for details.
+Local libraries do not require GitHub. An unreadable or invalid command JSON blocks that library's sync without discarding its previous search index; repair or remove the bad file and sync again. See [Library Working Copies](docs/library-working-copies.md) for current behavior and [Library-First Command Storage](docs/library-first-command-storage.md) for reconciliation details.
 
 ## Build from Source
 
 ```bash
 git clone https://github.com/ArtluxDM/SnipForge.git
 cd SnipForge
-pnpm install
-pnpm dev       # development
-pnpm build     # production build
-pnpm test:db   # rebuild better-sqlite3 and run the SQLite test suite
+# Use Node 24 (.nvmrc) and pnpm 10.16.0 (packageManager)
+pnpm install --frozen-lockfile
+pnpm typecheck:main
+pnpm typecheck:renderer
+pnpm test       # prepares Node-native dependencies, then runs the full suite
+pnpm dev        # prepares Electron-native dependencies before Vite/Electron
+pnpm build      # production packaging; rebuilds Electron-native dependencies
 ```
+
+Run `pnpm test:db` for just the SQLite suite. After tests, use `pnpm native:electron` to prepare/probe Electron's native addon before launching it (`pnpm dev` does this automatically). Do not run tests and packaging concurrently in the same checkout. See [Release Pipeline](docs/release.md) for CI, smoke checks and publishing.
 
 ## Tech Stack
 
@@ -119,7 +123,9 @@ pnpm test:db   # rebuild better-sqlite3 and run the SQLite test suite
 
 ## Documentation
 
-- [Remote Libraries](docs/remote-libraries.md) — GitHub/local library setup, sync algorithm, publishing
+- [Library Working Copies](docs/library-working-copies.md) — current local/GitHub library behavior
+- [Library-First Command Storage](docs/library-first-command-storage.md) — files, index and sync behavior
+- [Release Pipeline](docs/release.md) — checks, packaging and manual publication
 - [DB Health](docs/db-health.md) — SQLite maintenance checks and DB test recovery
 - [Codebase Map](docs/codebase-map.md) — File reference, architecture, IPC channels
 - [Settings](docs/settings.md) — Configuration, hotkey remapping, auto-sync

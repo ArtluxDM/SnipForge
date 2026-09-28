@@ -127,7 +127,9 @@ This keeps the mental model clean: all commands belong to local libraries on dis
 
 ---
 
-## Developer Reference
+## Historical design and roadmap
+
+The sections below record the original library-first proposal and issue roadmap, **not** a second current product contract. In particular, the old “remote libraries subscribed, read-only by default” table row and DB-only fallback milestones describe prior/target states. Use the **Active Notes** above and `docs/library-working-copies.md` for shipped storage and working-copy behavior.
 
 ### Product Model
 

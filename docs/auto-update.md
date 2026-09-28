@@ -4,7 +4,7 @@ Automatic update checking and notification for the desktop app. Users should kno
 
 ## Context
 
-Releases are already built via GitHub Actions and published as GitHub Releases (draft → publish). The app currently has no awareness of newer versions. This feature closes that loop.
+Releases are built via GitHub Actions as drafts for manual review/publication. Phase 1 below is implemented: the app checks for newer **stable published** GitHub Releases and shows a banner; Phase 2 (in-app download/install) is not implemented. The original Phase 1 design below is retained for context.
 
 ## Design
 
@@ -131,4 +131,4 @@ show banner = updateAvailable
 
 ## Status
 
-Not started. Needs GitHub issue.
+Phase 1 implemented in `electron/main/update.ts`, `src/components/UpdateBanner.vue`, and Settings; checks use `/releases/latest`, skip drafts/prereleases, and link to snipforge.dev. Phase 2 is future work, not a shipped download/install feature.

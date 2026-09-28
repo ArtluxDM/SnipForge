@@ -105,14 +105,12 @@ Those derived fields are assembled in application code rather than stored as raw
 
 ### auth
 
-Encrypted token storage.
-
-Tokens are encrypted with Electron `safeStorage` before they are written.
+GitHub token storage. `electron/main/github.ts` uses Electron `safeStorage` when encryption is available and base64-encodes the result for SQLite. If encryption is unavailable, it stores **base64 only**, which is not encryption. On Linux, the `basic_text` safeStorage backend is also not secure storage; do not assume tokens are protected at rest on every installation.
 
 | Column | Type | Default | Description |
 |--------|------|---------|-------------|
 | `key` | TEXT | PK | Token identifier, e.g. `github_token` |
-| `value` | TEXT | NOT NULL | Encrypted token value |
+| `value` | TEXT | NOT NULL | Base64-encoded token value (encrypted only when a secure `safeStorage` backend is available) |
 
 ### settings
 
