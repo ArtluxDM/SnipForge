@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import path from 'node:path'
 import os from 'node:os'
 import { execFile } from 'node:child_process'
@@ -26,6 +26,10 @@ import {
     reindexInitializedLocalLibraries,
     relinkOriginLibraryToFolder,
     scanLocalFolder,
+    syncLocalLibrary,
+    startFileWatchers,
+    stopFileWatchers,
+    onFileWatcherSync,
     setupDefaultWritableLocalLibrary,
     slugify,
     updateLibraryOrigin,
@@ -53,6 +57,8 @@ beforeEach(async () => {
 })
 
 afterEach(async () => {
+    stopFileWatchers()
+    vi.restoreAllMocks()
     db.closeDatabase()
     await fs.rm(tmpDir, { recursive: true, force: true })
 })
@@ -180,7 +186,7 @@ describe('scanLocalFolder', () => {
         await expect(scanLocalFolder(tmpDir)).rejects.toThrow('missing "name" field')
     })
 
-    it('skips files without title or body', async () => {
+    it('reports files without title or body', async () => {
         await fs.writeFile(path.join(tmpDir, '.snipforge.json'), JSON.stringify({
             name: 'Test', description: '', format_version: '1.0',
         }))
@@ -205,12 +211,13 @@ describe('scanLocalFolder', () => {
             title: '   ', body: 'echo empty',
         }))
 
-        const result = await scanLocalFolder(tmpDir)
-        expect(result.commands).toHaveLength(1)
-        expect(result.commands[0].command.title).toBe('Valid')
+        const scan = scanLocalFolder(tmpDir)
+        await expect(scan).rejects.toThrow(/no-body\.json: invalid command/)
+        await expect(scan).rejects.toThrow(/no-title\.json: invalid command/)
+        await expect(scan).rejects.toThrow(/empty-title\.json: invalid command/)
     })
 
-    it('skips invalid JSON files gracefully', async () => {
+    it('reports invalid JSON files with their paths', async () => {
         await fs.writeFile(path.join(tmpDir, '.snipforge.json'), JSON.stringify({
             name: 'Test', description: '', format_version: '1.0',
         }))
@@ -221,8 +228,7 @@ describe('scanLocalFolder', () => {
 
         await fs.writeFile(path.join(tmpDir, 'broken.json'), 'not json at all')
 
-        const result = await scanLocalFolder(tmpDir)
-        expect(result.commands).toHaveLength(1)
+        await expect(scanLocalFolder(tmpDir)).rejects.toThrow(/broken\.json.*invalid JSON/)
     })
 
     it('applies defaults for missing optional fields', async () => {
@@ -916,6 +922,21 @@ describe('local library CRUD', () => {
         expect(updatedCommand.body).toContain(pathToFileURL(attachmentPath).href)
     })
 
+    it('does not rewrite rich-text attachment URLs on a no-op scan, but propagates external edits', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Rich', body: `<img src="${TINY_PNG_DATA_URI}">`, description: '', tags: '[]', language: 'richtext' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(0)
+        const data = JSON.parse(await fs.readFile(file, 'utf8'))
+        data.body = `<p>Edited</p>${data.body}`
+        await fs.writeFile(file, JSON.stringify(data))
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(1)
+        expect(db.getRemoteCommands(setup.library.id)[0].body).toContain('Edited')
+        expect(db.getRemoteCommands(setup.library.id)[0].body).toContain('file://')
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(0)
+    })
+
     it('cleans orphaned rich text attachments on update and delete', async () => {
         const setup = await setupDefaultWritableLocalLibrary(tmpDir)
 
@@ -1196,6 +1217,59 @@ describe('local library CRUD', () => {
         expect(rebuilt[0].body).toBe('echo from disk')
     })
 
+    it('refuses to index an incomplete new library and names the bad file without exposing its contents', async () => {
+        await fs.writeFile(path.join(tmpDir, '.snipforge.json'), JSON.stringify({ name: 'Broken' }))
+        await fs.writeFile(path.join(tmpDir, 'valid.json'), JSON.stringify({ title: 'Valid', body: 'echo valid' }))
+        await fs.writeFile(path.join(tmpDir, 'bad.json'), '{sensitive command body')
+        await expect(openLocalFolder(tmpDir)).rejects.toThrow(/bad\.json: invalid JSON/)
+        expect(db.getLibraryByRepo(tmpDir)).toBeUndefined()
+    })
+
+    it('preserves the index and clean SHA on invalid/unreadable files, then recovers', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Original', body: 'echo original', description: '', tags: '[]', language: 'bash' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        const sha = db.getLibraryByRepo(tmpDir)!.last_synced_sha
+        await fs.writeFile(file, '{oops')
+        const bad = await syncLocalLibrary(setup.library.id)
+        expect(bad.errors.join(' ')).toMatch(/original\.json.*invalid JSON/)
+        expect(db.getRemoteCommands(setup.library.id)).toEqual([original])
+        expect(db.getLibraryByRepo(tmpDir)!.last_synced_sha).toBe(sha)
+        expect((await reindexInitializedLocalLibraries())[0].result.errors).not.toEqual([])
+
+        await fs.writeFile(file, JSON.stringify({ title: 'Repaired', body: 'echo repaired' }))
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(1)
+        expect(db.getRemoteCommands(setup.library.id)[0].body).toBe('echo repaired')
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(0)
+
+        const read = fs.readFile.bind(fs)
+        vi.spyOn(fs, 'readFile').mockImplementation(async (...args: Parameters<typeof fs.readFile>) => {
+            if (args[0] === file) throw Object.assign(new Error('permission denied'), { code: 'EACCES' })
+            return read(...args)
+        })
+        const unreadable = await syncLocalLibrary(setup.library.id)
+        expect(unreadable.errors.join(' ')).toMatch(/original\.json.*EACCES/)
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+    })
+
+    it('does not partially sync good files beside bad ones; confirmed deletion removes only deleted rows', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Keep', body: 'echo keep', description: '', tags: '[]', language: 'bash' })
+        const sha = db.getLibraryByRepo(tmpDir)!.last_synced_sha
+        await fs.writeFile(path.join(tmpDir, 'bad.json'), '{bad')
+        await fs.writeFile(path.join(tmpDir, 'new.json'), JSON.stringify({ title: 'New', body: 'echo new' }))
+        const failed = await syncLocalLibrary(setup.library.id)
+        expect(failed.errors.join(' ')).toContain('bad.json')
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+        expect(db.getLibraryByRepo(tmpDir)!.last_synced_sha).toBe(sha)
+        await fs.rm(path.join(tmpDir, 'bad.json'))
+        expect((await syncLocalLibrary(setup.library.id)).added).toBe(1)
+        await fs.rm(path.join(tmpDir, 'keep.json'))
+        expect((await syncLocalLibrary(setup.library.id)).removed).toBe(1)
+        expect(db.getRemoteCommands(setup.library.id).map(c => c.title)).toEqual(['New'])
+    })
+
     it('refreshes stale indexed data from disk during reindex', async () => {
         const setup = await setupDefaultWritableLocalLibrary(tmpDir)
         await createLocalLibraryCommand({
@@ -1223,6 +1297,130 @@ describe('local library CRUD', () => {
         expect(rebuilt[0].title).toBe('Disk Wins')
         expect(rebuilt[0].body).toBe('echo updated from disk')
     })
+
+    it('updates unchanged and older timestamp content but not formatting or absent-timestamp no-ops', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'First', body: 'echo first', description: '', tags: '[]', language: 'bash' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        const data = JSON.parse(await fs.readFile(file, 'utf8'))
+        data.title = 'Second'
+        await fs.writeFile(file, JSON.stringify(data))
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(1)
+        data.body = 'echo older'
+        data.updated_at = '2000-01-01T00:00:00Z'
+        await fs.writeFile(file, JSON.stringify(data, null, 2))
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(1)
+        expect(db.getRemoteCommands(setup.library.id)[0].body).toBe('echo older')
+        expect((await reindexInitializedLocalLibraries())[0].result.updated).toBe(0)
+        await fs.writeFile(file, JSON.stringify(data))
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(0)
+        delete data.updated_at
+        delete data.created_at
+        await fs.writeFile(file, JSON.stringify(data))
+        await syncLocalLibrary(setup.library.id)
+        expect((await syncLocalLibrary(setup.library.id)).updated).toBe(0)
+        expect(db.getRemoteCommands(setup.library.id)[0].id).toBe(original.id)
+    })
+
+    it('does not delete indexed symlink commands or mark a missing manifest clean', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Linked', body: 'echo linked', description: '', tags: '[]', language: 'bash' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        const target = path.join(tmpDir, 'target.txt')
+        const sha = db.getLibraryByRepo(tmpDir)!.last_synced_sha
+        await fs.rename(file, target)
+        await fs.symlink(target, file)
+        expect((await syncLocalLibrary(setup.library.id)).removed).toBe(0)
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+        await fs.rm(target)
+        const broken = await syncLocalLibrary(setup.library.id)
+        expect(broken.errors.join(' ')).toMatch(/linked\.json.*ENOENT/)
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+        expect(db.getLibraryByRepo(tmpDir)!.last_synced_sha).toBe(sha)
+        await fs.rm(path.join(tmpDir, '.snipforge.json'))
+        expect((await syncLocalLibrary(setup.library.id)).errors).not.toEqual([])
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+    })
+
+    it('preserves index on failed listing and lets other libraries recover independently', async () => {
+        const first = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'First', body: 'echo first', description: '', tags: '[]', language: 'bash' })
+        const other = await fs.mkdtemp(path.join(os.tmpdir(), 'snipforge-second-lib-'))
+        try {
+            await fs.writeFile(path.join(other, '.snipforge.json'), JSON.stringify({ name: 'Other' }))
+            await fs.writeFile(path.join(other, 'second.json'), JSON.stringify({ title: 'Second', body: 'echo second' }))
+            const second = await openLocalFolder(other)
+            if (!('library' in second)) throw new Error('Expected library')
+            const sha = db.getLibraryByRepo(tmpDir)!.last_synced_sha
+            const readdir = fs.readdir.bind(fs)
+            vi.spyOn(fs, 'readdir').mockImplementation(((folder: string, ...args: unknown[]) => {
+                if (folder === tmpDir) return Promise.reject(Object.assign(new Error('denied'), { code: 'EACCES' }))
+                return (readdir as (...args: unknown[]) => unknown)(folder, ...args)
+            }) as typeof fs.readdir)
+            const results = await reindexInitializedLocalLibraries()
+            expect(results.find(r => r.libraryId === first.library.id)?.result.errors.join(' ')).toMatch(/EACCES/)
+            expect(results.find(r => r.libraryId === second.library.id)?.result.errors).toEqual([])
+            expect(db.getRemoteCommands(first.library.id)).toHaveLength(1)
+            expect(db.getLibraryByRepo(tmpDir)!.last_synced_sha).toBe(sha)
+            vi.restoreAllMocks()
+            expect((await syncLocalLibrary(first.library.id)).errors).toEqual([])
+        } finally {
+            await fs.rm(other, { recursive: true, force: true })
+        }
+    })
+
+    it('watcher reports errors, preserves rows, and converges after repair, edit and deletion', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Watched', body: 'echo first', description: '', tags: '[]', language: 'bash' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        const data = JSON.parse(await fs.readFile(file, 'utf8'))
+        const results: Array<{ errors: string[]; updated: number; removed: number }> = []
+        onFileWatcherSync((_id, result) => results.push(result))
+        startFileWatchers()
+        await new Promise(resolve => setTimeout(resolve, 150)) // allow OS watcher registration to settle
+        await fs.writeFile(file, '{broken')
+        await vi.waitFor(() => expect(results.some(r => r.errors.some(e => e.includes('watched.json')))).toBe(true), { timeout: 7000 })
+        expect(db.getRemoteCommands(setup.library.id)[0].body).toBe('echo first')
+        data.body = 'echo changed'
+        data.updated_at = '2000-01-01T00:00:00Z'
+        await fs.writeFile(file, JSON.stringify(data))
+        await vi.waitFor(() => expect(db.getRemoteCommands(setup.library.id)[0].body).toBe('echo changed'), { timeout: 7000 })
+        expect(results.some(r => r.updated === 1 && r.errors.length === 0)).toBe(true)
+        await fs.rm(file)
+        await vi.waitFor(() => expect(db.getRemoteCommands(setup.library.id)).toHaveLength(0), { timeout: 7000 })
+        expect(results.some(r => r.removed === 1)).toBe(true)
+        // Atomic save: replacing the filename restores a single indexed row.
+        await fs.writeFile(path.join(tmpDir, 'replacement.tmp'), JSON.stringify({ title: 'Watched', body: 'echo replacement' }))
+        await fs.rename(path.join(tmpDir, 'replacement.tmp'), file)
+        await vi.waitFor(() => expect(db.getRemoteCommands(setup.library.id)[0]?.body).toBe('echo replacement'), { timeout: 7000 })
+        expect(db.getRemoteCommands(setup.library.id)).toHaveLength(1)
+    }, 30000)
+
+    it('watcher reports unreadable files without deleting rows and recovers after repair', async () => {
+        const setup = await setupDefaultWritableLocalLibrary(tmpDir)
+        await createLocalLibraryCommand({ title: 'Watched', body: 'echo first', description: '', tags: '[]', language: 'bash' })
+        const original = db.getRemoteCommands(setup.library.id)[0]
+        const file = path.join(tmpDir, original.remote_path!)
+        const read = fs.readFile.bind(fs)
+        vi.spyOn(fs, 'readFile').mockImplementation(async (...args: Parameters<typeof fs.readFile>) => {
+            if (args[0] === file) throw Object.assign(new Error('denied'), { code: 'EACCES' })
+            return read(...args)
+        })
+        const results: Array<{ errors: string[]; updated: number; removed: number }> = []
+        onFileWatcherSync((_id, result) => results.push(result))
+        startFileWatchers()
+        await new Promise(resolve => setTimeout(resolve, 150))
+        await fs.writeFile(file, JSON.stringify({ title: 'Watched', body: 'echo fixed' }))
+        await vi.waitFor(() => expect(results.some(r => r.errors.join(' ').includes('EACCES'))).toBe(true), { timeout: 7000 })
+        expect(db.getRemoteCommands(setup.library.id)[0]).toEqual(original)
+        vi.restoreAllMocks()
+        await fs.writeFile(file, JSON.stringify({ title: 'Watched', body: 'echo repaired' }))
+        await vi.waitFor(() => expect(db.getRemoteCommands(setup.library.id)[0].body).toBe('echo repaired'), { timeout: 7000 })
+        expect(results.some(r => r.updated === 1 && !r.errors.length)).toBe(true)
+    }, 17000)
 
     it('migrates legacy DB-only commands when choosing the default local library', async () => {
         db.addCommand({

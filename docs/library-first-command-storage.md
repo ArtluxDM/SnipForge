@@ -4,6 +4,21 @@ Library-First Command Storage makes libraries the default way commands exist in 
 
 ## Active Notes
 
+### Issue #72: fail-closed file-backed command reconciliation (review finding 3)
+
+Plan (before code):
+- Scan command JSON candidates with per-file read/parse/validation diagnostics; treat an incomplete scan as a failed library sync. Preserve all indexed rows and the last clean SHA until repair. Fail opening/indexing a new incomplete library rather than recording a partial clean baseline.
+- Reconcile from disk on both manual/startup and watcher paths using indexed, normalized visible fields rather than trusting embedded `updated_at`; preserve stable defaults for absent timestamps and resolve rich-text attachments before comparison. SHA must reflect content, not just timestamps.
+- Debounced watcher batches use the same fail-closed full scan as manual sync, including confirmed deletion, atomic-save convergence and error callbacks; do not infer deletion from a failed access check. Surface per-file diagnostics without command bodies, and ensure auto-sync UI never says up to date on errors.
+- Test failures first: invalid/unreadable files, recovery, older/unchanged timestamps, no-op, deletion, watcher errors/recovery, multiple libraries and UI status. Run focused/full tests, both type checks and app smoke checks; document limits below.
+
+Final behavior:
+- All root-level `*.json` files other than `.snipforge.json` are command candidates. Invalid JSON, missing required command fields, unreadable files, and unsupported entry types are named in an incomplete-scan error (without including file bodies). Missing/invalid/unreadable manifest or failed directory listing also fails the scan. A failed scan leaves all indexed commands and the clean SHA untouched; other libraries still sync. Opening a new incomplete library fails rather than creating a partially indexed baseline. Repair or removal of the bad file permits the next scan to reconcile.
+- On a complete scan, missing paths are confirmed deletions. A hash of file paths and raw content detects edits regardless of embedded `updated_at`; comparison of normalized indexed fields avoids needless DB row writes for formatting changes or generated missing timestamps. Rich-text attachment URLs are resolved before comparison. The debounced watcher runs the same full reconciliation and reports success/errors to the renderer; missing filenames trigger a rescan. Startup reindex failures are logged and sent to the renderer after window load. Errors never produce an “up to date” message; the UI keeps error feedback visible and retains the previous clean sync time.
+- Tradeoff: while a library has any bad command candidate, valid edits and deletions in that same library wait until repair. No attempt is made to reconstruct the source file from SQLite. Watcher notifications depend on OS filesystem events; manual/startup sync remains the recovery path if an event is missed.
+
+Verification: `pnpm exec vitest run --silent` — 124/124 passed (12 files); `pnpm exec vue-tsc --noEmit` passed; `pnpm exec vite build` passed (existing large-chunk warning). Electron main-process `pnpm exec tsc --noEmit -p tsconfig.node.json` remains blocked by pre-existing tsconfig/type-definition errors (finding 4), not addressed here. An unpackaged production-build Electron launch reached DB initialization, window/tray/hotkey setup and watcher startup without crashing during a 12-second observation; no packaged installer or cross-platform UI/copy smoke test was performed. The launch used the machine's normal macOS app data despite a temporary `HOME` (Electron did not honor it for `userData`), so no further live-data smoke actions were taken. Test libraries use temporary paths and DBs.
+
 ### Issue #67: fix legacy command migration after choosing default library
 
 Plan:

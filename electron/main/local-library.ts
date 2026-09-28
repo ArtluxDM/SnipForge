@@ -37,7 +37,7 @@ export { slugify } from '../../shared/library-command'
 interface ScanResult {
     manifest: LibraryManifest
     manifestPath: string
-    commands: Array<{ path: string; command: RemoteCommand }>
+    commands: Array<{ path: string; command: RemoteCommand; content: string; hasUpdatedAt: boolean }>
 }
 
 interface CommandFormData {
@@ -1579,8 +1579,11 @@ export async function scanLocalFolder(folderPath: string): Promise<ScanResult> {
     let manifestContent: string
     try {
         manifestContent = await fs.readFile(manifestPath, 'utf8')
-    } catch {
-        throw new Error('Not a SnipForge library — missing .snipforge.json manifest')
+    } catch (error) {
+        if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+            throw new Error('Not a SnipForge library — missing .snipforge.json manifest')
+        }
+        throw new Error(`Cannot read .snipforge.json: ${fileError(error)}`)
     }
 
     let manifest: LibraryManifest
@@ -1595,40 +1598,62 @@ export async function scanLocalFolder(folderPath: string): Promise<ScanResult> {
     }
 
     // Scan for JSON files in the same directory (non-recursive, matching GitHub behavior)
-    const entries = await fs.readdir(folderPath, { withFileTypes: true })
-    const jsonFiles = entries.filter(e =>
-        e.isFile() &&
-        e.name.endsWith('.json') &&
-        e.name !== '.snipforge.json'
-    )
+    let entries: import('node:fs').Dirent[]
+    try {
+        entries = await fs.readdir(folderPath, { withFileTypes: true })
+    } catch (error) {
+        throw new Error(`Cannot list library ${folderPath}: ${fileError(error)}`)
+    }
+    const jsonFiles = entries.filter(e => e.name.endsWith('.json') && e.name !== '.snipforge.json')
 
-    const commands: Array<{ path: string; command: RemoteCommand }> = []
+    const commands: ScanResult['commands'] = []
+    const errors: string[] = []
 
     for (const file of jsonFiles) {
-        const filePath = path.join(folderPath, file.name)
-        try {
-            const content = await fs.readFile(filePath, 'utf8')
-            const parsed = JSON.parse(content)
-            const command = parseLibraryCommandFile(parsed)
-            if (!command) continue
-            // Use just the filename as the "remote_path" (relative to library root)
-            commands.push({ path: file.name, command })
-        } catch {
-            // Not valid JSON or not a command — skip
+        if (!file.isFile() && !file.isSymbolicLink()) {
+            errors.push(`${file.name}: not a readable command file`)
+            continue
         }
+        const filePath = path.join(folderPath, file.name)
+        let content: string
+        try {
+            content = await fs.readFile(filePath, 'utf8')
+        } catch (error) {
+            errors.push(`${file.name}: cannot read (${fileError(error)})`)
+            continue
+        }
+        let parsed: unknown
+        try {
+            parsed = JSON.parse(content)
+        } catch {
+            errors.push(`${file.name}: invalid JSON`)
+            continue
+        }
+        const command = parseLibraryCommandFile(parsed)
+        if (!command) {
+            errors.push(`${file.name}: invalid command (requires non-empty title and body)`)
+            continue
+        }
+        const raw = parsed as Record<string, unknown>
+        commands.push({ path: file.name, command, content, hasUpdatedAt: typeof raw.updated_at === 'string' && !!raw.updated_at.trim() })
     }
-
+    if (errors.length) throw new Error(`Incomplete library scan in ${folderPath}: ${errors.join('; ')}. Repair these files and sync again.`)
     return { manifest, manifestPath: '.snipforge.json', commands }
+}
+
+function fileError(error: unknown): string {
+    const e = error as NodeJS.ErrnoException
+    return e.code || 'I/O error'
 }
 
 // ── Sync ─────────────────────────────────────────────────────────
 
-function computeContentHash(commands: Array<{ path: string; command: RemoteCommand }>): string {
-    const data = commands
-        .map(c => `${c.path}:${c.command.updated_at}`)
-        .sort()
-        .join('|')
-    return crypto.createHash('sha256').update(data).digest('hex').slice(0, 12)
+function computeContentHash(commands: ScanResult['commands']): string {
+    const hash = crypto.createHash('sha256')
+    for (const { path: filePath, content } of [...commands].sort((a, b) => a.path.localeCompare(b.path))) {
+        hash.update(filePath).update('\0').update(content).update('\0')
+    }
+    return hash.digest('hex').slice(0, 12)
 }
 
 export async function syncLocalLibrary(libraryId: number, force = false): Promise<SyncResult> {
@@ -1644,24 +1669,12 @@ export async function syncLocalLibrary(libraryId: number, force = false): Promis
 
     const folderPath = library.github_repo
 
-    // Check folder still exists
-    try {
-        await fs.access(folderPath)
-    } catch {
-        return { added: 0, updated: 0, removed: 0, errors: ['Folder not found: ' + folderPath] }
-    }
-
-    // Scan the folder
+    // Scan the folder; missing and inaccessible folders both leave the index intact.
     let scanResult: ScanResult
     try {
         scanResult = await scanLocalFolder(folderPath)
     } catch (e) {
-        const msg = (e as Error).message
-        if (msg.includes('missing .snipforge.json')) {
-            db.clearLibraryManifest(libraryId)
-            return { added: 0, updated: 0, removed: 0, errors: ['Manifest was removed from the folder. Click Init to re-create it.'] }
-        }
-        throw e
+        return { added: 0, updated: 0, removed: 0, errors: [(e as Error).message] }
     }
 
     const { commands: remoteCommands } = scanResult
@@ -1679,27 +1692,22 @@ export async function syncLocalLibrary(libraryId: number, force = false): Promis
     // Body dedup
     const localBodies = db.getLocalCommandBodies()
 
-    for (const { path: filePath, command } of remoteCommands) {
+    for (const { path: filePath, command, hasUpdatedAt } of remoteCommands) {
         const local = localByPath.get(filePath)
+        const indexed = toIndexedLocalLibraryCommandData(command, folderPath)
         if (!local) {
             if (localBodies.has(command.body.trim())) continue
-            toAdd.push({ remotePath: filePath, command: toIndexedLocalLibraryCommandData(command, folderPath) })
+            toAdd.push({ remotePath: filePath, command: indexed })
         } else {
-            const remoteUpdated = command.updated_at || ''
-            const localUpdated = local.updated_at || ''
-            if (remoteUpdated > localUpdated) {
-                const indexed = toIndexedLocalLibraryCommandData(command, folderPath)
-                toUpdate.push({
-                    remotePath: filePath,
-                    command: {
-                        title: indexed.title,
-                        body: indexed.body,
-                        description: indexed.description,
-                        tags: indexed.tags,
-                        language: indexed.language,
-                        updated_at: indexed.updated_at,
-                    }
-                })
+            // Generated parser timestamps are not evidence of an edit.
+            const updatedAt = hasUpdatedAt ? indexed.updated_at : local.updated_at
+            if (indexed.title !== local.title || indexed.body !== local.body ||
+                indexed.description !== local.description || indexed.tags !== local.tags ||
+                indexed.language !== local.language || updatedAt !== local.updated_at) {
+                toUpdate.push({ remotePath: filePath, command: {
+                    title: indexed.title, body: indexed.body, description: indexed.description,
+                    tags: indexed.tags, language: indexed.language, updated_at: updatedAt,
+                } })
             }
         }
     }
@@ -2114,98 +2122,12 @@ export function onFileWatcherSync(cb: (libraryId: number, result: SyncResult) =>
     onChangeCallback = cb
 }
 
-/** Read and validate a single command JSON file. Returns null if invalid. */
-async function readCommandFile(filePath: string): Promise<RemoteCommand | null> {
-    try {
-        const content = await fs.readFile(filePath, 'utf8')
-        return parseLibraryCommandFile(JSON.parse(content))
-    } catch {
-        // Invalid JSON or unreadable — skip
-    }
-    return null
-}
-
-/** Process batched file changes for a single library */
+/** Debounce allows atomic saves to settle; a full successful scan is required before deletion. */
 async function processBatch(libraryId: number): Promise<void> {
-    const filenames = pendingChanges.get(libraryId)
-    if (!filenames || filenames.size === 0) return
+    if (!pendingChanges.get(libraryId)?.size) return
     pendingChanges.delete(libraryId)
-
-    const library = db.getAllLibraries().find(l => l.id === libraryId)
-    if (!library || library.type !== 'local' || !library.manifest_path) return
-
-    const folderPath = library.github_repo
-    const existingCommands = db.getRemoteCommands(libraryId)
-    const existingByPath = new Map(existingCommands.map(c => [c.remote_path, c]))
-    const localBodies = db.getLocalCommandBodies()
-
-    const toAdd: Array<{ remotePath: string; command: { title: string; body: string; description: string; tags: string; language: string; created_at: string; updated_at: string } }> = []
-    const toUpdate: Array<{ remotePath: string; command: { title: string; body: string; description: string; tags: string; language: string; updated_at: string } }> = []
-    const toRemove: string[] = []
-
-    for (const filename of filenames) {
-        if (filename === '.snipforge.json') continue
-
-        const filePath = path.join(folderPath, filename)
-        const existing = existingByPath.get(filename)
-
-        // Check if file still exists
-        let fileExists = false
-        try {
-            await fs.access(filePath)
-            fileExists = true
-        } catch {
-            // File was deleted
-        }
-
-        if (!fileExists) {
-            // Deletion: remove if we had it in DB
-            if (existing) {
-                toRemove.push(filename)
-            }
-            continue
-        }
-
-        // File exists — read and validate
-        const command = await readCommandFile(filePath)
-        if (!command) continue
-
-        const dbCommand = toIndexedLibraryCommandData(command)
-
-        if (!existing) {
-            // New file — add (skip if body already exists locally)
-            if (localBodies.has(command.body.trim())) continue
-            toAdd.push({ remotePath: filename, command: dbCommand })
-        } else {
-            // Existing file changed — update if newer
-            if (command.updated_at > (existing.updated_at || '')) {
-                toUpdate.push({
-                    remotePath: filename,
-                    command: {
-                        title: dbCommand.title,
-                        body: dbCommand.body,
-                        description: dbCommand.description,
-                        tags: dbCommand.tags,
-                        language: dbCommand.language,
-                        updated_at: dbCommand.updated_at,
-                    }
-                })
-            }
-        }
-    }
-
-    if (toAdd.length === 0 && toUpdate.length === 0 && toRemove.length === 0) return
-
-    // Compute new SHA from full scan for consistency
-    const scanResult = await scanLocalFolder(folderPath)
-    const sha = computeContentHash(scanResult.commands)
-
-    const result = db.syncRemoteCommands(libraryId, sha, toAdd, toUpdate, toRemove)
-    console.log(`File watcher: synced library ${library.name} — +${result.added} ~${result.updated} -${result.removed}`)
-
-    if (onChangeCallback) {
-        onChangeCallback(libraryId, result)
-    }
+    const result = await syncLocalLibrary(libraryId, true)
+    onChangeCallback?.(libraryId, result)
 }
 
 /** Start watching a single local library folder */
@@ -2216,14 +2138,15 @@ function watchLibrary(library: Library): void {
     const folderPath = library.github_repo
 
     try {
-        const watcher = watch(folderPath, (eventType, filename) => {
-            if (!filename || !filename.endsWith('.json')) return
+        const watcher = watch(folderPath, (_eventType, filename) => {
+            // Some platforms omit the filename; scan rather than miss a possible deletion.
+            if (filename && !filename.endsWith('.json')) return
 
             // Accumulate changed filenames
             if (!pendingChanges.has(library.id)) {
                 pendingChanges.set(library.id, new Set())
             }
-            pendingChanges.get(library.id)!.add(filename)
+            pendingChanges.get(library.id)!.add(filename || '.snipforge.json')
 
             // Reset debounce timer
             const existing = debounceTimers.get(library.id)
@@ -2232,14 +2155,19 @@ function watchLibrary(library: Library): void {
                 debounceTimers.delete(library.id)
                 processBatch(library.id).catch(e => {
                     console.error(`File watcher error for library ${library.name}:`, e)
+                    onChangeCallback?.(library.id, { added: 0, updated: 0, removed: 0, errors: [(e as Error).message] })
                 })
             }, DEBOUNCE_MS))
         })
 
+        watcher.on('error', (error) => {
+            onChangeCallback?.(library.id, { added: 0, updated: 0, removed: 0, errors: [`Cannot watch ${folderPath}: ${fileError(error)}`] })
+        })
         watchers.set(library.id, watcher)
         console.log(`File watcher: watching ${library.name} at ${folderPath}`)
     } catch (e) {
         console.error(`File watcher: failed to watch ${library.name}:`, e)
+        onChangeCallback?.(library.id, { added: 0, updated: 0, removed: 0, errors: [`Cannot watch ${folderPath}: ${fileError(e)}`] })
     }
 }
 
