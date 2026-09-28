@@ -49,24 +49,16 @@ const renderedDescription = computed(() => {
 
 // Handle link clicks to open in system browser
 const handleLinkClick = async (event: MouseEvent) => {
-  const target = event.target as HTMLElement
-  if (target.tagName === 'A') {
-    event.preventDefault()
-    let url = (target as HTMLAnchorElement).href
+  const anchor = (event.target as HTMLElement).closest('a') as HTMLAnchorElement | null
+  if (!anchor) return
 
-    // If the URL is relative (starts with localhost), extract the actual URL
-    if (url.includes('localhost:5173/')) {
-      url = url.split('localhost:5173/')[1]
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url
-      }
-    }
+  event.preventDefault()
+  const url = anchor.href
 
-    if (url) {
-      const confirmed = confirm(`You are about to navigate to:\n\n${url}\n\nDo you want to continue?`)
-      if (confirmed) {
-        await (window as any).electronAPI.shell.openExternal(url)
-      }
+  if (url) {
+    const confirmed = confirm(`You are about to navigate to:\n\n${url}\n\nDo you want to continue?`)
+    if (confirmed) {
+      await (window as any).electronAPI.shell.openExternal(url)
     }
   }
 }

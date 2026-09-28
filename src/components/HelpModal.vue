@@ -47,19 +47,13 @@ const markdownContent = computed(() => {
 
 // Open external links in system browser
 const handleLinkClick = async (event: MouseEvent) => {
-  const target = event.target as HTMLElement
-  if (target.tagName === 'A') {
-    event.preventDefault()
-    let url = (target as HTMLAnchorElement).href
-    if (url.includes('localhost:5173/')) {
-      url = url.split('localhost:5173/')[1]
-      if (!url.startsWith('http://') && !url.startsWith('https://')) {
-        url = 'https://' + url
-      }
-    }
-    if (url) {
-      await (window as any).electronAPI.shell.openExternal(url)
-    }
+  const anchor = (event.target as HTMLElement).closest('a') as HTMLAnchorElement | null
+  if (!anchor) return
+
+  event.preventDefault()
+  const url = anchor.href
+  if (url) {
+    await (window as any).electronAPI.shell.openExternal(url)
   }
 }
 </script>
