@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process'
 function run(command, args, extraEnv = {}) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    shell: process.platform === 'win32' && command === 'pnpm',
     env: {
       ...process.env,
       ...extraEnv,

@@ -16,7 +16,8 @@ for (const dir of [homeDir, npmCacheDir, electronGypDir]) mkdirSync(dir, { recur
 function run(command, args, env) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    // Only pnpm.cmd needs a Windows shell; pass Electron's -e script directly.
+    shell: process.platform === 'win32' && command === 'pnpm',
     env: { ...process.env, ...env },
   })
   if (result.error) throw result.error

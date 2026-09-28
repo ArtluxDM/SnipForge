@@ -10,7 +10,8 @@ const npmCacheDir = process.env.npm_config_cache ?? mkdtempSync(join(tmpdir(), '
 function run(command, args) {
   const result = spawnSync(command, args, {
     stdio: 'inherit',
-    shell: process.platform === 'win32',
+    // Only pnpm.cmd needs a Windows shell; shell quoting truncates Node -e scripts.
+    shell: process.platform === 'win32' && command === 'pnpm',
     env: {
       ...process.env,
       npm_config_cache: npmCacheDir,
