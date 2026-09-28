@@ -4,6 +4,21 @@ SnipForge releases are produced from Git tags (`v*`) by GitHub Actions.
 
 ## Active Notes
 
+### Issue #81: required merge checks and renderer confidence
+
+Plan (before implementation):
+- Require the existing three `Verify` jobs on `main` for all users, including admins. Check how this affects direct pushes from `scripts/release.sh`; do not claim CI gates merges until GitHub settings confirm it.
+- Add a mounted `App.vue` test with a mocked Electron bridge covering search, plain copy, variable prompt/substitution, and raw-template copy. Use a DOM test environment; never touch the OS clipboard or real user data.
+- Build the renderer bundle during reusable PR/main/tag verification, without packaging/installing Electron on every PR. Run main and renderer type checks plus the full test suite locally and record what GitHub actually ran.
+- Keep packaged-app launch, native OS clipboard, installers and auth flows out of scope; they still require isolated smoke checks. No blanket coverage threshold as a substitute for behavioral tests.
+
+Implementation and local verification:
+- GitHub `main` branch protection now requires the three GitHub Actions checks `Verify (macos-latest)`, `Verify (windows-2022)` and `Verify (ubuntu-latest)` with `strict: true` (up-to-date before merge) and `enforce_admins: true`. Queried the API after updating it; no review-count requirement was added. Required checks protect `main`, not arbitrary release tags; tag verification still gates release builds.
+- `tests/app-copy.test.ts` mounts `App.vue` with a fake Electron API, a DOM-only virtual scroller, and the real variable modal. It checks filtered plain copy, no clipboard write until a variable is entered, substitution, and Shift+C raw copy. Vitest uses the Vue SFC plugin and a per-file happy-dom environment; the other tests retain their Node environment.
+- Reusable `.github/workflows/verify.yml` now runs `pnpm exec vite build` after the full suite on each platform, checking renderer, main and preload bundles without installer packaging.
+- Local Node 24: both type checks passed, full suite passed (13 files, 129 tests), `pnpm exec vite build` passed (chunk-size warning only), `git diff --check` and `actionlint` passed. Cross-platform CI on this change remains to be verified by a PR run; this is not an installer or native clipboard test.
+- **Release workflow change:** with required checks enforced for admins, `scripts/release.sh` must not be used to commit/push a version bump directly to protected `main`. Make the version bump in a PR, let the three checks pass, merge it, then tag the merged `main` commit and push *that tag only*. The tag workflow verifies the tagged commit again. Do not push a tag created from an unmerged release branch or disable protection to make the script work.
+
 ### Issue #74: verify before building or drafting (finding 4)
 
 Plan (before implementation):
@@ -49,8 +64,8 @@ Final notes:
 
 ## Current Release Flow
 
-1. Before tagging, PR and `main` runs of `.github/workflows/verify.yml` run frozen installs, independent main and renderer type checks, and the full Node-native test suite on macOS, Windows, and Linux. Configure required PR checks in GitHub branch protection separately; workflow triggers alone do **not** prevent merges. On 2026-09-29, the GitHub API reported no branch protection or repository rulesets for `main`: **merges are not currently blocked by these checks**.
-2. `scripts/release.sh [patch|minor|major]` bumps `package.json`, commits, tags, and pushes the branch plus **all** local tags; it runs no checks or smoke test and does not confirm the branch or clean state. Review/verify first (and do not run it from a dirty or unreviewed branch). The tag push starts `.github/workflows/release.yml`; its reusable `verify` job checks out **`${{ github.sha }}`** (the tag's commit) and runs the same checks. This does not trust a prior PR result; a tag can point to an arbitrary commit.
+1. Before tagging, PR and `main` runs of `.github/workflows/verify.yml` run frozen installs, independent main and renderer type checks, the full Node-native and DOM test suite, and a Vite bundle build on macOS, Windows, and Linux. Since issue #81, GitHub branch protection requires all three `Verify` checks on `main`, including for admins, with up-to-date branches required. Check these settings if the job names change; workflow triggers alone do **not** block merges.
+2. Prepare version bumps through a reviewed PR rather than running `scripts/release.sh`: it commits, tags, and pushes the branch plus **all** local tags without checks or confirmation, and direct pushes to protected `main` can fail. After the version-bump PR passes checks and merges, tag the exact merged `main` commit and push only the intended tag. The tag push starts `.github/workflows/release.yml`; its reusable `verify` job checks out **`${{ github.sha }}`** (the tag's commit) and runs the same checks. This does not trust a prior PR result; a tag can point to an arbitrary commit.
 3. **Only if every tag verification matrix job succeeds**, platform builds run `pnpm build` on that commit on macOS, Windows, and Linux without release credentials. A failed/cancelled verification blocks all builds; a failed/cancelled build blocks draft creation. No `always()` bypasses either dependency.
 4. Each build uploads only packaged release artifacts (`.dmg`, `.exe`, `.AppImage`, blockmaps, and update YAML files) to the workflow run.
 5. A single `create-release` job (the only job with `contents: write` / `GITHUB_TOKEN` for release publishing) downloads those artifacts and creates one draft GitHub release for the tag.
