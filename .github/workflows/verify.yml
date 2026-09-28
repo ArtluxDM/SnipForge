@@ -43,3 +43,5 @@ jobs:
         run: pnpm typecheck:renderer
       - name: Run full suite with Node-native addon
         run: pnpm test
+      - name: Build renderer, main and preload bundles
+        run: pnpm exec vite build

@@ -117,13 +117,9 @@ pnpm build        # production package build
 
 **Do not use this agent for a release until #79 is fixed.** `.claude/agents/release-manager.md` currently launches/kills the app without verifying user-data isolation, deletes build output, and auto-promotes a green CI draft. That contradicts the isolated packaged-app checks and manual publication gate in `docs/release.md`. It is also not automatically available in every coding harness.
 
-**Option 2 — Release script** (after explicit review, from clean `main`):
-```bash
-./scripts/release.sh          # patch bump
-./scripts/release.sh minor    # minor bump
-./scripts/release.sh major    # major bump
-```
-Bumps `package.json`, commits, tags, and pushes **without** local checks, a changelog, or confirmation. Run checks before invoking it, and use the isolated packaged-app checklist in `docs/release.md` before manually publishing the CI draft. Do not run it from an unreviewed/dirty branch.
+**Option 2 — Manual version PR and tag** (the old release script is incompatible with protected `main`):
+
+Create a version-bump PR, pass the three required `Verify` checks, and merge. Tag the merged `main` commit and push **only that tag**; do not run `scripts/release.sh` on protected `main`. It commits and pushes the branch plus all local tags without checks or confirmation, and its direct branch push can be rejected. Use the isolated packaged-app checklist in `docs/release.md` before manually publishing the CI draft.
 
 In both cases, GitHub Actions verifies the exact tagged commit (main and renderer type checks plus full tests on macOS, Windows, and Linux) before parallel platform builds. One job then attaches artifacts to a **draft**, not a published release. `electron-builder` must not receive release credentials during build jobs; GitHub Actions owns publishing. See `docs/release.md`.
 
