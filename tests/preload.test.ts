@@ -69,6 +69,55 @@ describe('preload event subscriptions', () => {
         expect(invoke).toHaveBeenCalledWith('library:exportZip', [1, 2], 'My Library', 'Exported commands')
     })
 
+    it('routes settings, updates, external links and library picker through named methods only', async () => {
+        await import('../electron/preload/index')
+        const api = exposeInMainWorld.mock.calls[0]?.[1]
+        expect(exposeInMainWorld).toHaveBeenCalledWith('electronAPI', api)
+        expect(api.ipcRenderer).toBeUndefined()
+        expect(api.invoke).toBeUndefined()
+
+        await api.settings.getAll()
+        await api.settings.set('theme', 'dark')
+        await api.update.getStatus()
+        await api.update.check()
+        await api.update.dismiss()
+        await api.update.remindLater()
+        await api.shell.openExternal('https://snipforge.dev')
+        await api.library.openLocal('path/to/library')
+        await api.library.subscribe('org/repo', 'subpath')
+        await api.library.setupDefaultWritableLocalLibrary()
+        await api.window.minimize()
+        expect(invoke.mock.calls).toEqual([
+            ['settings:getAll'], ['settings:set', 'theme', 'dark'],
+            ['update:getStatus'], ['update:check'], ['update:dismiss'], ['update:remindLater'],
+            ['shell:openExternal', 'https://snipforge.dev'],
+            ['library:openLocal', 'path/to/library'], ['library:subscribe', 'org/repo', 'subpath'],
+            ['library:setupDefaultWritableLocalLibrary'], ['window:minimize'],
+        ])
+    })
+
+    it('unsubscribes only its own update and library listeners', async () => {
+        await import('../electron/preload/index')
+        const api = exposeInMainWorld.mock.calls[0]?.[1]
+        const update = vi.fn()
+        const sync = vi.fn()
+        const stopUpdate = api.update.onStatusChanged(update)
+        const stopSync = api.library.onAutoSyncResult(sync)
+        const updateListener = on.mock.calls[0][1]
+        const syncListener = on.mock.calls[1][1]
+        const payload = { showBanner: true }
+        updateListener({}, payload)
+        syncListener({}, { results: [] })
+        expect(update).toHaveBeenCalledWith(payload)
+        expect(sync).toHaveBeenCalledWith({ results: [] })
+        stopUpdate()
+        stopSync()
+        expect(removeListener.mock.calls).toEqual([
+            ['update:statusChanged', updateListener],
+            ['library:autoSyncResult', syncListener],
+        ])
+    })
+
     it('does not expose removed command-level remote publish APIs', async () => {
         await import('../electron/preload/index')
 

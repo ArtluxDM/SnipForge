@@ -53,7 +53,7 @@ const handleLinkClick = async (event: MouseEvent) => {
   event.preventDefault()
   const url = anchor.href
   if (url) {
-    await (window as any).electronAPI.shell.openExternal(url)
+    await window.electronAPI.shell.openExternal(url)
   }
 }
 </script>

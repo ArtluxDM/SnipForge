@@ -42,32 +42,30 @@ try {
 }
 
 // Window control functions
-// Note: (window.electronAPI as any) is needed because vue-tsc can't resolve
-// the 'window' property from the preload's declare global via project references
 const minimizeWindow = async () => {
-  if ((window.electronAPI as any)?.window) {
-    await (window.electronAPI as any).window.minimize()
+  if (window.electronAPI?.window) {
+    await window.electronAPI.window.minimize()
   }
 }
 
 const maximizeWindow = async () => {
-  if ((window.electronAPI as any)?.window) {
-    await (window.electronAPI as any).window.maximize()
+  if (window.electronAPI?.window) {
+    await window.electronAPI.window.maximize()
     // Update maximized state after toggling
-    isMaximized.value = await (window.electronAPI as any).window.isMaximized()
+    isMaximized.value = await window.electronAPI.window.isMaximized()
   }
 }
 
 const closeWindow = async () => {
-  if ((window.electronAPI as any)?.window) {
-    await (window.electronAPI as any).window.close()
+  if (window.electronAPI?.window) {
+    await window.electronAPI.window.close()
   }
 }
 
 // Check maximized state on mount (only for Windows)
 const checkMaximizedState = async () => {
-  if (isWindows.value && (window.electronAPI as any)?.window) {
-    isMaximized.value = await (window.electronAPI as any).window.isMaximized()
+  if (isWindows.value && window.electronAPI?.window) {
+    isMaximized.value = await window.electronAPI.window.isMaximized()
   }
 }
 
@@ -157,7 +155,7 @@ const loadCommands = async () => {
     // Load commands and libraries in parallel
     const [dbCommands, dbLibraries] = await Promise.all([
       window.electronAPI.database.getAllCommands(),
-      window.electronAPI.library.getAll() as Promise<Library[]>
+      window.electronAPI.library.getAll()
     ])
     // Pre-parse and pre-normalize tags for performance
     commands.value = dbCommands.map(cmd => {
