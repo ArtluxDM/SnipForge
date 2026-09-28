@@ -28,7 +28,7 @@ jobs:
         include:
           - os: macos-latest
             artifact-name: snipforge-macos
-          - os: windows-latest
+          - os: windows-2022
             artifact-name: snipforge-windows
           - os: ubuntu-latest
             artifact-name: snipforge-linux
