@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, ipcMain, clipboard, dialog, globalShortcut, Tray, Menu, nativeImage } from 'electron'
+import { app, BrowserWindow, shell, ipcMain, clipboard, dialog, globalShortcut, Tray, Menu, nativeImage, ClipboardItem } from 'electron'
 import { createRequire } from 'node:module'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
@@ -458,7 +458,7 @@ ipcMain.handle('db:getAllCommands', async () => {
 // IPC handlers for writting to clipboard.
 ipcMain.handle('clipboard:writeText', async (_,text:string) => {
   try{
-    clipboard.writeText(text)
+    await clipboard.writeText(text)
     console.log('clipboard text written successfully')
   } catch (error) {
     console.error('Error writing to clipboard:', error)
@@ -471,14 +471,16 @@ ipcMain.handle('clipboard:write', async (_, data: { text: string, html?: string 
   try {
     if (data.html) {
       // Write both formats
-      clipboard.write({
-        text: data.text,
-        html: data.html
-      })
+      await clipboard.write([
+        new ClipboardItem({
+          'text/plain': data.text,
+          'text/html': data.html
+        })
+      ])
       console.log('clipboard written with both text and HTML')
     } else {
       // Just write text
-      clipboard.writeText(data.text)
+      await clipboard.writeText(data.text)
       console.log('clipboard text written successfully')
     }
   } catch (error) {
@@ -490,7 +492,7 @@ ipcMain.handle('clipboard:write', async (_, data: { text: string, html?: string 
 // IPC handlers for reading from clipboard.
 ipcMain.handle('clipboard:readText', async () => {
   try{
-    const text = clipboard.readText()
+    const text = await clipboard.readText()
     console.log('clipboard text read successfully')
     return text
   } catch (error) {
