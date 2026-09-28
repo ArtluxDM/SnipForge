@@ -9,6 +9,13 @@ import * as github from './github'
 import * as localLibrary from './local-library'
 import * as settings from './settings'
 import * as updater from './update'
+import {
+  attachWindowNavigationPolicy,
+  authorizeIpcInvoke,
+  createAppUrlPolicy,
+  parseExternalHttpsUrl,
+  sanitizeRouteHash,
+} from './security'
 
 // Enable remote debugging when REMOTE_DEBUG env var is set (e.g. REMOTE_DEBUG=9222)
 if (process.env.REMOTE_DEBUG) {
@@ -60,6 +67,26 @@ let win: BrowserWindow | null = null
 let tray: Tray | null = null
 const preload = path.join(__dirname, '../preload/index.mjs')
 const indexHtml = path.join(RENDERER_DIST, 'index.html')
+const appUrlPolicy = createAppUrlPolicy(VITE_DEV_SERVER_URL, indexHtml)
+const appWindows = new Set<BrowserWindow>()
+
+function registerAppWindow(browserWindow: BrowserWindow): void {
+  appWindows.add(browserWindow)
+  attachWindowNavigationPolicy(browserWindow, appUrlPolicy, url => shell.openExternal(url))
+  browserWindow.on('closed', () => {
+    appWindows.delete(browserWindow)
+  })
+}
+
+function secureIpcHandle(
+  channel: string,
+  listener: (event: Electron.IpcMainInvokeEvent, ...args: any[]) => unknown,
+): void {
+  ipcMain.handle(channel, async (event, ...args) => {
+    authorizeIpcInvoke(event, appWindows, appUrlPolicy)
+    return listener(event, ...args)
+  })
+}
 
 // Global hotkey — loaded from settings, re-registered on change
 let currentHotkey: string = ''
@@ -299,6 +326,7 @@ async function createWindow() {
   }
 
   win = new BrowserWindow(windowOptions)
+  registerAppWindow(win)
 
   // Restore maximized state after window creation
   if (savedState?.isMaximized) {
@@ -322,11 +350,6 @@ async function createWindow() {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
   })
 
-  // Make all links open with the browser, not with the application
-  win.webContents.setWindowOpenHandler(({ url }) => {
-    if (url.startsWith('https:')) shell.openExternal(url)
-    return { action: 'deny' }
-  })
 
   // Save window state before hiding/closing
   win.on('close', (event) => {
@@ -350,8 +373,6 @@ async function createWindow() {
     }
   })
 
-
-  // win.webContents.on('will-navigate', (event, url) => { }) #344
 }
 
 function createTray() {
@@ -447,7 +468,7 @@ function isLocallyManagedCommand(command: db.Command, libraries: db.Library[]): 
 }
 
 // IPC handlers for database operations
-ipcMain.handle('db:getAllCommands', async () => {
+secureIpcHandle('db:getAllCommands', async () => {
   try {
     return db.getAllCommands()
   } catch (error) {
@@ -456,7 +477,7 @@ ipcMain.handle('db:getAllCommands', async () => {
   }
 })
 // IPC handlers for writting to clipboard.
-ipcMain.handle('clipboard:writeText', async (_,text:string) => {
+secureIpcHandle('clipboard:writeText', async (_,text:string) => {
   try{
     await clipboard.writeText(text)
     console.log('clipboard text written successfully')
@@ -467,7 +488,7 @@ ipcMain.handle('clipboard:writeText', async (_,text:string) => {
 })
 
 // IPC handler for writing both text and HTML to clipboard
-ipcMain.handle('clipboard:write', async (_, data: { text: string, html?: string }) => {
+secureIpcHandle('clipboard:write', async (_, data: { text: string, html?: string }) => {
   try {
     if (data.html) {
       // Write both formats
@@ -490,7 +511,7 @@ ipcMain.handle('clipboard:write', async (_, data: { text: string, html?: string 
 })
 
 // IPC handlers for reading from clipboard.
-ipcMain.handle('clipboard:readText', async () => {
+secureIpcHandle('clipboard:readText', async () => {
   try{
     const text = await clipboard.readText()
     console.log('clipboard text read successfully')
@@ -502,7 +523,7 @@ ipcMain.handle('clipboard:readText', async () => {
 })
 
 // IPC handlers for file operations (export/import)
-ipcMain.handle('file:saveDialog', async (_, defaultFilename: string) => {
+secureIpcHandle('file:saveDialog', async (_, defaultFilename: string) => {
   if (!win) return { success: false, filePath: null }
 
   try {
@@ -524,7 +545,7 @@ ipcMain.handle('file:saveDialog', async (_, defaultFilename: string) => {
   }
 })
 
-ipcMain.handle('file:openDialog', async () => {
+secureIpcHandle('file:openDialog', async () => {
   if (!win) return { success: false, filePath: null }
 
   try {
@@ -548,7 +569,7 @@ ipcMain.handle('file:openDialog', async () => {
 
 // IPC handlers for file read/write operations
 // SECURITY: Only allow paths that were approved via native dialog
-ipcMain.handle('file:writeFile', async (_, filePath: string, content: string) => {
+secureIpcHandle('file:writeFile', async (_, filePath: string, content: string) => {
   if (!approvedFilePaths.has(filePath)) {
     console.error('SECURITY: Blocked write to unapproved path:', filePath)
     return { success: false, error: 'File path not approved via dialog' }
@@ -564,7 +585,7 @@ ipcMain.handle('file:writeFile', async (_, filePath: string, content: string) =>
   }
 })
 
-ipcMain.handle('file:readFile', async (_, filePath: string) => {
+secureIpcHandle('file:readFile', async (_, filePath: string) => {
   if (!approvedFilePaths.has(filePath)) {
     console.error('SECURITY: Blocked read from unapproved path:', filePath)
     return { success: false, error: 'File path not approved via dialog' }
@@ -579,7 +600,7 @@ ipcMain.handle('file:readFile', async (_, filePath: string) => {
     return { success: false, error: error.message }
   }
 })
-ipcMain.handle('dialog:showInputDialog', async (_,title: string, label: string,defaultValue: string = '') =>
+secureIpcHandle('dialog:showInputDialog', async (_,title: string, label: string,defaultValue: string = '') =>
   {
   if (!win) return {success: false, value: null}
   try {
@@ -608,15 +629,12 @@ ipcMain.handle('dialog:showInputDialog', async (_,title: string, label: string,d
 })
 
 // IPC handler for opening external URLs in system browser
-// SECURITY: Only allow https: URLs to prevent arbitrary protocol execution
-ipcMain.handle('shell:openExternal', async (_, url: string) => {
-  if (typeof url !== 'string' || !url.startsWith('https:')) {
-    console.error('SECURITY: Blocked non-https URL:', url)
-    throw new Error('Only HTTPS URLs are allowed')
-  }
+// SECURITY: Only allow parsed HTTPS URLs to prevent arbitrary protocol execution
+secureIpcHandle('shell:openExternal', async (_, url: string) => {
+  const externalUrl = parseExternalHttpsUrl(url)
   try {
-    await shell.openExternal(url)
-    console.log('Opened external URL:', url)
+    await shell.openExternal(externalUrl)
+    console.log('Opened external URL:', externalUrl)
   } catch (error) {
     console.error('Error opening external URL:', error)
     throw error
@@ -624,7 +642,7 @@ ipcMain.handle('shell:openExternal', async (_, url: string) => {
 })
 
 // ── GitHub Auth IPC handlers ──────────────────────────────────────
-ipcMain.handle('auth:login', async () => {
+secureIpcHandle('auth:login', async () => {
   try {
     const flow = await github.startDeviceFlow()
     return {
@@ -641,7 +659,7 @@ ipcMain.handle('auth:login', async () => {
   }
 })
 
-ipcMain.handle('auth:pollLogin', async (_, deviceCode: string) => {
+secureIpcHandle('auth:pollLogin', async (_, deviceCode: string) => {
   try {
     const result = await github.pollDeviceFlow(deviceCode)
     return result
@@ -651,12 +669,12 @@ ipcMain.handle('auth:pollLogin', async (_, deviceCode: string) => {
   }
 })
 
-ipcMain.handle('auth:logout', async () => {
+secureIpcHandle('auth:logout', async () => {
   github.logout()
   return { success: true }
 })
 
-ipcMain.handle('auth:getStatus', async () => {
+secureIpcHandle('auth:getStatus', async () => {
   try {
     return await github.getAuthStatus()
   } catch (error) {
@@ -671,7 +689,7 @@ async function handleAddWorkingCopyFromOrigin(repoUrl: string, subpath?: string)
   return github.addWorkingCopyFromOrigin(repoUrl, subpath)
 }
 
-ipcMain.handle('library:addWorkingCopyFromOrigin', async (_, repoUrl: string, subpath?: string) => {
+secureIpcHandle('library:addWorkingCopyFromOrigin', async (_, repoUrl: string, subpath?: string) => {
   if (typeof repoUrl !== 'string' || !repoUrl.trim()) {
     return { success: false, error: 'Invalid repository URL' }
   }
@@ -687,7 +705,7 @@ ipcMain.handle('library:addWorkingCopyFromOrigin', async (_, repoUrl: string, su
   }
 })
 
-ipcMain.handle('library:subscribe', async (_, repoUrl: string, subpath?: string) => {
+secureIpcHandle('library:subscribe', async (_, repoUrl: string, subpath?: string) => {
   if (typeof repoUrl !== 'string' || !repoUrl.trim()) {
     return { success: false, error: 'Invalid repository URL' }
   }
@@ -703,7 +721,7 @@ ipcMain.handle('library:subscribe', async (_, repoUrl: string, subpath?: string)
   }
 })
 
-ipcMain.handle('library:unsubscribe', async (_, libraryId: number) => {
+secureIpcHandle('library:unsubscribe', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -717,7 +735,7 @@ ipcMain.handle('library:unsubscribe', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:setAutoSync', async (_, libraryId: number, enabled: boolean) => {
+secureIpcHandle('library:setAutoSync', async (_, libraryId: number, enabled: boolean) => {
   if (typeof libraryId !== 'number' || typeof enabled !== 'boolean') {
     return { success: false, error: 'Invalid parameters' }
   }
@@ -731,7 +749,7 @@ ipcMain.handle('library:setAutoSync', async (_, libraryId: number, enabled: bool
   }
 })
 
-ipcMain.handle('library:sync', async (_, libraryId: number) => {
+secureIpcHandle('library:sync', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -751,7 +769,7 @@ ipcMain.handle('library:sync', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:syncAll', async () => {
+secureIpcHandle('library:syncAll', async () => {
   try {
     const allLibraries = db.getAllLibraries()
     const results: Array<{ library: typeof allLibraries[0]; result: { added: number; updated: number; removed: number; errors: string[] } }> = []
@@ -778,7 +796,7 @@ ipcMain.handle('library:syncAll', async () => {
   }
 })
 
-ipcMain.handle('library:getAll', async () => {
+secureIpcHandle('library:getAll', async () => {
   try {
     return await localLibrary.getAllLibrariesWithWorkingTreeStatus()
   } catch (error) {
@@ -787,7 +805,7 @@ ipcMain.handle('library:getAll', async () => {
   }
 })
 
-ipcMain.handle('library:getWorkflowSummary', async (_, libraryId: number) => {
+secureIpcHandle('library:getWorkflowSummary', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -801,7 +819,7 @@ ipcMain.handle('library:getWorkflowSummary', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:fetchOrigin', async (_, libraryId: number) => {
+secureIpcHandle('library:fetchOrigin', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -814,7 +832,7 @@ ipcMain.handle('library:fetchOrigin', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:updateFromOrigin', async (_, libraryId: number) => {
+secureIpcHandle('library:updateFromOrigin', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -831,7 +849,7 @@ ipcMain.handle('library:updateFromOrigin', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:relinkWorkingCopy', async (_, libraryId: number) => {
+secureIpcHandle('library:relinkWorkingCopy', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -857,7 +875,7 @@ ipcMain.handle('library:relinkWorkingCopy', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:commitChanges', async (_, libraryId: number, message: string) => {
+secureIpcHandle('library:commitChanges', async (_, libraryId: number, message: string) => {
   if (typeof libraryId !== 'number' || typeof message !== 'string') {
     return { success: false, error: 'Invalid parameters' }
   }
@@ -870,7 +888,7 @@ ipcMain.handle('library:commitChanges', async (_, libraryId: number, message: st
   }
 })
 
-ipcMain.handle('library:pushChanges', async (_, libraryId: number) => {
+secureIpcHandle('library:pushChanges', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -883,7 +901,7 @@ ipcMain.handle('library:pushChanges', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:openPullRequest', async (_, libraryId: number) => {
+secureIpcHandle('library:openPullRequest', async (_, libraryId: number) => {
   if (typeof libraryId !== 'number') {
     return { success: false, error: 'Invalid library ID' }
   }
@@ -896,7 +914,7 @@ ipcMain.handle('library:openPullRequest', async (_, libraryId: number) => {
   }
 })
 
-ipcMain.handle('library:init', async (_, libraryId: number, name: string, description: string, subpath?: string) => {
+secureIpcHandle('library:init', async (_, libraryId: number, name: string, description: string, subpath?: string) => {
   if (typeof libraryId !== 'number' || typeof name !== 'string' || !name.trim()) {
     return { success: false, error: 'Invalid parameters' }
   }
@@ -917,7 +935,7 @@ ipcMain.handle('library:init', async (_, libraryId: number, name: string, descri
   }
 })
 
-ipcMain.handle('library:getRepoFolders', async (_, repoUrl: string) => {
+secureIpcHandle('library:getRepoFolders', async (_, repoUrl: string) => {
   if (typeof repoUrl !== 'string' || !repoUrl.trim()) {
     return { success: false, error: 'Invalid repository URL', folders: [] }
   }
@@ -930,7 +948,7 @@ ipcMain.handle('library:getRepoFolders', async (_, repoUrl: string) => {
   }
 })
 
-ipcMain.handle('library:openLocal', async (_, requestedFolderPath?: string) => {
+secureIpcHandle('library:openLocal', async (_, requestedFolderPath?: string) => {
   if (!win) return { success: false, error: 'No window' }
   try {
     let folderPath = requestedFolderPath
@@ -960,7 +978,7 @@ ipcMain.handle('library:openLocal', async (_, requestedFolderPath?: string) => {
   }
 })
 
-ipcMain.handle('library:getDefaultWritableLocalLibrary', async () => {
+secureIpcHandle('library:getDefaultWritableLocalLibrary', async () => {
   try {
     const library = localLibrary.getDefaultWritableLocalLibrary()
     return { success: true, library }
@@ -970,7 +988,7 @@ ipcMain.handle('library:getDefaultWritableLocalLibrary', async () => {
   }
 })
 
-ipcMain.handle('library:setupDefaultWritableLocalLibrary', async () => {
+secureIpcHandle('library:setupDefaultWritableLocalLibrary', async () => {
   if (!win) return { success: false, error: 'No window' }
   try {
     const result = await dialog.showOpenDialog(win, {
@@ -991,7 +1009,7 @@ ipcMain.handle('library:setupDefaultWritableLocalLibrary', async () => {
   }
 })
 
-ipcMain.handle('library:createCommand', async (_, command: { title: string; body: string; description: string; tags: string; language: string }) => {
+secureIpcHandle('library:createCommand', async (_, command: { title: string; body: string; description: string; tags: string; language: string }) => {
   if (
     !isValidCommandUpdate(command) ||
     typeof command.title !== 'string' ||
@@ -1009,7 +1027,7 @@ ipcMain.handle('library:createCommand', async (_, command: { title: string; body
   }
 })
 
-ipcMain.handle('library:createCommands', async (_, commands: Array<{ title: string; body: string; description: string; tags: string; language: string }>) => {
+secureIpcHandle('library:createCommands', async (_, commands: Array<{ title: string; body: string; description: string; tags: string; language: string }>) => {
   if (!isValidCommandBatch(commands)) {
     return { success: false, processed: 0, succeeded: 0, failed: 0, errors: ['Invalid command data'] }
   }
@@ -1021,7 +1039,7 @@ ipcMain.handle('library:createCommands', async (_, commands: Array<{ title: stri
   }
 })
 
-ipcMain.handle('library:updateCommand', async (_, id: number, updates: { title: string; body: string; description: string; tags: string; language: string }) => {
+secureIpcHandle('library:updateCommand', async (_, id: number, updates: { title: string; body: string; description: string; tags: string; language: string }) => {
   if (
     typeof id !== 'number' ||
     !isValidCommandUpdate(updates) ||
@@ -1038,7 +1056,7 @@ ipcMain.handle('library:updateCommand', async (_, id: number, updates: { title: 
   }
 })
 
-ipcMain.handle('library:deleteCommand', async (_, id: number) => {
+secureIpcHandle('library:deleteCommand', async (_, id: number) => {
   if (typeof id !== 'number') {
     return { success: false, error: 'Invalid ID' }
   }
@@ -1050,7 +1068,7 @@ ipcMain.handle('library:deleteCommand', async (_, id: number) => {
   }
 })
 
-ipcMain.handle('library:deleteCommands', async (_, ids: number[]) => {
+secureIpcHandle('library:deleteCommands', async (_, ids: number[]) => {
   if (!Array.isArray(ids) || ids.some(id => typeof id !== 'number')) {
     return { success: false, processed: 0, succeeded: 0, failed: 0, errors: ['Invalid command IDs'] }
   }
@@ -1062,7 +1080,7 @@ ipcMain.handle('library:deleteCommands', async (_, ids: number[]) => {
   }
 })
 
-ipcMain.handle('library:exportZip', async (_, commandIds: number[], name: string, description: string) => {
+secureIpcHandle('library:exportZip', async (_, commandIds: number[], name: string, description: string) => {
   if (!win) return { success: false, error: 'No window' }
   try {
     // Fetch commands from DB
@@ -1121,12 +1139,12 @@ ipcMain.handle('library:exportZip', async (_, commandIds: number[], name: string
 })
 
 // ── Settings IPC handlers ─────────────────────────────────────────
-ipcMain.handle('settings:get', async (_, key: string) => {
+secureIpcHandle('settings:get', async (_, key: string) => {
   if (typeof key !== 'string') return null
   return settings.get(key)
 })
 
-ipcMain.handle('settings:set', async (_, key: string, value: unknown) => {
+secureIpcHandle('settings:set', async (_, key: string, value: unknown) => {
   if (typeof key !== 'string') {
     return { success: false, error: 'Invalid key' }
   }
@@ -1163,38 +1181,38 @@ ipcMain.handle('settings:set', async (_, key: string, value: unknown) => {
   }
 })
 
-ipcMain.handle('settings:getAll', async () => {
+secureIpcHandle('settings:getAll', async () => {
   return settings.getAll()
 })
 
 // ── Update IPC handlers ───────────────────────────────────────────
-ipcMain.handle('update:getStatus', async () => {
+secureIpcHandle('update:getStatus', async () => {
   return updater.getStatus()
 })
 
-ipcMain.handle('update:check', async () => {
+secureIpcHandle('update:check', async () => {
   const status = await updater.checkForUpdate()
   return { ...status, showBanner: updater.shouldShowBanner() }
 })
 
-ipcMain.handle('update:dismiss', async () => {
+secureIpcHandle('update:dismiss', async () => {
   updater.dismissVersion()
   return { success: true }
 })
 
-ipcMain.handle('update:remindLater', async () => {
+secureIpcHandle('update:remindLater', async () => {
   updater.remindLater()
   return { success: true }
 })
 
 // IPC handlers for window controls
-ipcMain.handle('window:minimize', () => {
+secureIpcHandle('window:minimize', () => {
   if (win) {
     win.minimize()
   }
 })
 
-ipcMain.handle('window:maximize', () => {
+secureIpcHandle('window:maximize', () => {
   if (win) {
     if (win.isMaximized()) {
       win.unmaximize()
@@ -1204,17 +1222,17 @@ ipcMain.handle('window:maximize', () => {
   }
 })
 
-ipcMain.handle('window:close', () => {
+secureIpcHandle('window:close', () => {
   if (win) {
     win.close()
   }
 })
 
-ipcMain.handle('window:isMaximized', () => {
+secureIpcHandle('window:isMaximized', () => {
   return win ? win.isMaximized() : false
 })
 
-ipcMain.handle('window:getPlatform', () => {
+secureIpcHandle('window:getPlatform', () => {
   return process.platform
 })
 // This method will be called when Electron has finished
@@ -1288,8 +1306,9 @@ app.on('activate', () => {
   // Standard window behavior for desktop app
 })
 
-// New window example arg: new windows url
-ipcMain.handle('open-win', (_, arg) => {
+// New window example arg: hash route for app content
+secureIpcHandle('open-win', (_, arg) => {
+  const routeHash = sanitizeRouteHash(arg)
   const childWindow = new BrowserWindow({
     webPreferences: {
       preload,
@@ -1298,10 +1317,11 @@ ipcMain.handle('open-win', (_, arg) => {
       // sandbox: true,        // Disabled: breaks window.prompt() used by RichTextEditor
     },
   })
+  registerAppWindow(childWindow)
 
   if (VITE_DEV_SERVER_URL) {
-    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${arg}`)
+    childWindow.loadURL(`${VITE_DEV_SERVER_URL}#${routeHash}`)
   } else {
-    childWindow.loadFile(indexHtml, { hash: arg })
+    childWindow.loadFile(indexHtml, { hash: routeHash })
   }
 })

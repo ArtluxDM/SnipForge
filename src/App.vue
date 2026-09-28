@@ -13,6 +13,7 @@ import UpdateBanner from './components/UpdateBanner.vue'
 import { Copy, Edit, Trash2, HelpCircle, Settings, Anvil, CirclePlus } from 'lucide-vue-next'
 import { VList } from 'virtua/vue'
 import { extractVariables, substituteVariables, hasVariables, highlightVariables, type VariableValues } from './utils/variables'
+import { htmlToPreviewText } from './utils/htmlText'
 import { useSettings } from './composables/useSettings'
 import { prepareExportBundle, importCommands, validateExportData, detectDuplicates, type DuplicateMatch, type ImportCommand } from './utils/importExport'
 import { fuzzySearchCommands } from './utils/fuzzySearch'
@@ -336,12 +337,8 @@ const copyCommandTemplate = async (text: string, language: string) => {
   await copyToClipboard(text, language)
 }
 
-// Helper to strip HTML tags for plain text preview
-const stripHtml = (html: string): string => {
-  const div = document.createElement('div')
-  div.innerHTML = html
-  return div.textContent || div.innerText || ''
-}
+// Helper to strip HTML tags for plain text preview without parsing raw HTML into DOM
+const stripHtml = (html: string): string => htmlToPreviewText(html)
 
 // Get preview HTML for command body (strip HTML for richtext, highlight variables)
 const getCommandPreview = (body: string, language: string): string => {
