@@ -49,12 +49,12 @@ Final notes:
 
 ## Current Release Flow
 
-1. Before tagging, PR and `main` runs of `.github/workflows/verify.yml` run frozen installs, independent main and renderer type checks, and the full Node-native test suite on macOS, Windows, and Linux. Configure required PR checks in GitHub branch protection separately; workflow triggers alone do **not** prevent merges.
-2. A local release script bumps `package.json`, commits, tags, and pushes. The tag push starts `.github/workflows/release.yml`; its reusable `verify` job checks out **`${{ github.sha }}`** (the tag's commit) and runs the same checks. This does not trust a prior PR result; a tag can point to an arbitrary commit.
+1. Before tagging, PR and `main` runs of `.github/workflows/verify.yml` run frozen installs, independent main and renderer type checks, and the full Node-native test suite on macOS, Windows, and Linux. Configure required PR checks in GitHub branch protection separately; workflow triggers alone do **not** prevent merges. On 2026-09-29, the GitHub API reported no branch protection or repository rulesets for `main`: **merges are not currently blocked by these checks**.
+2. `scripts/release.sh [patch|minor|major]` bumps `package.json`, commits, tags, and pushes the branch plus **all** local tags; it runs no checks or smoke test and does not confirm the branch or clean state. Review/verify first (and do not run it from a dirty or unreviewed branch). The tag push starts `.github/workflows/release.yml`; its reusable `verify` job checks out **`${{ github.sha }}`** (the tag's commit) and runs the same checks. This does not trust a prior PR result; a tag can point to an arbitrary commit.
 3. **Only if every tag verification matrix job succeeds**, platform builds run `pnpm build` on that commit on macOS, Windows, and Linux without release credentials. A failed/cancelled verification blocks all builds; a failed/cancelled build blocks draft creation. No `always()` bypasses either dependency.
 4. Each build uploads only packaged release artifacts (`.dmg`, `.exe`, `.AppImage`, blockmaps, and update YAML files) to the workflow run.
 5. A single `create-release` job (the only job with `contents: write` / `GITHUB_TOKEN` for release publishing) downloads those artifacts and creates one draft GitHub release for the tag.
-6. A human performs the packaged-app smoke pass and reviews the draft before publishing. CI and an untested tag do not automatically publish.
+6. A human performs the packaged-app smoke pass and reviews the draft before publishing. CI and an untested tag do not automatically publish. **Do not use the existing `.claude/agents/release-manager.md` for publication yet**: it auto-promotes the draft after CI and launches/kills the app without verified user-data isolation. Issue #79 tracks aligning it with this gate.
 
 ## Pre-publish packaged-app smoke record (repeat on each release candidate)
 

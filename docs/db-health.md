@@ -27,7 +27,7 @@ When `tests/database.test.ts` stops loading after a Node upgrade or ABI drift, r
 pnpm test:db
 ```
 
-That command provisions a temporary writable npm cache, rebuilds `better-sqlite3` against the current environment, and then runs `tests/database.test.ts`.
+That command prepares the Electron binary without launching it (avoiding parallel Vitest download races), provisions a temporary writable npm cache, rebuilds and probes `better-sqlite3` for the invoking **Node** runtime, then runs `tests/database.test.ts`. For the whole suite use `pnpm test`, which performs the same preparation. Before starting Electron after Node tests, run `pnpm native:electron` (or `pnpm dev`, which invokes it); avoid concurrent test and app builds in the same checkout.
 
 Machine prerequisites:
 
@@ -41,7 +41,9 @@ Final notes:
 - `scripts/test-db.mjs` now injects a temp npm cache before rebuilding `better-sqlite3`, which avoids relying on `~/.npm` being writable during recovery runs
 - the recovery path stays as one command, but the doc now makes its toolchain assumptions explicit
 
-## Checks
+## Proposed health checks (not yet automated)
+
+The checks below are a design backlog, not startup checks the app currently runs. The DB test recovery commands above are implemented.
 
 ### 1. Integrity Check
 

@@ -9,7 +9,7 @@ This document tracks review finding 2. The review is a risk assessment, not proo
 ## GitHub issue
 
 - Issue: [#70 — Harden renderer navigation, IPC, and untrusted HTML handling](https://github.com/ArtluxDM/SnipForge/issues/70)
-- Source review: `review-2026-09-28-findings.md` finding 2 / `temp-2-renderer-hardening.md`
+- Source review: finding 2, captured in tracked issue #70 and the plan/final notes below (local review scratch is not required to use this doc).
 - Dependency triage prerequisite: PR [#69](https://github.com/ArtluxDM/SnipForge/pull/69) is merged.
 
 ## Plan before code changes
@@ -77,7 +77,7 @@ Expected/known failure:
 ## Remaining risks / unverified
 
 - No Windows, Linux, macOS Intel, signed/notarized macOS, or clean-machine installer smoke was performed in this PR.
-- Runtime click/navigation behavior was not exercised with a browser automation harness; coverage is via focused unit tests for URL policy, external URL validation, IPC sender rejection/allowance, and hostile preview extraction plus a packaged launch smoke.
+- Runtime click/navigation behavior and actual resource loads from hostile rich text (remote images/media, `file:` URLs, malformed links), including copy-to-clipboard HTML, were not exercised with a browser automation harness. Coverage is via focused unit tests for URL policy, external URL validation, IPC sender rejection/allowance, and hostile preview extraction plus a packaged launch smoke. Recheck dev and packaged flows in an isolated profile before making an end-to-end security claim.
 - Dev flow was preserved by policy tests for the configured Vite origin and by keeping dev-only CSP `connect-src` allowances; a live `pnpm dev` UI smoke was not run.
 - CSP still permits inline styles. Script inline allowance was removed; further style tightening should be handled separately if/when renderer styling no longer requires it.
 - This PR intentionally does not address dependency triage, local-library reconciliation, release gates, or large-module refactors from other findings.

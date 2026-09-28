@@ -190,7 +190,7 @@ Connectors are authenticated integrations with external services. Phase 1 has on
 [GitLab Icon]  GitLab          Not connected [Connect]
 ```
 
-**Data model:** Each connector uses the existing `auth` table for encrypted token storage. The `settings` table is not involved — auth is auth, settings are preferences.
+**Data model:** GitHub uses the `auth` table for token storage, separate from preferences in `settings`. `safeStorage` encrypts when a secure backend is available; the fallback is base64 only, not encryption (see `docs/schema.md`).
 
 **Future connectors (not planned, just showing the pattern works):**
 - GitLab — same OAuth Device Flow, different API

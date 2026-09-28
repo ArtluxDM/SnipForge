@@ -74,21 +74,26 @@ Feature documentation lives in `docs/`. These are living documents — plan, imp
 | Doc | What | Status |
 |-----|------|--------|
 | `docs/schema.md` | Database schema — tables, columns, migrations, TypeScript types | Living reference |
-| `docs/library-first-command-storage.md` | Library-first command model — filesystem source of truth, SQLite as cache/index, roadmap and issue plan | Planned |
-| `docs/remote-libraries.md` | Remote Libraries — GitHub sync, publishing, unified library model | Phases 1-4 complete, Phase 5 planned |
+| `docs/library-first-command-storage.md` | File-backed command model — filesystem source of truth, SQLite as index/cache, migration and sync notes | Current reference + historical roadmap |
+| `docs/library-working-copies.md` | Current local and GitHub-origin library UX and working-copy workflows | Current reference |
+| `docs/remote-libraries.md` | Older subscription-era architecture and migration history | Archived (not current setup guidance) |
 | `docs/settings.md` | Settings — infrastructure, General tab, connectors, auto-sync, shortcuts | Phases 1-3 complete |
 | `docs/variable-substitution.md` | Variable substitution — `{{variable}}` templates, copy flow, highlighting | Current state documented, #11 planned |
-| `docs/auto-update.md` | Auto-update — version checking, download, install via electron-updater | Not started, needs scoping session |
+| `docs/auto-update.md` | Stable-release check and notification (Phase 1); download/install (Phase 2) | Phase 1 implemented; Phase 2 future |
 | `docs/db-health.md` | Database health — integrity checks, orphan detection, VACUUM | Deepness TBD |
 | `docs/release.md` | Release pipeline — tag-triggered CI builds, artifact collection, draft GitHub releases | Living reference |
 
 ## Development
 
 ```bash
-pnpm install      # install dependencies
-pnpm dev          # starts Electron + Vite dev server
-pnpm dev:debug    # starts with Chrome DevTools Protocol on port 9222 (for frontend-dev agent)
-pnpm build        # production build
+# Use Node 24 (.nvmrc) and pnpm 10.16.0 (packageManager)
+pnpm install --frozen-lockfile
+pnpm typecheck:main && pnpm typecheck:renderer
+pnpm test         # prepares Node-native dependencies; full suite
+pnpm test:db      # same preparation; DB suite only
+pnpm dev          # prepares Electron-native dependencies, starts Electron + Vite
+pnpm dev:debug    # same, with Chrome DevTools Protocol on port 9222
+pnpm build        # production package build
 ```
 
 ### Guidelines
@@ -108,22 +113,19 @@ pnpm build        # production build
 
 ### Release Process
 
-**Option 1 — Release Manager Agent** (recommended, use in a Claude session):
-```
-"Use the release manager agent to create an auto release"
-"Check release status using the release manager"
-```
-Analyzes commits, determines version bump from conventional commits, generates changelog, runs a local build to verify the app doesn't crash, tags, pushes, monitors CI, and publishes the release. Full lifecycle, no manual steps.
+**Option 1 — Claude Release Manager Agent (currently blocked; see issue #79):**
 
-**Option 2 — Release script** (standalone, no session needed):
+**Do not use this agent for a release until #79 is fixed.** `.claude/agents/release-manager.md` currently launches/kills the app without verifying user-data isolation, deletes build output, and auto-promotes a green CI draft. That contradicts the isolated packaged-app checks and manual publication gate in `docs/release.md`. It is also not automatically available in every coding harness.
+
+**Option 2 — Release script** (after explicit review, from clean `main`):
 ```bash
 ./scripts/release.sh          # patch bump
 ./scripts/release.sh minor    # minor bump
 ./scripts/release.sh major    # major bump
 ```
-Bumps `package.json`, commits, tags, and pushes. No build verification or changelog — use when you're confident in the code. Go to GitHub Releases to publish the draft after CI finishes.
+Bumps `package.json`, commits, tags, and pushes **without** local checks, a changelog, or confirmation. Run checks before invoking it, and use the isolated packaged-app checklist in `docs/release.md` before manually publishing the CI draft. Do not run it from an unreviewed/dirty branch.
 
-In both cases, GitHub Actions builds for macOS, Windows, and Linux in parallel, uploads packaged artifacts, then a single release job attaches everything to one draft release. `electron-builder` must not receive release credentials during build jobs; GitHub Actions owns publishing. See `docs/release.md`.
+In both cases, GitHub Actions verifies the exact tagged commit (main and renderer type checks plus full tests on macOS, Windows, and Linux) before parallel platform builds. One job then attaches artifacts to a **draft**, not a published release. `electron-builder` must not receive release credentials during build jobs; GitHub Actions owns publishing. See `docs/release.md`.
 
 **Build config:** `electron-builder.json5` (not package.json). Always do clean builds when switching dev → production.
 
@@ -131,5 +133,5 @@ In both cases, GitHub Actions builds for macOS, Windows, and Linux in parallel, 
 
 - Clipboard-only — never executes commands automatically
 - Variable substitution prompts prevent accidental execution
-- GitHub tokens encrypted via Electron `safeStorage` before SQLite storage
-- DOMPurify sanitizes all rendered HTML
+- GitHub tokens use Electron `safeStorage` when available; when unavailable the code falls back to base64 encoding (not encryption). Linux `basic_text` is not secure storage either — do not promise at-rest protection on every machine.
+- DOMPurify is used at command/Markdown HTML rendering and clipboard HTML sinks; this is not a substitute for hostile-content testing.
