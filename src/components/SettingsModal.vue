@@ -730,7 +730,7 @@ const updateChecking = ref(false)
 
 async function loadUpdateStatus() {
   try {
-    updateStatus.value = await (window.electronAPI as any).update.getStatus()
+    updateStatus.value = await window.electronAPI.update.getStatus()
   } catch (e) {
     console.warn('[Settings] Failed to get update status:', e)
   }
@@ -739,7 +739,7 @@ async function loadUpdateStatus() {
 async function manualCheckForUpdate() {
   updateChecking.value = true
   try {
-    updateStatus.value = await (window.electronAPI as any).update.check()
+    updateStatus.value = await window.electronAPI.update.check()
   } catch (e) {
     console.warn('[Settings] Manual check failed:', e)
   }
@@ -1068,8 +1068,8 @@ async function handlePickLibrary(lib: DiscoveredLibrary) {
 
   try {
     const result = libraryPicker.value.type === 'local'
-      ? await (window.electronAPI as any).library.openLocal(lib.path)
-      : await (window.electronAPI as any).library.subscribe(libraryPicker.value.repoUrl, lib.path)
+      ? await window.electronAPI.library.openLocal(lib.path)
+      : await window.electronAPI.library.subscribe(libraryPicker.value.repoUrl, lib.path)
 
     if (result.success) {
       await loadLibraries()
@@ -1098,7 +1098,7 @@ async function handleChooseDefaultWritableLibrary() {
   defaultLibraryError.value = ''
 
   try {
-    const result = await (window.electronAPI as any).library.setupDefaultWritableLocalLibrary()
+    const result = await window.electronAPI.library.setupDefaultWritableLocalLibrary()
     if (result.success && result.library) {
       await updateSetting('library.defaultWritableLocalLibraryId', result.library.id)
       await loadLibraries()
@@ -1299,7 +1299,7 @@ async function handleToggleLibraryAutoSync(lib: Library) {
   if (!autoSyncEnabled.value) return
   const newValue = lib.auto_sync !== 1
   try {
-    const result = await (window.electronAPI as any).library.setAutoSync(lib.id, newValue)
+    const result = await window.electronAPI.library.setAutoSync(lib.id, newValue)
     if (result.success) {
       lib.auto_sync = newValue ? 1 : 0
     }
@@ -1397,7 +1397,7 @@ async function openInitModal(lib: Library) {
   // Only fetch folders for GitHub repos (local libraries always use root)
   if (lib.type !== 'local') {
     try {
-      const result = await (window.electronAPI as any).library.getRepoFolders(lib.github_repo)
+      const result = await window.electronAPI.library.getRepoFolders(lib.github_repo)
       if (result.success) {
         initModal.value.folders = result.folders
       }
@@ -1442,7 +1442,7 @@ async function handleInitLibrary() {
 
   try {
     const subpath = initModal.value.subpath.trim().replace(/^\/+/, '').replace(/\/+$/, '')
-    const result = await (window.electronAPI as any).library.init(
+    const result = await window.electronAPI.library.init(
       initModal.value.libraryId,
       initModal.value.name.trim(),
       initModal.value.description.trim(),
@@ -1559,7 +1559,7 @@ function deriveLastSynced() {
 
 async function loadAuthStatus() {
   try {
-    authStatus.value = await (window.electronAPI as any).auth.getStatus()
+    authStatus.value = await window.electronAPI.auth.getStatus()
   } catch {
     authStatus.value = { authenticated: false, user: null }
   }
@@ -1567,7 +1567,7 @@ async function loadAuthStatus() {
 
 async function loadLibraries() {
   try {
-    libraries.value = await (window.electronAPI as any).library.getAll()
+    libraries.value = await window.electronAPI.library.getAll()
     if (selectedLibraryId.value !== null && !libraries.value.some(lib => lib.id === selectedLibraryId.value && !!lib.manifest_path)) {
       closeLibraryManagement()
     } else if (selectedLibraryId.value !== null) {
@@ -1583,9 +1583,10 @@ async function startLogin() {
   deviceFlow.value.loading = true
   libraryError.value = ''
   try {
-    const result = await (window.electronAPI as any).auth.login()
-    if (!result.success) {
+    const result = await window.electronAPI.auth.login()
+    if (!result.success || !result.user_code || !result.verification_uri || !result.device_code) {
       libraryError.value = result.error || 'Failed to start login'
+      deviceFlow.value.loading = false
       return
     }
     deviceFlow.value = {
@@ -1610,7 +1611,7 @@ function startPolling() {
 
   async function poll() {
     try {
-      const result = await (window.electronAPI as any).auth.pollLogin(deviceFlow.value.deviceCode)
+      const result = await window.electronAPI.auth.pollLogin(deviceFlow.value.deviceCode)
       if (result.success) {
         stopPolling()
         deviceFlow.value.completed = true
@@ -1663,19 +1664,19 @@ function cancelLogin() {
 
 async function copyDeviceCode() {
   try {
-    await (window.electronAPI as any).clipboard.writeText(deviceFlow.value.userCode)
+    await window.electronAPI.clipboard.writeText(deviceFlow.value.userCode)
   } catch { /* ignore */ }
 }
 
 async function openVerificationUrl() {
   try {
-    await (window.electronAPI as any).shell.openExternal(deviceFlow.value.verificationUri || 'https://github.com/login/device')
+    await window.electronAPI.shell.openExternal(deviceFlow.value.verificationUri || 'https://github.com/login/device')
   } catch { /* ignore */ }
 }
 
 async function handleLogout() {
   try {
-    await (window.electronAPI as any).auth.logout()
+    await window.electronAPI.auth.logout()
     authStatus.value = { authenticated: false, user: null }
   } catch { /* ignore */ }
 }
@@ -1688,8 +1689,12 @@ async function handleSubscribe() {
   syncMessage.value = ''
 
   try {
-    const result = await (window.electronAPI as any).library.subscribe(newRepoUrl.value.trim())
-    if (result.needsPick) {
+    const result = await window.electronAPI.library.subscribe(newRepoUrl.value.trim())
+    if (result.needsPick && !result.libraries) {
+      libraryError.value = result.error || 'Could not load library choices'
+      return
+    }
+    if (result.needsPick && result.libraries) {
       // Multiple libraries found — show picker
       libraryPicker.value = {
         visible: true,
@@ -1728,8 +1733,12 @@ async function handleOpenLocalFolder() {
   syncMessage.value = ''
 
   try {
-    const result = await (window.electronAPI as any).library.openLocal()
-    if (result.needsPick) {
+    const result = await window.electronAPI.library.openLocal()
+    if (result.needsPick && !result.libraries) {
+      libraryError.value = result.error || 'Could not load library choices'
+      return
+    }
+    if (result.needsPick && result.libraries) {
       libraryPicker.value = {
         visible: true,
         type: 'local',
@@ -1786,7 +1795,7 @@ async function handleUnsubscribe(libraryId: number, name: string, isLocal = fals
   const detail = isLocal ? 'This will remove the commands from your list. The folder and its files will not be touched.' : 'This will remove all commands from this library.'
   if (!confirm(`${action} "${name}"? ${detail}`)) return
   try {
-    const result = await (window.electronAPI as any).library.unsubscribe(libraryId)
+    const result = await window.electronAPI.library.unsubscribe(libraryId)
     if (result.success) {
       await loadLibraries()
       syncMessage.value = `Unsubscribed from ${name}`
@@ -1806,7 +1815,7 @@ async function handleSyncLibrary(libraryId: number) {
   syncMessage.value = ''
   libraryError.value = ''
   try {
-    const result = await (window.electronAPI as any).library.sync(libraryId)
+    const result = await window.electronAPI.library.sync(libraryId)
     if (result.success) {
       await loadLibraries()
       deriveLastSynced()
@@ -1841,7 +1850,7 @@ async function handleSyncAll() {
   syncMessage.value = ''
   libraryError.value = ''
   try {
-    const result = await (window.electronAPI as any).library.syncAll()
+    const result = await window.electronAPI.library.syncAll()
     if (result.success && result.results) {
       await loadLibraries()
       deriveLastSynced()

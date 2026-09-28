@@ -58,7 +58,7 @@ const handleLinkClick = async (event: MouseEvent) => {
   if (url) {
     const confirmed = confirm(`You are about to navigate to:\n\n${url}\n\nDo you want to continue?`)
     if (confirmed) {
-      await (window as any).electronAPI.shell.openExternal(url)
+      await window.electronAPI.shell.openExternal(url)
     }
   }
 }

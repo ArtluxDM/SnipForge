@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer } from "electron"
+import type { ElectronAPI } from "../../shared/electron-api"
 import type {
   Command,
   Library,
@@ -23,7 +24,7 @@ const subscribeToSignal = (channel: string, callback: () => void) => {
   }
 }
 //expose db methods to renderer process
-contextBridge.exposeInMainWorld('electronAPI', {
+const electronAPI = {
   // db methods
   database:{
     getAllCommands: (): Promise<Command[]> =>
@@ -144,8 +145,9 @@ contextBridge.exposeInMainWorld('electronAPI', {
     exportZip: (commandIds: number[], name: string, description: string): Promise<{ success: boolean; path?: string; commandCount?: number; error?: string }> =>
       ipcRenderer.invoke('library:exportZip', commandIds, name, description),
     onAutoSyncResult: (callback: (data: { timestamp: string; results: Array<{ libraryId: number; name: string; result: { added: number; updated: number; removed: number; errors: string[] } }> }) => void) => {
-      ipcRenderer.on('library:autoSyncResult', (_, data) => callback(data))
-      return () => { ipcRenderer.removeAllListeners('library:autoSyncResult') }
+      const listener = (_: Electron.IpcRendererEvent, data: Parameters<typeof callback>[0]) => callback(data)
+      ipcRenderer.on('library:autoSyncResult', listener)
+      return () => { ipcRenderer.removeListener('library:autoSyncResult', listener) }
     },
   },
   // Update methods
@@ -159,91 +161,11 @@ contextBridge.exposeInMainWorld('electronAPI', {
     remindLater: (): Promise<{ success: boolean }> =>
       ipcRenderer.invoke('update:remindLater'),
     onStatusChanged: (callback: (data: UpdateStatus & { showBanner: boolean }) => void) => {
-      ipcRenderer.on('update:statusChanged', (_, data) => callback(data))
-      return () => { ipcRenderer.removeAllListeners('update:statusChanged') }
+      const listener = (_: Electron.IpcRendererEvent, data: Parameters<typeof callback>[0]) => callback(data)
+      ipcRenderer.on('update:statusChanged', listener)
+      return () => { ipcRenderer.removeListener('update:statusChanged', listener) }
     },
   },
-})
-// tell the compiler what's availible on the window object
-declare global {
-  interface Window {
-    electronAPI: {
-      database: {
-        getAllCommands: () => Promise<Command[]>
-      },
-      clipboard: {
-        writeText: (text: string) => Promise<void>,
-        write: (data: { text: string, html?: string }) => Promise<void>,
-        readText: () => Promise<string>
-      },
-      dialog: {
-        showInputDialog: (title: string, label: string, defaultValue?: string) => Promise<{success: boolean, value: string | null}>
-      },
-      onWindowShown: (callback: () => void) => () => void,
-      onCommandsChanged: (callback: () => void) => () => void,
-      file: {
-        saveDialog: (defaultFilename: string) => Promise<{success: boolean, filePath: string | null}>
-        openDialog: () => Promise<{success: boolean, filePath: string | null}>
-        writeFile: (filePath: string, content: string) => Promise<{success: boolean, error?: string}>
-        readFile: (filePath: string) => Promise<{success: boolean, content?: string, error?: string}>
-      },
-      platform: string,
-      shell: {
-        openExternal: (url: string) => Promise<void>
-      },
-      settings: {
-        get: (key: string) => Promise<unknown>
-        set: (key: string, value: unknown) => Promise<{ success: boolean; error?: string }>
-        getAll: () => Promise<Record<string, unknown>>
-      },
-      window: {
-        minimize: () => Promise<void>
-        maximize: () => Promise<void>
-        close: () => Promise<void>
-        isMaximized: () => Promise<boolean>
-        getPlatform: () => Promise<string>
-      },
-      auth: {
-        login: () => Promise<{ success: boolean; user_code?: string; verification_uri?: string; device_code?: string; interval?: number; expires_in?: number; error?: string }>
-        pollLogin: (deviceCode: string) => Promise<{ success: boolean; user?: GitHubUser; error?: string }>
-        logout: () => Promise<{ success: boolean }>
-        getStatus: () => Promise<AuthStatus>
-      },
-      library: {
-        addWorkingCopyFromOrigin: (repoUrl: string, subpath?: string) => Promise<{ success: boolean; library?: Library; syncResult?: SyncResult; needsPick?: boolean; libraries?: DiscoveredLibrary[]; error?: string }>
-        subscribe: (repoUrl: string, subpath?: string) => Promise<{ success: boolean; library?: Library; syncResult?: SyncResult; needsPick?: boolean; libraries?: DiscoveredLibrary[]; error?: string }>
-        unsubscribe: (libraryId: number) => Promise<{ success: boolean; error?: string }>
-        setAutoSync: (libraryId: number, enabled: boolean) => Promise<{ success: boolean; error?: string }>
-        sync: (libraryId: number) => Promise<{ success: boolean; added?: number; updated?: number; removed?: number; errors?: string[]; error?: string }>
-        syncAll: () => Promise<{ success: boolean; results?: Array<{ library: Library; result: SyncResult }>; error?: string }>
-        getAll: () => Promise<Library[]>
-        getWorkflowSummary: (libraryId: number) => Promise<{ success: boolean; summary?: LibraryGitWorkflowSummary; error?: string }>
-        fetchOrigin: (libraryId: number) => Promise<LibraryWorkflowResult>
-        updateFromOrigin: (libraryId: number) => Promise<LibraryWorkflowResult>
-        relinkWorkingCopy: (libraryId: number) => Promise<{ success: boolean; library?: Library; syncResult?: SyncResult; cancelled?: boolean; error?: string }>
-        commitChanges: (libraryId: number, message: string) => Promise<LibraryWorkflowResult>
-        pushChanges: (libraryId: number) => Promise<LibraryWorkflowResult>
-        openPullRequest: (libraryId: number) => Promise<LibraryWorkflowResult>
-        getDefaultWritableLocalLibrary: () => Promise<DefaultWritableLibraryResult>
-        setupDefaultWritableLocalLibrary: () => Promise<DefaultWritableLibrarySetupResult>
-        createCommand: (command: { title: string; body: string; description: string; tags: string; language: string }) => Promise<CommandMutationResult>
-        createCommands: (commands: Array<{ title: string; body: string; description: string; tags: string; language: string }>) => Promise<BatchCommandMutationResult>
-        updateCommand: (id: number, updates: { title: string; body: string; description: string; tags: string; language: string }) => Promise<CommandMutationResult>
-        deleteCommand: (id: number) => Promise<CommandMutationResult>
-        deleteCommands: (ids: number[]) => Promise<BatchCommandMutationResult>
-        openLocal: (folderPath?: string) => Promise<{ success: boolean; library?: Library; syncResult?: SyncResult; needsPick?: boolean; libraries?: DiscoveredLibrary[]; error?: string }>
-        init: (libraryId: number, name: string, description: string, subpath?: string) => Promise<{ success: boolean; library?: Library; syncResult?: SyncResult; error?: string }>
-        getRepoFolders: (repoUrl: string) => Promise<{ success: boolean; folders: string[]; error?: string }>
-        exportZip: (commandIds: number[], name: string, description: string) => Promise<{ success: boolean; path?: string; commandCount?: number; error?: string }>
-        onAutoSyncResult: (callback: (data: { timestamp: string; results: Array<{ libraryId: number; name: string; result: { added: number; updated: number; removed: number; errors: string[] } }> }) => void) => () => void
-      }
-      update: {
-        getStatus: () => Promise<UpdateStatus & { showBanner: boolean }>
-        check: () => Promise<UpdateStatus & { showBanner: boolean }>
-        dismiss: () => Promise<{ success: boolean }>
-        remindLater: () => Promise<{ success: boolean }>
-        onStatusChanged: (callback: (data: UpdateStatus & { showBanner: boolean }) => void) => () => void
-      }
-    }
-  }
-}
+} satisfies ElectronAPI
+
+contextBridge.exposeInMainWorld('electronAPI', electronAPI)

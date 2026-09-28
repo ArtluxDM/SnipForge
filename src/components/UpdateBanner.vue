@@ -17,14 +17,14 @@ let cleanupListener: (() => void) | null = null
 
 onMounted(async () => {
   try {
-    const s = await (window.electronAPI as any).update.getStatus()
+    const s = await window.electronAPI.update.getStatus()
     status.value = s
   } catch (e) {
     console.warn('[UpdateBanner] Failed to get status:', e)
   }
 
   // Listen for push updates from main process
-  cleanupListener = (window.electronAPI as any).update.onStatusChanged((data: StatusWithBanner) => {
+  cleanupListener = window.electronAPI.update.onStatusChanged((data: StatusWithBanner) => {
     status.value = data
   })
 })
@@ -35,8 +35,8 @@ onUnmounted(() => {
 
 async function handleUpdate() {
   try {
-    await (window.electronAPI as any).shell.openExternal(status.value.releaseUrl)
-    await (window.electronAPI as any).update.dismiss()
+    await window.electronAPI.shell.openExternal(status.value.releaseUrl)
+    await window.electronAPI.update.dismiss()
     status.value = { ...status.value, showBanner: false }
   } catch (e) {
     console.warn('[UpdateBanner] Failed to open URL:', e)
@@ -45,7 +45,7 @@ async function handleUpdate() {
 
 async function handleRemindLater() {
   try {
-    await (window.electronAPI as any).update.remindLater()
+    await window.electronAPI.update.remindLater()
     status.value = { ...status.value, showBanner: false }
   } catch (e) {
     console.warn('[UpdateBanner] Failed to dismiss:', e)

@@ -54,13 +54,13 @@ SnipForge ships with **The Armory** — a curated starter library of 477 command
 
 ## Download
 
-Get the latest release from the [Releases page](https://github.com/ArtluxDM/SnipForge/releases/latest):
+Get the latest stable release from the [Releases page](https://github.com/ArtluxDM/SnipForge/releases/latest) (prereleases appear on [all releases](https://github.com/ArtluxDM/SnipForge/releases)):
 
 | Platform | Format |
 |----------|--------|
 | macOS | `.dmg` |
 | Windows | `.exe` |
-| Linux | `.AppImage`, `.deb`, `.rpm` |
+| Linux | `.AppImage` |
 
 > **macOS note**: The app isn't code signed yet. Right-click > "Open" > "Open" to bypass Gatekeeper, or run `xattr -cr /Applications/SnipForge.app` in Terminal.
 
