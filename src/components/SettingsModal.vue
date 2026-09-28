@@ -1309,8 +1309,10 @@ async function handleToggleLibraryAutoSync(lib: Library) {
 function setupAutoSyncListener() {
   if (autoSyncCleanup) autoSyncCleanup()
   autoSyncCleanup = window.electronAPI.library.onAutoSyncResult((data) => {
-    lastSyncedTimestamp.value = data.timestamp
-    updateLastSyncedDisplay()
+    if (data.results.every(r => r.result.errors.length === 0)) {
+      lastSyncedTimestamp.value = data.timestamp
+      updateLastSyncedDisplay()
+    }
     // Reload libraries to reflect updated sync timestamps
     loadLibraries()
     // Show a brief sync message
@@ -1321,8 +1323,12 @@ function setupAutoSyncListener() {
         totalUpdated += r.result.updated
         totalRemoved += r.result.removed
       }
+      const errors = data.results.flatMap(r => r.result.errors.map(error => `${r.name}: ${error}`))
       const total = totalAdded + totalUpdated + totalRemoved
-      if (total === 0) {
+      if (errors.length) {
+        if (syncMessageTimer) clearTimeout(syncMessageTimer)
+        syncMessage.value = `Auto-sync needs attention: ${errors.join('; ')}`
+      } else if (total === 0) {
         syncMessage.value = 'Auto-sync: all up to date.'
       } else {
         const parts: string[] = []
@@ -1331,9 +1337,9 @@ function setupAutoSyncListener() {
         if (totalRemoved) parts.push(`${totalRemoved} removed`)
         syncMessage.value = `Auto-sync: ${parts.join(', ')}`
       }
-      syncMessageType.value = 'success'
+      syncMessageType.value = errors.length ? 'error' : 'success'
       emit('libraries-changed')
-      clearSyncMessage()
+      if (!errors.length) clearSyncMessage()
     }
   })
 }
@@ -1805,7 +1811,10 @@ async function handleSyncLibrary(libraryId: number) {
       await loadLibraries()
       deriveLastSynced()
       const total = (result.added || 0) + (result.updated || 0) + (result.removed || 0)
-      if (total === 0) {
+      if (result.errors?.length) {
+        if (syncMessageTimer) clearTimeout(syncMessageTimer)
+        libraryError.value = result.errors.join('; ')
+      } else if (total === 0) {
         syncMessage.value = 'Already up to date.'
       } else {
         const parts: string[] = []
@@ -1814,9 +1823,9 @@ async function handleSyncLibrary(libraryId: number) {
         if (result.removed) parts.push(`${result.removed} removed`)
         syncMessage.value = `Synced: ${parts.join(', ')}`
       }
-      syncMessageType.value = 'success'
+      syncMessageType.value = result.errors?.length ? 'error' : 'success'
       emit('libraries-changed')
-      clearSyncMessage()
+      if (!result.errors?.length) clearSyncMessage()
     } else {
       libraryError.value = result.error || 'Sync failed'
     }
@@ -1842,7 +1851,7 @@ async function handleSyncAll() {
         totalAdded += r.result.added
         totalUpdated += r.result.updated
         totalRemoved += r.result.removed
-        errors.push(...r.result.errors)
+        errors.push(...r.result.errors.map((error: string) => `${r.library.name}: ${error}`))
       }
       const total = totalAdded + totalUpdated + totalRemoved
       if (total === 0 && errors.length === 0) {
@@ -1859,7 +1868,11 @@ async function handleSyncAll() {
       }
       syncMessageType.value = errors.length ? 'error' : 'success'
       emit('libraries-changed')
-      clearSyncMessage()
+      if (errors.length) {
+        if (syncMessageTimer) clearTimeout(syncMessageTimer)
+      } else {
+        clearSyncMessage()
+      }
     } else {
       libraryError.value = result.error || 'Sync failed'
     }

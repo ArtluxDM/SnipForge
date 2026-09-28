@@ -275,7 +275,7 @@ async function createWindow() {
   db.seedTestData()
   await localLibrary.migrateRemoteLibrariesToLocalWorkingCopies()
   await localLibrary.migrateLegacyDbOnlyCommandsToDefaultLibrary()
-  await localLibrary.reindexInitializedLocalLibraries()
+  const reindexResults = await localLibrary.reindexInitializedLocalLibraries()
 
   // Restore window state from settings
   const savedState = settings.get<settings.WindowState | null>('general.windowState')
@@ -348,6 +348,18 @@ async function createWindow() {
   // Test actively push message to the Electron-Renderer
   win.webContents.once('did-finish-load', () => {
     win?.webContents.send('main-process-message', new Date().toLocaleString())
+    const failed = reindexResults.filter(item => item.result.errors.length)
+    if (failed.length) {
+      console.error('Local library startup reindex needs attention:', failed.map(item => `${item.libraryId}: ${item.result.errors.join('; ')}`).join('; '))
+      win?.webContents.send('library:autoSyncResult', {
+        timestamp: new Date().toISOString(),
+        results: failed.map(item => ({
+          libraryId: item.libraryId,
+          name: db.getAllLibraries().find(library => library.id === item.libraryId)?.name || String(item.libraryId),
+          result: item.result,
+        })),
+      })
+    }
   })
 
 
@@ -1245,10 +1257,14 @@ app.whenReady().then(async () => {
     createTray()
     startAutoSync() // Start if library.autoSync is enabled
     localLibrary.startFileWatchers()
-    localLibrary.onFileWatcherSync((_libraryId, result) => {
-      if ((result.added || result.updated || result.removed) && win && !win.isDestroyed()) {
-        win.webContents.send('commands:changed')
-      }
+    localLibrary.onFileWatcherSync((libraryId, result) => {
+      if (!win || win.isDestroyed()) return
+      if (result.added || result.updated || result.removed) win.webContents.send('commands:changed')
+      const library = db.getAllLibraries().find(item => item.id === libraryId)
+      win.webContents.send('library:autoSyncResult', {
+        timestamp: new Date().toISOString(),
+        results: [{ libraryId, name: library?.name || String(libraryId), result }],
+      })
     })
     updater.setWindow(win)
     updater.startUpdateChecker()
