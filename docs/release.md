@@ -8,7 +8,7 @@ Goal: make a beta release from the merged `main` tip after PR #84, including the
 
 Plan:
 - [x] Bump `package.json` to `2.13.2-beta.1` in a release PR based on merged `main`; run local type checks, tests, and a Vite bundle build.
-- [ ] Merge only after the three required platform checks pass, then tag the resulting `main` commit and push only `v2.13.2-beta.1`.
+- [x] Merge only after the three required platform checks pass, then tag the resulting `main` commit and push only `v2.13.2-beta.1`.
 - [ ] Confirm tag verification, platform builds, and one draft containing macOS DMG, Windows EXE, Linux AppImage, and update metadata. Mark it as a GitHub prerelease.
 - [ ] Complete the isolated packaged-app smoke record below and review the draft before publication.
 
@@ -30,10 +30,14 @@ Beta.2 tag attempt: `v2.13.2-beta.2` points to merged `main` commit `e9d888c`. A
 Beta.3 recovery plan:
 - [x] Bump to `2.13.2-beta.3`; restrict uploaded and attached files to the configured DMG, NSIS EXE, AppImage, their produced blockmaps, and `latest*.yml` update metadata.
 - [x] Keep unmatched-file validation for every expected format and check the workflow globs against the beta.2 artifact listing before committing.
-- [ ] Pass local checks and required PR checks, merge, tag only the new `main` commit, and verify the workflow creates one clean draft marked as a prerelease.
+- [x] Pass local checks and required PR checks, merge, tag only the new `main` commit, and verify the workflow creates one clean draft marked as a prerelease.
 - [ ] Perform isolated packaged-app smoke and draft review before publication.
 
 Beta.3 local verification: the six workflow patterns matched the eight intended files in the beta.2 draft-job listing and excluded five internal/unpacked files. `actionlint`, both type checks, the full suite (13 files, 130 tests), `pnpm exec vite build`, and `git diff --check` passed. The existing Vite large-chunk warning remains.
+
+Beta.3 draft record (2026-09-29): PR #88 passed all three required checks and merged as `477b6a7`. Tag `v2.13.2-beta.3` points to that commit. [Tag workflow run](https://github.com/ArtluxDM/SnipForge/actions/runs/36504050007) passed all three verification jobs, all three platform packaging jobs, and the single draft creation job. The draft is marked as a GitHub prerelease and has eight intended assets: macOS DMG and blockmap, Windows NSIS EXE and blockmap, Linux AppImage, and `latest-mac.yml`, `latest.yml`, and `latest-linux.yml`. No unpacked executable or internal YAML file was attached. The three update YAML files each identify `2.13.2-beta.3`, the matching installer filename, and its uploaded size. Release notes identify this as a beta and state the installed-app smoke limitation. The draft is not published.
+
+Beta.3 pre-publish smoke record: macOS arm64 DMG fresh install **NOT RUN**; Windows NSIS EXE fresh install **NOT RUN**; Linux AppImage fresh launch **NOT RUN**; synthetic upgrade, command persistence/search/copy, native clipboard, global hotkey, and auth-state checks **NOT RUN** on packaged installers. A disposable OS account or VM and verified `app.getPath('userData')` isolation were not available for this candidate, so no packaged app was launched against the normal profile. Installer warnings, OS/arch behavior beyond CI packaging, and upgrade results are unknown. Manual smoke and draft review are still required before publication.
 
 ## Active Notes
 
