@@ -1,6 +1,6 @@
 {
   "name": "snipforge",
-  "version": "2.13.2-beta.1",
+  "version": "2.13.2-beta.2",
   "packageManager": "pnpm@10.16.0",
   "main": "dist-electron/main/index.js",
   "description": "A desktop app for saving, searching, and managing command snippets.",
@@ -33,7 +33,7 @@
     "cli": "node ./bin/snipforge.mjs",
     "dev": "node scripts/dev-app.mjs",
     "dev:debug": "node scripts/dev-app.mjs 9222",
-    "build": "vue-tsc --noEmit && vite build && electron-builder",
+    "build": "vue-tsc --noEmit && vite build && electron-builder --publish never",
     "preview": "vite preview",
     "test:db": "node scripts/test-db.mjs tests/database.test.ts",
     "test": "node scripts/test-db.mjs",
