@@ -2,6 +2,19 @@
 
 SnipForge releases are produced from Git tags (`v*`) by GitHub Actions.
 
+## v2.13.2-beta.1 release (issue [#85](https://github.com/ArtluxDM/SnipForge/issues/85))
+
+Goal: make a beta release from the merged `main` tip after PR #84, including the palette search fix and the preceding hardening work. Use an explicit beta version so testers can identify the build; beta releases are not shown by the stable-only in-app update checker.
+
+Plan:
+- [x] Bump `package.json` to `2.13.2-beta.1` in a release PR based on merged `main`; run local type checks, tests, and a Vite bundle build.
+- [ ] Merge only after the three required platform checks pass, then tag the resulting `main` commit and push only `v2.13.2-beta.1`.
+- [ ] Confirm tag verification, platform builds, and one draft containing macOS DMG, Windows EXE, Linux AppImage, and update metadata. Mark it as a GitHub prerelease.
+- [ ] Complete the isolated packaged-app smoke record below and review the draft before publication.
+
+Release source: PR #84 merged as `a6e4e6e`; previous prerelease is `v2.13.1`.
+Local verification: Node 24.21.0 and pnpm 10.16.0; frozen install, main and renderer type checks, all 130 tests across 13 files, and `pnpm exec vite build` passed. Vite emitted its existing large-chunk warning. Installer and packaged-app smoke checks remain pending.
+
 ## Active Notes
 
 ### Issue #81: required merge checks and renderer confidence
