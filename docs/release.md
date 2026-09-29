@@ -15,6 +15,16 @@ Plan:
 Release source: PR #84 merged as `a6e4e6e`; previous prerelease is `v2.13.1`.
 Local verification: Node 24.21.0 and pnpm 10.16.0; frozen install, main and renderer type checks, all 130 tests across 13 files, and `pnpm exec vite build` passed. Vite emitted its existing large-chunk warning. Installer and packaged-app smoke checks remain pending.
 
+Beta.1 tag attempt: `v2.13.2-beta.1` points to merged `main` commit `51136b6`. All three tag verification jobs passed, but all three packaging jobs failed: electron-builder inferred publishing from the tag and exited because the build jobs intentionally had no `GH_TOKEN`. The draft job was skipped. Keep this failed tag as a record; do not move it.
+
+Beta.2 recovery plan:
+- [x] Bump the package version to `2.13.2-beta.2` and make `pnpm build` pass `--publish never` to electron-builder so tagged packaging cannot attempt publication.
+- [x] Verify locally with type checks, the full suite, and a macOS DMG build under a simulated tag environment with no GitHub token.
+- [ ] Merge the recovery PR after required checks, tag the exact new `main` commit as `v2.13.2-beta.2`, and check the full release workflow and draft assets.
+- [ ] Mark the draft prerelease and perform the isolated packaged-app smoke and draft review before publication.
+
+Beta.2 local verification: Node 24.21.0, pnpm 10.16.0, frozen install, main and renderer type checks, and all 130 tests passed. `GITHUB_REF=refs/tags/v2.13.2-beta.2` with release tokens unset and `pnpm build` completed a macOS arm64 DMG plus blockmap; electron-builder did not attempt to publish. The local DMG is unsigned. No packaged app was launched against the normal profile.
+
 ## Active Notes
 
 ### Issue #81: required merge checks and renderer confidence
