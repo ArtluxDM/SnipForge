@@ -1,6 +1,6 @@
 {
   "name": "snipforge",
-  "version": "2.13.2-beta.2",
+  "version": "2.13.2-beta.3",
   "packageManager": "pnpm@10.16.0",
   "main": "dist-electron/main/index.js",
   "description": "A desktop app for saving, searching, and managing command snippets.",

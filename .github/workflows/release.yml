@@ -64,16 +64,12 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           path: |
-            release/**/*.dmg
-            release/**/*.dmg.blockmap
-            release/**/*.exe
-            release/**/*.exe.blockmap
-            release/**/*.AppImage
-            release/**/*.AppImage.blockmap
-            release/**/*.deb
-            release/**/*.rpm
-            release/**/*.zip
-            release/**/*.yml
+            release/*/*.dmg
+            release/*/*.dmg.blockmap
+            release/*/*.exe
+            release/*/*.exe.blockmap
+            release/*/*.AppImage
+            release/*/latest*.yml
 
   create-release:
     name: Create draft release
@@ -101,15 +97,11 @@ jobs:
           generate_release_notes: true
           fail_on_unmatched_files: true
           files: |
-            release-assets/**/*.dmg
-            release-assets/**/*.dmg.blockmap
-            release-assets/**/*.exe
-            release-assets/**/*.exe.blockmap
-            release-assets/**/*.AppImage
-            release-assets/**/*.AppImage.blockmap
-            release-assets/**/*.deb
-            release-assets/**/*.rpm
-            release-assets/**/*.zip
-            release-assets/**/*.yml
+            release-assets/*/*.dmg
+            release-assets/*/*.dmg.blockmap
+            release-assets/*/*.exe
+            release-assets/*/*.exe.blockmap
+            release-assets/*/*.AppImage
+            release-assets/*/latest*.yml
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
