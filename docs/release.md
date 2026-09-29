@@ -2,7 +2,7 @@
 
 SnipForge releases are produced from Git tags (`v*`) by GitHub Actions.
 
-## v2.13.2-beta.1 release (issue [#85](https://github.com/ArtluxDM/SnipForge/issues/85))
+## v2.13.2 beta release (issue [#85](https://github.com/ArtluxDM/SnipForge/issues/85))
 
 Goal: make a beta release from the merged `main` tip after PR #84, including the palette search fix and the preceding hardening work. Use an explicit beta version so testers can identify the build; beta releases are not shown by the stable-only in-app update checker.
 
@@ -24,6 +24,16 @@ Beta.2 recovery plan:
 - [ ] Mark the draft prerelease and perform the isolated packaged-app smoke and draft review before publication.
 
 Beta.2 local verification: Node 24.21.0, pnpm 10.16.0, frozen install, main and renderer type checks, and all 130 tests passed. `GITHUB_REF=refs/tags/v2.13.2-beta.2` with release tokens unset and `pnpm build` completed a macOS arm64 DMG plus blockmap; electron-builder did not attempt to publish. The local DMG is unsigned. No packaged app was launched against the normal profile.
+
+Beta.2 tag attempt: `v2.13.2-beta.2` points to merged `main` commit `e9d888c`. All three tag verification and packaging jobs passed. The draft job failed because `fail_on_unmatched_files: true` treated optional `.AppImage.blockmap` (and then other optional formats) as required. The artifact upload glob also captured unpacked Windows executables and internal YAML files. No draft release was created. Keep the tag unchanged.
+
+Beta.3 recovery plan:
+- [x] Bump to `2.13.2-beta.3`; restrict uploaded and attached files to the configured DMG, NSIS EXE, AppImage, their produced blockmaps, and `latest*.yml` update metadata.
+- [x] Keep unmatched-file validation for every expected format and check the workflow globs against the beta.2 artifact listing before committing.
+- [ ] Pass local checks and required PR checks, merge, tag only the new `main` commit, and verify the workflow creates one clean draft marked as a prerelease.
+- [ ] Perform isolated packaged-app smoke and draft review before publication.
+
+Beta.3 local verification: the six workflow patterns matched the eight intended files in the beta.2 draft-job listing and excluded five internal/unpacked files. `actionlint`, both type checks, the full suite (13 files, 130 tests), `pnpm exec vite build`, and `git diff --check` passed. The existing Vite large-chunk warning remains.
 
 ## Active Notes
 
