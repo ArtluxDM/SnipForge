@@ -27,9 +27,11 @@ const commands: Command[] = [
 
 const clipboardWrite = vi.fn().mockResolvedValue(undefined)
 let wrapper: VueWrapper | undefined
+let windowShown: (() => void) | undefined
 
 beforeEach(async () => {
   clipboardWrite.mockClear()
+  windowShown = undefined
   Object.defineProperty(window, 'electronAPI', {
     configurable: true,
     value: {
@@ -41,7 +43,10 @@ beforeEach(async () => {
         getDefaultWritableLocalLibrary: vi.fn().mockResolvedValue({ success: true, library: { name: 'Test' } }),
       },
       clipboard: { write: clipboardWrite },
-      onWindowShown: vi.fn(() => vi.fn()),
+      onWindowShown: vi.fn((callback: () => void) => {
+        windowShown = callback
+        return vi.fn()
+      }),
       onCommandsChanged: vi.fn(() => vi.fn()),
     },
   })
@@ -77,6 +82,20 @@ async function search(query: string) {
 }
 
 describe('palette search and copy', () => {
+  it('keeps the search and focuses it when the palette reopens', async () => {
+    await search('Show date')
+    const input = wrapper!.get('.search-input').element as HTMLInputElement
+    input.blur()
+
+    windowShown!()
+    await new Promise(resolve => setTimeout(resolve, 120))
+    await flushPromises()
+
+    expect(input.value).toBe('Show date')
+    expect(document.activeElement).toBe(input)
+    expect(wrapper!.findAll('.command-title').map(node => node.text())).toEqual(['Show date'])
+  })
+
   it('copies the matching plain command, not the other result', async () => {
     await search('Show date')
     expect(wrapper!.findAll('.command-title').map(node => node.text())).toEqual(['Show date'])

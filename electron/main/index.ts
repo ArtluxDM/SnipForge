@@ -246,7 +246,7 @@ async function showWindow() {
 
   console.log('Window shown and focused')
 
-  // Send message to renderer to reset search and focus input
+  // Send message to renderer to focus the search input
   win.webContents.send('window-shown')
 }
 
