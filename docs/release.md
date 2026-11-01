@@ -41,6 +41,19 @@ Beta.3 pre-publish smoke record: macOS arm64 DMG fresh install **NOT RUN**; Wind
 
 Publication: the maintainer reported manual testing and explicitly authorized publishing the beta without the isolated packaged-app smoke record above. [v2.13.2-beta.3](https://github.com/ArtluxDM/SnipForge/releases/tag/v2.13.2-beta.3) was published as a **prerelease** on 2026-09-29 with the same eight assets. The missing cross-platform installed-app results remain an acknowledged limitation; release notes state that they were not recorded.
 
+## v2.13.2-beta.4: release-pipeline validation (#65)
+
+Authorized plan (2026-11-01):
+- [ ] Bump the application version from `2.13.2-beta.3` to `2.13.2-beta.4` in a protected-main PR, including the merged #94 avatar/setup fixes and #91/#92 pipeline changes.
+- [ ] Run local validation and all three required PR Verify checks, merge, then tag the exact merged main SHA and push only `v2.13.2-beta.4`.
+- [ ] Inspect the tag workflow: all three Verify jobs, all three platform package builds, artifact validation/transfer, one unpublished draft, and complete logs/annotations including post steps for Node 20 runtime warnings.
+- [ ] Record run URL, SHA, assets, warning findings and platform results, then close #65 only when its criteria are evidenced.
+- [ ] Keep the candidate unpublished. Packaged installer/GUI smoke remains NOT RUN until performed with verified disposable userData; it is not established by successful CI packaging. Preview classification and release notes must be reviewed before any later publication.
+
+Local validation: Node 24; main and renderer type checks, both synthetic release-asset tests, actionlint and `git diff --check` passed. Required PR CI will run the full application suite and bundle build on all three platforms. Tag packaging and draft checks remain pending.
+
+No new application features, updater tracks, public publication, normal user-data access or packaged GUI launch are authorized by this validation plan.
+
 ## Active Notes
 
 ### Issue #79: release-manager safety and publication gate
