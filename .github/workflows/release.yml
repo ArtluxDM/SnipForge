@@ -75,18 +75,44 @@ jobs:
     name: Create draft release
     runs-on: ubuntu-latest
     needs: build
+    concurrency:
+      group: release-${{ github.ref }}
+      cancel-in-progress: false
     permissions:
       contents: write
 
     steps:
-      - name: Download packaged artifacts
+      - name: Checkout tagged commit
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download macOS artifacts
         uses: actions/download-artifact@v7
         with:
-          path: release-assets
-          merge-multiple: true
+          name: snipforge-macos
+          path: downloaded/snipforge-macos
 
-      - name: List release assets
-        run: find release-assets -maxdepth 5 -type f | sort
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: snipforge-windows
+          path: downloaded/snipforge-windows
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v7
+        with:
+          name: snipforge-linux
+          path: downloaded/snipforge-linux
+
+      - name: Validate and collect release assets
+        run: node scripts/release-assets.mjs collect downloaded release-assets
+
+      - name: Guard existing release
+        run: node scripts/release-assets.mjs guard release-assets
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub draft release
         uses: softprops/action-gh-release@v3
@@ -96,12 +122,6 @@ jobs:
           draft: true
           generate_release_notes: true
           fail_on_unmatched_files: true
-          files: |
-            release-assets/*/*.dmg
-            release-assets/*/*.dmg.blockmap
-            release-assets/*/*.exe
-            release-assets/*/*.exe.blockmap
-            release-assets/*/*.AppImage
-            release-assets/*/latest*.yml
+          files: release-assets/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
