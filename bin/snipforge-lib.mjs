@@ -153,6 +153,76 @@ export async function writeClipboard(text) {
   throw new Error(`Clipboard copy is unavailable on this system${lastError ? ': install wl-copy, xclip, or xsel' : ''}`)
 }
 
+async function initLibrary(root) {
+  try {
+    await fs.mkdir(root, { recursive: true })
+  } catch (error) {
+    throw new Error(`Cannot create library directory ${root}: ${error.message}`)
+  }
+
+  const manifestPath = path.join(root, '.snipforge.json')
+  const folderName = path.basename(root).replace(/[-_]/g, ' ').trim()
+  const name = folderName.replace(/\b\w/g, c => c.toUpperCase()) || 'Local Library'
+  const manifest = { snipforge: 'library', name, description: '', format_version: '1.0' }
+
+  try {
+    await fs.writeFile(manifestPath, JSON.stringify(manifest, null, 2) + '\n', { encoding: 'utf8', flag: 'wx' })
+    return
+  } catch (error) {
+    if (error.code !== 'EEXIST') {
+      throw new Error(`Cannot create library manifest ${manifestPath}: ${error.message}`)
+    }
+  }
+
+  let raw
+  try {
+    raw = await fs.readFile(manifestPath, 'utf8')
+  } catch (error) {
+    throw new Error(`Cannot read library manifest ${manifestPath}: ${error.message}`)
+  }
+  let existing
+  try {
+    existing = JSON.parse(raw)
+  } catch {
+    throw new Error(`Invalid library manifest JSON: ${manifestPath}`)
+  }
+  if (!existing || typeof existing !== 'object' || Array.isArray(existing) ||
+      typeof existing.name !== 'string' || !existing.name.trim()) {
+    throw new Error(`Invalid library manifest: expected an object with a nonblank name in ${manifestPath}`)
+  }
+  if (Object.hasOwn(existing, 'snipforge') && existing.snipforge !== 'library') {
+    throw new Error(`Invalid library manifest marker in ${manifestPath}`)
+  }
+  if (Object.hasOwn(existing, 'format_version') && existing.format_version !== '1.0') {
+    throw new Error(`Unsupported library manifest format_version in ${manifestPath}`)
+  }
+}
+
+function parseInitArgs(rest) {
+  let libraryPath = null
+  for (let i = 0; i < rest.length; i++) {
+    const arg = rest[i]
+    if (arg === '--help' || arg === '-h') {
+      if (rest.length === 1) return { command: 'init', help: true }
+      throw new Error(`Unexpected argument: ${arg}\n${initUsage()}`)
+    }
+    if (arg !== '--library' && arg !== '-l') {
+      throw new Error(`Unexpected argument: ${arg}\n${initUsage()}`)
+    }
+    if (libraryPath !== null) throw new Error(`Duplicate library target option\n${initUsage()}`)
+    const value = rest[++i]
+    if (!value || !value.trim() || value.startsWith('-')) {
+      throw new Error(`Missing value for ${arg}\n${initUsage()}`)
+    }
+    libraryPath = value
+  }
+  return { command: 'init', libraryPath }
+}
+
+function initUsage() {
+  return 'Usage: snipforge init [--library <path> | -l <path>]'
+}
+
 export async function runCli(argv, io = {}, deps = {}) {
   const stdout = io.stdout ?? process.stdout
   const stderr = io.stderr ?? process.stderr
@@ -160,6 +230,17 @@ export async function runCli(argv, io = {}, deps = {}) {
 
   try {
     const args = parseArgs(argv)
+
+    if (args.command === 'init') {
+      if (args.help) {
+        stdout.write(initUsage() + '\n')
+        return 0
+      }
+      const root = path.resolve(cwd, args.libraryPath ?? '.')
+      await initLibrary(root)
+      stdout.write(root + '\n')
+      return 0
+    }
 
     if (args.command === 'index-ts') {
       const result = await indexTypeScriptRepo(args.repoPath, { outDir: args.outDir })
@@ -227,6 +308,7 @@ export async function runCli(argv, io = {}, deps = {}) {
 export function usage() {
   return [
     'Usage:',
+    '  snipforge init [--library <path> | -l <path>]',
     '  snipforge list [--library <path>]',
     '  snipforge search <query> [--library <path>]',
     '  snipforge copy <query> [--library <path>]',
@@ -240,6 +322,8 @@ function parseArgs(argv) {
   if (args[0] === '--') {
     args.shift()
   }
+
+  if (args[0] === 'init') return parseInitArgs(args.slice(1))
 
   const libraryFlagIndex = args.indexOf('--library')
   let libraryPath = null
