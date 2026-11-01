@@ -40,9 +40,12 @@ beforeEach(async () => {
       database: { getAllCommands: vi.fn().mockResolvedValue(commands) },
       library: {
         getAll: vi.fn().mockResolvedValue([]),
+        onAutoSyncResult: vi.fn(() => vi.fn()),
         getDefaultWritableLocalLibrary: vi.fn().mockResolvedValue({ success: true, library: { name: 'Test' } }),
       },
       clipboard: { write: clipboardWrite },
+      auth: { getStatus: vi.fn().mockResolvedValue({ authenticated: false }) },
+      update: { getStatus: vi.fn().mockResolvedValue({}) },
       onWindowShown: vi.fn((callback: () => void) => {
         windowShown = callback
         return vi.fn()
@@ -55,8 +58,6 @@ beforeEach(async () => {
     attachTo: document.body,
     global: {
       stubs: {
-        CommandModal: true,
-        SettingsModal: true,
         HelpModal: true,
         DescriptionModal: true,
         DuplicateResolutionModal: true,
@@ -94,6 +95,48 @@ describe('palette search and copy', () => {
     expect(input.value).toBe('Show date')
     expect(document.activeElement).toBe(input)
     expect(wrapper!.findAll('.command-title').map(node => node.text())).toEqual(['Show date'])
+  })
+
+  it('preserves a non-first command field, selection and unsaved content on reopen', async () => {
+    await wrapper!.get('.add-button').trigger('click')
+    const body = wrapper!.get('.modal-overlay #tags').element as HTMLInputElement
+    body.value = 'unsaved command'
+    body.dispatchEvent(new Event('input', { bubbles: true }))
+    body.focus()
+    body.setSelectionRange(2, 8)
+    windowShown!()
+    await flushPromises()
+    expect(document.activeElement).toBe(body)
+    expect(body.value).toBe('unsaved command')
+    expect([body.selectionStart, body.selectionEnd]).toEqual([2, 8])
+  })
+
+  it('restores a Settings tab control and falls back within the modal if it disappears', async () => {
+    await wrapper!.get('.settings-button').trigger('click')
+    await flushPromises()
+    const tabs = wrapper!.findAll('.modal-overlay .tab-button')
+    await tabs[1].trigger('click')
+    const control = tabs[1].element as HTMLButtonElement
+    control.focus()
+    ;(wrapper!.get('.search-input').element as HTMLInputElement).focus()
+    windowShown!()
+    await flushPromises()
+    expect(document.activeElement).toBe(control)
+    expect(wrapper!.find('.connectors-tab').exists()).toBe(true)
+    control.remove()
+    windowShown!()
+    await flushPromises()
+    expect(wrapper!.get('.modal-overlay').element.contains(document.activeElement)).toBe(true)
+  })
+
+  it('does not steal focus when a modal opens immediately after reopening', async () => {
+    windowShown!()
+    await wrapper!.get('.add-button').trigger('click')
+    const body = wrapper!.get('.modal-overlay .cm-content').element as HTMLElement
+    body.focus()
+    windowShown!()
+    await new Promise(resolve => setTimeout(resolve, 120))
+    expect(document.activeElement).toBe(body)
   })
 
   it('copies the matching plain command, not the other result', async () => {

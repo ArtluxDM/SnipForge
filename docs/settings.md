@@ -82,6 +82,18 @@ Plan:
 
 Implementation: `App.vue` now leaves the query untouched on `window-shown`, closes the filter dropdown, clears command selection, and focuses the search input through its Vue ref. The regression test confirms that the query and filtered commands survive reopening. Verified with `pnpm exec vitest run tests/app-copy.test.ts`, `pnpm typecheck:renderer`, and `pnpm typecheck:main`.
 
+### Modal focus on reopen (issue [#110](https://github.com/ArtluxDM/SnipForge/issues/110))
+
+Plan:
+- [x] Keep the active modal and its focused control and editing context on reopen; use a focusable control in the active modal if the original disappears.
+- [x] Keep existing palette resets and search focus only when no modal is open; remove the delayed search callback.
+- [x] Cover real modal controls, Settings and editor focus, and the former delayed-focus race; run focused and full tests and both type checks.
+- [ ] Verify the real shortcut with isolated app data (see gap below).
+
+Implementation: `window-shown` restores the last focused element within the active modal if needed, with a modal-local fallback, and does not reset palette selection or filters while a modal is open. Without a modal, it retains the existing resets and focuses search synchronously without selecting text or changing the query. Command and variable modal autofocus callbacks avoid replacing focus already inside their modal. Main-process minimize/show behavior is unchanged.
+
+Verification (2026-11-02, macOS): Node 24 and pnpm 10.16.0; focused `tests/app-copy.test.ts` passed (7 tests); main and renderer type checks passed; full `pnpm test` passed (14 files, 135 tests). Renderer tests exercise actual command and Settings components, a CodeMirror surface, input selection/content, fallback and the former delayed-focus race. They do not prove operating-system focus behavior. Native shortcut smoke for minimized/hidden, visible-but-unfocused and already-focused toggle was not run: the development launcher has no verified isolated `userData` override, and startup opens and migrates libraries. A verified disposable profile and real shortcut smoke remain required before claiming those cases are validated.
+
 ---
 
 ## Tab Structure

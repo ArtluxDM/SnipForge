@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Import the ref function from Vue for creating reactive data
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { refDebounced } from '@vueuse/core'
 import CommandModal from './components/CommandModal.vue'
 import VariableInputModal from './components/VariableInputModal.vue'
@@ -232,6 +232,34 @@ const outsideClickHandler = (event: MouseEvent) => {
   }
 }
 
+// Remember the actual focused element, including editor surfaces and Settings controls.
+let lastModalFocus: HTMLElement | null = null
+const modalSelector = '.modal-overlay, .init-modal-overlay'
+const hasOpenModal = () => showModal.value || showVariableModal.value || showSettingsModal.value ||
+  showHelpModal.value || showDescriptionModal.value || showDuplicateModal.value || showFirstRunSetup.value
+const rememberModalFocus = (event: FocusEvent) => {
+  const target = event.target
+  if (target instanceof HTMLElement && target.closest(modalSelector)) lastModalFocus = target
+}
+const restoreModalFocus = () => {
+  const overlays = document.querySelectorAll<HTMLElement>(modalSelector)
+  const modal = overlays[overlays.length - 1]
+  if (!modal || modal.contains(document.activeElement)) return
+  if (lastModalFocus?.isConnected && modal.contains(lastModalFocus) && !lastModalFocus.matches(':disabled')) {
+    lastModalFocus.focus()
+    if (document.activeElement === lastModalFocus) return
+  }
+  const candidates = modal.querySelectorAll<HTMLElement>(
+    'button:not(:disabled), input:not(:disabled):not([type="hidden"]), textarea:not(:disabled), select:not(:disabled), [contenteditable="true"], [tabindex]:not([tabindex="-1"])'
+  )
+  for (const candidate of Array.from(candidates)) {
+    candidate.focus()
+    if (document.activeElement === candidate) return
+  }
+  modal.tabIndex = -1
+  modal.focus()
+}
+
 let cleanupWindowShown: (() => void) | null = null
 let cleanupCommandsChanged: (() => void) | null = null
 
@@ -240,6 +268,7 @@ onMounted(async () => {
   await checkMaximizedState()
   //keyboard event listener
   document.addEventListener('keydown', handleKeyboard)
+  document.addEventListener('focusin', rememberModalFocus)
 
   // mousedown + capture: fires on drag regions and before @click.stop
   document.addEventListener('mousedown', outsideClickHandler, true)
@@ -247,14 +276,15 @@ onMounted(async () => {
   // Listen for window-shown event from main process
   if (window.electronAPI) {
     cleanupWindowShown = window.electronAPI.onWindowShown(() => {
-      // Keep the current search when the palette is reopened.
+      if (hasOpenModal()) {
+        // A newly opened modal may not have rendered yet.
+        nextTick(() => { if (hasOpenModal()) restoreModalFocus() })
+        return
+      }
+      // Keep the current search and existing palette selection/filter behavior.
       selectedCommandId.value = null
       showFilterDropdown.value = false
-
-      // Focus the search input
-      setTimeout(() => {
-        searchInputRef.value?.focus()
-      }, 100)
+      searchInputRef.value?.focus()
     })
 
     // Reload commands when file watcher detects library changes
@@ -269,6 +299,7 @@ onMounted(async () => {
 // Cleanup event listeners and timers on unmount
 onUnmounted(() => {
   document.removeEventListener('keydown', handleKeyboard)
+  document.removeEventListener('focusin', rememberModalFocus)
   document.removeEventListener('mousedown', outsideClickHandler, true)
   if (cleanupWindowShown) cleanupWindowShown()
   if (cleanupCommandsChanged) cleanupCommandsChanged()
