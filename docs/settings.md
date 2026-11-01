@@ -1,5 +1,20 @@
 # Settings
 
+## Issue #93: connector avatar smoke-test fix
+
+Plan:
+- Allow only `https://avatars.githubusercontent.com` as an additional CSP image source.
+- Fall back to the existing GitHub icon if an avatar fails, and retry when reopening settings or changing accounts.
+- Verify renderer behavior and CSP restrictions, then record results.
+
+Completed:
+- [x] Added the exact GitHub avatar HTTPS host to `index.html` without allowing arbitrary remote image sources.
+- [x] Added image-error fallback to the existing GitHub icon, with retry on settings reopen or avatar URL change.
+- [x] Added regression coverage for the CSP allowlist, image-error fallback, connected account label and reopening retry.
+
+Verification (2026-11-01): both main and renderer type checks passed; full `pnpm test` passed (14 files, 132 tests); `git diff --check` passed. Authenticated live GitHub avatar retrieval in the packaged release was not rerun; the reported host restriction and renderer fallback are covered locally.
+
+
 Persistent user preferences with a proper settings infrastructure. Currently everything is hardcoded or ephemeral — this feature adds a settings backend, IPC bridge, reactive store, and UI.
 
 The SettingsModal is the settings page. Each tab is a settings section.
