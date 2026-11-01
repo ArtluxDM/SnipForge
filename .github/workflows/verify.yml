@@ -41,6 +41,8 @@ jobs:
         run: pnpm typecheck:main
       - name: Check renderer types
         run: pnpm typecheck:renderer
+      - name: Test release artifact validation
+        run: node --test tests/release-assets.test.mjs
       - name: Run full suite with Node-native addon
         run: pnpm test
       - name: Build renderer, main and preload bundles

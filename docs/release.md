@@ -2,6 +2,45 @@
 
 SnipForge releases are produced from Git tags (`v*`) by GitHub Actions.
 
+## v2.13.2 beta release (issue [#85](https://github.com/ArtluxDM/SnipForge/issues/85))
+
+Goal: make a beta release from the merged `main` tip after PR #84, including the palette search fix and the preceding hardening work. Use an explicit beta version so testers can identify the build; beta releases are not shown by the stable-only in-app update checker.
+
+Plan:
+- [x] Bump `package.json` to `2.13.2-beta.1` in a release PR based on merged `main`; run local type checks, tests, and a Vite bundle build.
+- [x] Merge only after the three required platform checks pass, then tag the resulting `main` commit and push only `v2.13.2-beta.1`.
+- [ ] Confirm tag verification, platform builds, and one draft containing macOS DMG, Windows EXE, Linux AppImage, and update metadata. Mark it as a GitHub prerelease.
+- [ ] Complete the isolated packaged-app smoke record below and review the draft before publication.
+
+Release source: PR #84 merged as `a6e4e6e`; previous prerelease is `v2.13.1`.
+Local verification: Node 24.21.0 and pnpm 10.16.0; frozen install, main and renderer type checks, all 130 tests across 13 files, and `pnpm exec vite build` passed. Vite emitted its existing large-chunk warning. Installer and packaged-app smoke checks remain pending.
+
+Beta.1 tag attempt: `v2.13.2-beta.1` points to merged `main` commit `51136b6`. All three tag verification jobs passed, but all three packaging jobs failed: electron-builder inferred publishing from the tag and exited because the build jobs intentionally had no `GH_TOKEN`. The draft job was skipped. Keep this failed tag as a record; do not move it.
+
+Beta.2 recovery plan:
+- [x] Bump the package version to `2.13.2-beta.2` and make `pnpm build` pass `--publish never` to electron-builder so tagged packaging cannot attempt publication.
+- [x] Verify locally with type checks, the full suite, and a macOS DMG build under a simulated tag environment with no GitHub token.
+- [ ] Merge the recovery PR after required checks, tag the exact new `main` commit as `v2.13.2-beta.2`, and check the full release workflow and draft assets.
+- [ ] Mark the draft prerelease and perform the isolated packaged-app smoke and draft review before publication.
+
+Beta.2 local verification: Node 24.21.0, pnpm 10.16.0, frozen install, main and renderer type checks, and all 130 tests passed. `GITHUB_REF=refs/tags/v2.13.2-beta.2` with release tokens unset and `pnpm build` completed a macOS arm64 DMG plus blockmap; electron-builder did not attempt to publish. The local DMG is unsigned. No packaged app was launched against the normal profile.
+
+Beta.2 tag attempt: `v2.13.2-beta.2` points to merged `main` commit `e9d888c`. All three tag verification and packaging jobs passed. The draft job failed because `fail_on_unmatched_files: true` treated optional `.AppImage.blockmap` (and then other optional formats) as required. The artifact upload glob also captured unpacked Windows executables and internal YAML files. No draft release was created. Keep the tag unchanged.
+
+Beta.3 recovery plan:
+- [x] Bump to `2.13.2-beta.3`; restrict uploaded and attached files to the configured DMG, NSIS EXE, AppImage, their produced blockmaps, and `latest*.yml` update metadata.
+- [x] Keep unmatched-file validation for every expected format and check the workflow globs against the beta.2 artifact listing before committing.
+- [x] Pass local checks and required PR checks, merge, tag only the new `main` commit, and verify the workflow creates one clean draft marked as a prerelease.
+- [ ] Perform isolated packaged-app smoke and draft review before publication.
+
+Beta.3 local verification: the six workflow patterns matched the eight intended files in the beta.2 draft-job listing and excluded five internal/unpacked files. `actionlint`, both type checks, the full suite (13 files, 130 tests), `pnpm exec vite build`, and `git diff --check` passed. The existing Vite large-chunk warning remains.
+
+Beta.3 draft record (2026-09-29): PR #88 passed all three required checks and merged as `477b6a7`. Tag `v2.13.2-beta.3` points to that commit. [Tag workflow run](https://github.com/ArtluxDM/SnipForge/actions/runs/36504050007) passed all three verification jobs, all three platform packaging jobs, and the single draft creation job. The draft was marked as a GitHub prerelease and had eight intended assets: macOS DMG and blockmap, Windows NSIS EXE and blockmap, Linux AppImage, and `latest-mac.yml`, `latest.yml`, and `latest-linux.yml`. No unpacked executable or internal YAML file was attached. The three update YAML files each identify `2.13.2-beta.3`, the matching installer filename, and its uploaded size. Release notes identify this as a beta and state the installed-app smoke limitation.
+
+Beta.3 pre-publish smoke record: macOS arm64 DMG fresh install **NOT RUN**; Windows NSIS EXE fresh install **NOT RUN**; Linux AppImage fresh launch **NOT RUN**; synthetic upgrade, command persistence/search/copy, native clipboard, global hotkey, and auth-state checks **NOT RUN** on packaged installers. A disposable OS account or VM and verified `app.getPath('userData')` isolation were not available for this candidate, so no packaged app was launched against the normal profile. Installer warnings, OS/arch behavior beyond CI packaging, and upgrade results are unknown. These checks were part of the normal manual publication gate.
+
+Publication: the maintainer reported manual testing and explicitly authorized publishing the beta without the isolated packaged-app smoke record above. [v2.13.2-beta.3](https://github.com/ArtluxDM/SnipForge/releases/tag/v2.13.2-beta.3) was published as a **prerelease** on 2026-09-29 with the same eight assets. The missing cross-platform installed-app results remain an acknowledged limitation; release notes state that they were not recorded.
+
 ## Active Notes
 
 ### Issue #81: required merge checks and renderer confidence
@@ -44,6 +83,7 @@ Refined execution plan (2026-11-01, before implementation):
 - Download only the three named artifacts into separate directories; validate the required platform installers and reject duplicate basenames before assembling a flat asset directory. Optional metadata may be absent.
 - Serialize writers for a tag and check the existing release before publication: reject published releases and drafts with unexpected assets; allow a matching/incomplete draft to be safely retried. Keep the single publisher draft-only.
 - Exercise synthetic successful and failing collections and release-state decisions, run actionlint, and record exact evidence and untested real tag/installer paths.
+- Review integration: preserve the beta-release upload restrictions already on main, reuse its non-publishing `pnpm build`, and run the new synthetic tests in reusable Verify so PR and tag checks cover the helper.
 
 Plan:
 - make `softprops/action-gh-release` the only release publisher
@@ -53,10 +93,11 @@ Plan:
 - keep draft releases as the review gate before public publishing
 
 Final notes (refined work, 2026-11-01):
-- Packaging runs the same typecheck and Vite build as `pnpm build`, then explicitly invokes `electron-builder --publish never`; builds still have no release credentials. Verification gates the entire matrix, and the matrix gates the sole draft job.
+- Packaging reuses `pnpm build`, which main now configures with `electron-builder --publish never`; builds still have no release credentials. Verification gates the entire matrix, and the matrix gates the sole draft job.
 - The release job downloads the three named artifacts from its current run separately. `scripts/release-assets.mjs` requires a DMG from macOS, an EXE from Windows, and an AppImage from Linux; it validates allowed extensions and unique basenames before copying to one flat directory. Missing optional update metadata is allowed. The configured Windows target is NSIS; an EXE's installer type is not independently inspected.
 - Same-tag release jobs are serialized. Before the publisher runs, a paginated API lookup includes drafts and rejects published releases, duplicate tag releases, lookup failures, and existing drafts with assets absent from the new set. A new draft or an incomplete/matching draft may be retried; matching names are overwritten by the release action. Unexpected stale assets require human investigation before a retry. Concurrency covers workflow jobs, not an outside actor manually publishing or editing between the guard and publisher; do not modify the release during a run.
 - Local synthetic checks: `node --test tests/release-assets.test.mjs` on Node 22.23.4 passed 2 tests, including each missing installer, absent optional metadata, duplicate names, unexpected files, new/matching/incomplete drafts, published and stale drafts, duplicate releases, API failure, and release-list pagination. `actionlint .github/workflows/release.yml` and `git diff --check` passed. The tests use temporary files and fake API responses only.
+- Parent review: preserved main’s narrow beta artifact upload patterns, resolved the publisher glob conflict in favor of the validated flat directory, reused the existing non-publishing build command, and added `node --test tests/release-assets.test.mjs` to reusable Verify on all platforms.
 - Actual tag-triggered CI, GitHub draft creation/rerun and macOS DMG, Windows NSIS and Linux AppImage builds/installations are **NOT RUN**. No release, tag, app launch, or real user data was used; these synthetic checks do not prove the live GitHub action or installer paths.
 
 Earlier implementation notes:

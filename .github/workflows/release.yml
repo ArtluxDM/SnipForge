@@ -55,7 +55,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build application
-        run: pnpm exec vue-tsc --noEmit && pnpm exec vite build && pnpm exec electron-builder --publish never
+        run: pnpm build
 
       - name: Upload packaged artifacts
         uses: actions/upload-artifact@v4
@@ -64,16 +64,12 @@ jobs:
           if-no-files-found: error
           retention-days: 7
           path: |
-            release/**/*.dmg
-            release/**/*.dmg.blockmap
-            release/**/*.exe
-            release/**/*.exe.blockmap
-            release/**/*.AppImage
-            release/**/*.AppImage.blockmap
-            release/**/*.deb
-            release/**/*.rpm
-            release/**/*.zip
-            release/**/*.yml
+            release/*/*.dmg
+            release/*/*.dmg.blockmap
+            release/*/*.exe
+            release/*/*.exe.blockmap
+            release/*/*.AppImage
+            release/*/latest*.yml
 
   create-release:
     name: Create draft release
