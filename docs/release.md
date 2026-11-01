@@ -44,11 +44,17 @@ Publication: the maintainer reported manual testing and explicitly authorized pu
 ## v2.13.2-beta.4: release-pipeline validation (#65)
 
 Authorized plan (2026-11-01):
-- [ ] Bump the application version from `2.13.2-beta.3` to `2.13.2-beta.4` in a protected-main PR, including the merged #94 avatar/setup fixes and #91/#92 pipeline changes.
-- [ ] Run local validation and all three required PR Verify checks, merge, then tag the exact merged main SHA and push only `v2.13.2-beta.4`.
-- [ ] Inspect the tag workflow: all three Verify jobs, all three platform package builds, artifact validation/transfer, one unpublished draft, and complete logs/annotations including post steps for Node 20 runtime warnings.
-- [ ] Record run URL, SHA, assets, warning findings and platform results, then close #65 only when its criteria are evidenced.
-- [ ] Keep the candidate unpublished. Packaged installer/GUI smoke remains NOT RUN until performed with verified disposable userData; it is not established by successful CI packaging. Preview classification and release notes must be reviewed before any later publication.
+- [x] Bump the application version from `2.13.2-beta.3` to `2.13.2-beta.4` in a protected-main PR, including the merged #94 avatar/setup fixes and #91/#92 pipeline changes.
+- [x] Run local validation and all three required PR Verify checks, merge, then tag the exact merged main SHA and push only `v2.13.2-beta.4`.
+- [x] Inspect the tag workflow: all three Verify jobs, all three platform package builds, artifact validation/transfer, one unpublished draft, and complete logs/annotations including post steps for Node 20 runtime warnings.
+- [x] Record run URL, SHA, assets, warning findings and platform results; #65 criteria are now evidenced.
+- [x] Keep the candidate unpublished. Packaged installer/GUI smoke remains NOT RUN until performed with verified disposable userData; it is not established by successful CI packaging. Preview classification and release notes must be reviewed before any later publication.
+
+Tag-run evidence (2026-11-01): PR #112 passed all three required checks and merged as `10d842d240cd7a09a6cb44a1f4e52305ae9c17af`; `v2.13.2-beta.4` tags that exact commit. [Release run 41356393933](https://github.com/ArtluxDM/SnipForge/actions/runs/41356393933) passed all three tag Verify jobs, all three platform Build jobs, and Create draft release, including artifact collection and existing-release guard.
+
+Exactly one draft exists for the tag (release ID `430897588`), classified as a prerelease, with eight uploaded assets: DMG + blockmap, NSIS EXE + blockmap, AppImage, and `latest-mac.yml`, `latest.yml`, `latest-linux.yml`. All three metadata files identify `2.13.2-beta.4`, the corresponding installer filename and matching uploaded byte size. The release remains unpublished and is not Latest. GitHub’s draft URL uses an `untagged-*` slug while its API `tag_name` is correctly `v2.13.2-beta.4`; that slug alone is not evidence of duplicate releases.
+
+Inspected all 6,362 full log lines including post steps and all job annotations: no Node 20 runtime deprecation/warning findings. Annotations only reported Ubuntu runner-image migration and macOS runner capacity. This establishes action-runtime and platform-packaging acceptance for #65; it does not establish installer launch/upgrade behavior. No GUI launch, normal user-data access or public publication was performed. Per-platform installer smoke remains **NOT RUN**.
 
 Local validation: Node 24; main and renderer type checks, both synthetic release-asset tests, actionlint and `git diff --check` passed. Required PR CI will run the full application suite and bundle build on all three platforms. Tag packaging and draft checks remain pending.
 
@@ -126,7 +132,7 @@ Final notes (refined work, 2026-11-01):
 - Same-tag release jobs are serialized. Before the publisher runs, a paginated API lookup includes drafts and rejects published releases, duplicate tag releases, lookup failures, and existing drafts with assets absent from the new set. A new draft or an incomplete/matching draft may be retried; matching names are overwritten by the release action. Unexpected stale assets require human investigation before a retry. Concurrency covers workflow jobs, not an outside actor manually publishing or editing between the guard and publisher; do not modify the release during a run.
 - Local synthetic checks: `node --test tests/release-assets.test.mjs` on Node 22.23.4 passed 2 tests, including each missing installer, absent optional metadata, duplicate names, unexpected files, new/matching/incomplete drafts, published and stale drafts, duplicate releases, API failure, and release-list pagination. `actionlint .github/workflows/release.yml` and `git diff --check` passed. The tests use temporary files and fake API responses only.
 - Parent review: preserved main’s narrow beta artifact upload patterns, resolved the publisher glob conflict in favor of the validated flat directory, reused the existing non-publishing build command, and added `node --test tests/release-assets.test.mjs` to reusable Verify on all platforms. After #91 merged, applied its Node 24 checkout/download action versions to the new draft-job steps as well.
-- Actual tag-triggered CI, GitHub draft creation/rerun and macOS DMG, Windows NSIS and Linux AppImage builds/installations are **NOT RUN**. No release, tag, app launch, or real user data was used; these synthetic checks do not prove the live GitHub action or installer paths.
+- At implementation time, actual tag-triggered CI, GitHub draft creation/rerun and platform builds/installations were **NOT RUN**. The later beta.4 run above now verifies the live tag, three platform package builds, collection/guard and new-draft creation. Live draft rerun behavior and installed-app smoke remain **NOT RUN**. No release, tag, app launch, or real user data was used; these synthetic checks do not prove the live GitHub action or installer paths.
 
 Earlier implementation notes:
 - `.github/workflows/release.yml` now has platform build jobs with no release credentials and one `create-release` job that owns draft release creation
@@ -157,7 +163,7 @@ Validation and remaining evidence:
 - Local `actionlint .github/workflows/release.yml .github/workflows/verify.yml` and `git diff --check`: PASS.
 - PR Verify on macOS, Windows 2022 and Ubuntu: see the PR checks for the exact head; these run type checks, tests and Vite bundling, not installer packaging.
 - Next authorized release: inspect the tag run for its exact commit, successful tag Verify and all three Build jobs; inspect each platform's uploaded package and the draft's expected assets. Inspect annotations and logs for Node 20 action runtime warnings in Verify, Build and Create draft release jobs, including post steps. Record run URL, commit, per-platform results and warning findings before the existing isolated smoke and manual publication gate.
-- Tag-run package builds, artifact transfer, draft creation and absence of Node 20 warnings: **NOT RUN** for this change. The original criteria requiring all-platform package builds and warning-free release runs remain operationally pending; PR Verify cannot establish them. Keep issue #65 open until that evidence exists.
+- Tag-run evidence is now recorded in the beta.4 section above: run 41356393933 passed all platform verification/builds and draft creation, with no Node 20 runtime warning findings in full logs or annotations. The original #65 release-run criteria are satisfied. Installer smoke remains a separate publication gate.
 
 ## Current Release Flow
 
