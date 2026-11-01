@@ -43,6 +43,21 @@ Publication: the maintainer reported manual testing and explicitly authorized pu
 
 ## Active Notes
 
+### Issue #79: release-manager safety and publication gate
+
+Plan (before instruction edits):
+- Replace the agent's direct-main release path with a version PR, the three required Verify checks, merge, and a tag of the exact merged main SHA; push only that tag and never bypass protection or use the legacy script.
+- Require verified disposable userData before any GUI launch, exact-process cleanup, and preservation of existing output; otherwise record GUI smoke as NOT RUN. CI alone cannot establish installer behavior.
+- Leave draft creation to CI, stop on failed CI or a missing draft, and require recorded platform smoke and explicit human approval before manual publication. Never automatically change release state or mutate previous releases.
+- Align agent availability and release guidance, then record a static dry-run of success and each specified failure path without executing a release or accessing app data.
+
+Final notes and static walkthrough (2026-11-01; instruction review only):
+- [x] Replaced direct-main/all-tags and automatic promotion instructions with a protected-main version PR, exact merged-SHA tag, CI-owned draft, verified isolation, and a manual human publication gate. Existing output requires approval before deletion or overwrite; only the exact process started by an isolated check may be stopped.
+- [x] Walked through a hypothetical `v1.2.3`: the version PR passes all three Verify checks and merges at SHA A; the tag targets A, only that tag is pushed, tag CI passes, and its draft contains the intended assets. After each platform's installer smoke is recorded as PASS, the agent presents the evidence for explicit human approval; a human publishes manually. No actual release actions were performed.
+- [x] Failed/cancelled or missing tag CI: report the run state and failure logs if available; stop, with no fallback draft or promotion. Green CI but no draft or incomplete assets: report and stop, with no fallback creation.
+- [x] Isolation probe resolves outside the disposable account, or cannot establish the path: no GUI launch; record affected smoke as NOT RUN and block publication. A macOS HOME override alone does not pass. Pre-existing output with no approval and no safe separate output: stop the build and preserve it.
+- [x] All CI and smoke pass but human approval is absent: present the evidence and leave the draft unpublished. Prior release state and latest/prerelease state remain untouched. These are prose scenario walkthroughs, not a live release, CI run, GUI test, or verification of platform installers; no tag, push, publication, app launch, or app-data access was performed for them.
+
 ### Issue #81: required merge checks and renderer confidence
 
 Plan (before implementation):
@@ -123,7 +138,7 @@ Validation and remaining evidence:
 3. **Only if every tag verification matrix job succeeds**, platform builds run `pnpm build` on that commit on macOS, Windows, and Linux without release credentials. A failed/cancelled verification blocks all builds; a failed/cancelled build blocks draft creation. No `always()` bypasses either dependency.
 4. Each build uploads only packaged release artifacts (`.dmg`, `.exe`, `.AppImage`, blockmaps, and update YAML files) to the workflow run.
 5. A single `create-release` job (the only job with `contents: write` / `GITHUB_TOKEN` for release publishing) downloads those artifacts and creates one draft GitHub release for the tag.
-6. A human performs the packaged-app smoke pass and reviews the draft before publishing. CI and an untested tag do not automatically publish. **Do not use the existing `.claude/agents/release-manager.md` for publication yet**: it auto-promotes the draft after CI and launches/kills the app without verified user-data isolation. Issue #79 tracks aligning it with this gate.
+6. A human performs the packaged-app smoke pass and reviews the draft before publishing. CI and an untested tag do not automatically publish. The `.claude/agents/release-manager.md` instructions preserve this gate; the agent is not automatically available in every coding harness. Publication remains a manual human action after platform smoke evidence and explicit approval.
 
 ## Pre-publish packaged-app smoke record (repeat on each release candidate)
 

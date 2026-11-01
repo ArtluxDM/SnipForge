@@ -113,9 +113,9 @@ pnpm build        # production package build
 
 ### Release Process
 
-**Option 1 — Claude Release Manager Agent (currently blocked; see issue #79):**
+**Option 1 — Claude Release Manager Agent:**
 
-**Do not use this agent for a release until #79 is fixed.** `.claude/agents/release-manager.md` currently launches/kills the app without verifying user-data isolation, deletes build output, and auto-promotes a green CI draft. That contradicts the isolated packaged-app checks and manual publication gate in `docs/release.md`. It is also not automatically available in every coding harness.
+`.claude/agents/release-manager.md` prepares a protected-main version PR and monitors the CI-created draft. It requires verified disposable userData before GUI smoke and leaves publication to a human after platform smoke and explicit approval. It is not automatically available in every coding harness; use the manual process when unavailable. See `docs/release.md` for the full gate.
 
 **Option 2 — Manual version PR and tag** (the old release script is incompatible with protected `main`):
 
