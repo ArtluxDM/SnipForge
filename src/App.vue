@@ -1147,25 +1147,35 @@ const openDescriptionModal = (title: string, description: string) => {
     <UpdateBanner />
 
     <!-- First-run library setup -->
-    <div v-if="showFirstRunSetup" class="first-run-overlay">
-      <div class="first-run-card">
-        <div class="first-run-badge">First run</div>
-        <h2>Choose a default writable library</h2>
-        <p>
-          SnipForge needs one local folder to own your command files. Pick a folder now and
-          the app will create <code>.snipforge.json</code> there if needed.
-        </p>
-        <p v-if="firstRunSetupError" class="first-run-error">{{ firstRunSetupError }}</p>
-        <button
-          class="first-run-button"
-          :disabled="firstRunSetupLoading"
-          @click="handleChooseDefaultWritableLibrary"
-        >
-          {{ firstRunSetupLoading ? 'Choosing...' : 'Choose Folder' }}
-        </button>
-        <p class="first-run-note">
-          This setup is required before you start adding commands.
-        </p>
+    <div v-if="showFirstRunSetup" class="modal-overlay first-run-overlay">
+      <div
+        class="modal-content first-run-card"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="first-run-title"
+        aria-describedby="first-run-description"
+        :aria-busy="firstRunSetupLoading"
+      >
+        <div class="modal-header">
+          <h2 id="first-run-title">Choose your library folder</h2>
+        </div>
+        <div class="modal-body">
+          <p id="first-run-description">
+            Choose a local folder where SnipForge will save your command files.
+            The app will create <code>.snipforge.json</code> there if needed.
+          </p>
+          <p class="first-run-note">This setup is required before you start adding commands.</p>
+          <p v-if="firstRunSetupError" class="first-run-error" role="alert">{{ firstRunSetupError }}</p>
+        </div>
+        <div class="modal-footer">
+          <button
+            class="save-button first-run-button"
+            :disabled="firstRunSetupLoading"
+            @click="handleChooseDefaultWritableLibrary"
+          >
+            {{ firstRunSetupLoading ? 'Choosing...' : 'Choose Folder' }}
+          </button>
+        </div>
       </div>
     </div>
 
@@ -1788,92 +1798,45 @@ html, body, #app {
 }
 
 .first-run-overlay {
-  position: fixed;
-  inset: 0;
   z-index: calc(var(--z-modal) + 1);
-  display: grid;
-  place-items: center;
-  background:
-    radial-gradient(circle at top, rgba(255, 255, 255, 0.06), transparent 45%),
-    linear-gradient(180deg, rgba(8, 8, 12, 0.9), rgba(8, 8, 12, 0.96));
-  backdrop-filter: blur(10px);
-  -webkit-app-region: no-drag;
 }
 
 .first-run-card {
-  width: min(560px, calc(100vw - 32px));
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 28px;
-  background: linear-gradient(180deg, rgba(24, 24, 28, 0.98), rgba(18, 18, 22, 0.98));
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
-}
-
-.first-run-badge {
-  display: inline-flex;
-  align-items: center;
-  margin-bottom: 14px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(96, 165, 250, 0.14);
-  color: #93c5fd;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.first-run-card h2 {
-  margin: 0 0 10px;
-  color: var(--text-primary);
-  font-size: 24px;
-  font-weight: 700;
+  max-width: 520px;
 }
 
 .first-run-card p {
   margin: 0 0 14px;
   color: var(--text-secondary);
+  font-size: 14px;
   line-height: 1.6;
 }
 
+.first-run-card p:last-child {
+  margin-bottom: 0;
+}
+
 .first-run-card code {
-  padding: 0 6px;
+  padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--bg-input);
   color: var(--text-primary);
 }
 
-.first-run-error {
+.first-run-card .first-run-error {
   padding: 10px 12px;
-  border-radius: 10px;
-  background: rgba(239, 68, 68, 0.12);
-  color: #fca5a5;
-}
-
-.first-run-button {
-  min-width: 180px;
-  padding: 12px 18px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(180deg, #60a5fa, #3b82f6);
-  color: white;
-  font-weight: 700;
-  cursor: pointer;
-  transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
-  box-shadow: 0 10px 24px rgba(59, 130, 246, 0.28);
-}
-
-.first-run-button:hover:not(:disabled) {
-  transform: translateY(-1px);
+  border: 1px solid var(--danger);
+  border-radius: 8px;
+  color: var(--danger);
 }
 
 .first-run-button:disabled {
-  opacity: 0.7;
-  cursor: progress;
+  background-color: var(--accent);
+  opacity: 0.5;
+  cursor: wait;
 }
 
-.first-run-note {
-  margin-top: 12px;
+.first-run-card .first-run-note {
   font-size: 13px;
   color: var(--text-tertiary);
 }

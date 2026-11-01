@@ -1,5 +1,21 @@
 # Library Working Copies
 
+## Issue #93: first-run library dialog consistency
+
+Plan:
+- Reuse the shared modal overlay, surface, header, body, footer and primary button.
+- Replace the separate blue gradients and hardcoded dark colors with existing theme tokens.
+- Preserve mandatory setup, folder-picker cancellation, errors, retry and loading behavior.
+- Verify theme styling and record the checks performed.
+
+Completed:
+- [x] Reused the shared modal overlay, content surface, header/body/footer and primary button, including existing focus styling.
+- [x] Removed the blue badge/button, hardcoded dark gradients and separate shadow treatment; remaining setup styles use application tokens.
+- [x] Added dialog labeling, busy state and error alert semantics while retaining the existing setup handler.
+
+Verification (2026-11-01): both type checks and full test suite passed (14 files, 132 tests). Built the renderer separately into a temporary directory and visually inspected it in an isolated offscreen Electron window with mocked IPC and disposable userData: gray modal surface, orange CTA, correct typography/spacing and readable copy. Confirmed folder-picker cancellation leaves the dialog open with the button enabled for retry. No real library or application data was used. The app currently defines a single dark palette; no separate light-theme implementation or packaged-app smoke is claimed.
+
+
 Library Working Copies reframes SnipForge around one simple rule: every command lives in a local library folder, and some libraries may also have a Git remote origin. The app should treat commands as files in a working copy, not as separate "local" and "remote" command types.
 
 ## Current Reference

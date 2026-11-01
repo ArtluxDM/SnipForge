@@ -183,11 +183,12 @@
             <div class="connector-list">
               <!-- GitHub Connector -->
               <div class="connector-row">
-                <div class="connector-icon" :class="{ 'connector-icon--avatar': authStatus.authenticated && authStatus.user?.avatar_url }">
+                <div class="connector-icon" :class="{ 'connector-icon--avatar': showGithubAvatar }">
                   <img
-                    v-if="authStatus.authenticated && authStatus.user?.avatar_url"
-                    :src="authStatus.user.avatar_url"
-                    :alt="authStatus.user.login"
+                    v-if="showGithubAvatar"
+                    :src="authStatus.user?.avatar_url"
+                    :alt="authStatus.user?.login"
+                    @error="githubAvatarFailed = true"
                     class="connector-avatar"
                   />
                   <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
@@ -987,6 +988,13 @@ function showShortcutFeedback(message: string, type: 'success' | 'error') {
 
 // ── GitHub Auth State ──────────────────────────────────────────
 const authStatus = ref<AuthStatus>({ authenticated: false, user: null })
+const githubAvatarFailed = ref(false)
+const showGithubAvatar = computed(() =>
+  authStatus.value.authenticated && !!authStatus.value.user?.avatar_url && !githubAvatarFailed.value,
+)
+watch(() => authStatus.value.user?.avatar_url, () => {
+  githubAvatarFailed.value = false
+})
 const deviceFlow = ref({
   active: false,
   loading: false,
@@ -1522,6 +1530,7 @@ async function handleExportLibrary() {
 // Load auth status, libraries, and settings when modal opens
 watch(() => props.show, async (visible) => {
   if (visible) {
+    githubAvatarFailed.value = false
     await loadAuthStatus()
     await loadLibraries()
     // Load current hotkey and auto-sync settings
