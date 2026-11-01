@@ -28,6 +28,27 @@ CLI v1 gives SnipForge a terminal-native path for library-backed commands. It re
 - [x] Add regression coverage for command loading, search ranking, and copy guardrails
 - [x] Document usage and current limitations
 
+## Library initialization (#95)
+
+### Plan
+
+- [x] Dispatch `init` before loading a library, with strict target argument validation and help.
+- [x] Create the target directory and desktop-shaped manifest exclusively; validate existing current and legacy manifests without modifying them.
+- [x] Cover paths, preservation, invalid input, filesystem errors and creation races with disposable fixtures.
+- [x] Run focused CLI tests, both type checks and the full suite; record results below.
+
+Default selection is separate planned work in #96; init uses only cwd or an explicit path and does not read or change defaults.
+
+```sh
+snipforge init
+snipforge init --library ~/commands
+snipforge init -l "$HOME/Commands With Spaces"
+```
+
+Init creates missing directories and writes only the root `.snipforge.json`, using the desktop folder-name rule and manifest fields. It prints the absolute path. A valid existing manifest is left byte-for-byte unchanged; legacy manifests with a nonblank name and no marker/version are accepted. Explicit markers must be `library` and explicit versions must be `1.0`. Invalid or unreadable manifests fail without replacement. Exclusive creation prevents overwriting a manifest created concurrently. Init does not register the library, initialize Git, create examples, scan commands, or access desktop data.
+
+Validation on Node 24.22.1 and pnpm 10.16.0: focused CLI suite passed (34 tests), main and renderer type checks passed, and the full suite passed (14 files, 160 tests). The CLI tests use disposable directories, including a simulated concurrent manifest creation. No Electron GUI smoke was needed for this CLI-only change.
+
 ## Usage Shape
 
 ```bash
@@ -57,6 +78,7 @@ The package also exposes `pnpm cli -- ...` in local development.
 
 | Date | What |
 |------|------|
+| 2026-11-02 | Implemented #95 CLI init with exclusive manifest creation and existing-manifest validation; ran focused and full tests and both type checks. |
 | 2026-04-11 | Planned CLI v1 around direct library-file reads, terminal search/list flows, and clipboard copy for non-variable commands |
 | 2026-04-11 | Implemented `bin/snipforge.mjs` with `list`, `search`, and `copy`, added `pnpm cli -- ...`, and covered library loading + copy guardrails in tests |
 
