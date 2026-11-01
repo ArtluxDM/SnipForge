@@ -6,23 +6,16 @@ Specialized agents for recurring tasks. Keep them narrow and well-defined.
 
 ### Release Manager
 
-Handles the complete release lifecycle: version bumping, changelog generation, tagging, pushing, and monitoring builds.
+Prepares a version PR and monitors the CI-created draft. Publication remains a manual human action after platform smoke evidence and explicit approval. This Claude agent definition is not automatically available in every coding harness.
 
-**Invoke by asking:**
+**Invoke, where supported, by asking:**
 ```
-"Use the release manager agent to create an auto release"
-"Use release-manager to bump patch version"
+"Use the release manager agent to prepare a release"
+"Use release-manager to propose a patch version"
 "Check release status using the release manager"
 ```
 
-**What it does:**
-1. Analyzes commits since last release
-2. Determines version bump from conventional commits
-3. Generates formatted changelog
-4. Shows preview, asks for confirmation
-5. Updates package.json, creates tag, pushes
-6. Updates GitHub draft release with changelog
-7. Monitors GitHub Actions build status
+It previews the version and notes, uses a protected-main version PR, and tags the exact merged SHA only after authorization. It requires verified disposable userData for GUI smoke, preserves existing build output, and stops if CI fails or its draft is missing. See `docs/release.md` for the platform smoke record and publication gate.
 
 **Config:** `.claude/agents/release-manager.md`
 
