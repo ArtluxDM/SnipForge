@@ -92,14 +92,29 @@ Final notes:
 
 ### Issue #65: Node 24-compatible release actions
 
-Plan:
-- run the release workflow with Node 24 so release builds exercise the upcoming GitHub runner default
-- opt JavaScript actions into the Node 24 runtime during the transition window
-- update third-party release/upload actions to current major versions where safe
+Plan (before implementation):
+- Inventory every action in the release workflow and reusable verification against upstream manifests; upgrade runtime references to supported Node 24 releases while preserving pnpm, Node, matrix and required check names.
+- Run actionlint and diff checks, then record the three PR Verify results separately from tag packaging evidence.
+- Document the next tag-run checks for all platform packages and Node 20 warnings. Do not create a tag or release for this issue; leave unobserved results explicitly NOT RUN.
 
-Final notes:
-- release CI now sets `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24=true`, uses Node 24 for package/build steps, and updates `pnpm/action-setup` plus release artifact actions to current major versions
-- `actions/checkout` and `actions/setup-node` stay on v4 with the Node 24 runtime opt-in until the workflow is validated against the next tag build
+Runtime inventory (upstream manifests checked 2026-11-01):
+
+| Use | Action | Declared runtime |
+|---|---|---|
+| Release build and reusable Verify checkout | [actions/checkout@v6](https://github.com/actions/checkout/blob/v6/action.yml) | Node 24 |
+| Release build and reusable Verify pnpm installer | [pnpm/action-setup@v6](https://github.com/pnpm/action-setup/blob/v6/action.yml) | Node 24 |
+| Release build and reusable Verify Node setup | [actions/setup-node@v6](https://github.com/actions/setup-node/blob/v6/action.yml) | Node 24 |
+| Release build artifact upload | [actions/upload-artifact@v6](https://github.com/actions/upload-artifact/blob/v6/action.yml) | Node 24 |
+| Draft job artifact download | [actions/download-artifact@v7](https://github.com/actions/download-artifact/blob/v7/action.yml) | Node 24 |
+| Draft job release action | [softprops/action-gh-release@v3](https://github.com/softprops/action-gh-release/blob/v3/action.yml) | Node 24 |
+
+The release `verify` job calls the local reusable workflow, not another JavaScript action. The artifact upload/download inputs used here remain present in their manifests. The previous checkout, setup-node, pnpm setup, upload and download v4 manifests and release v2 manifest declared Node 20; upstream identifies [release v2 as unsupported](https://github.com/softprops/action-gh-release#readme). These major refs deliberately follow upstream maintenance releases. Node 24 from `.nvmrc`, pnpm 10.16.0 and the Windows 2022 pin remain unchanged. The existing `FORCE_JAVASCRIPT_ACTIONS_TO_NODE24` flag remains as a transition safeguard; it is no longer needed for these declared runtimes, and GitHub [retired Node 20 on hosted runners](https://github.blog/changelog/2026-09-23-node-20-is-no-longer-available-in-github-actions/). Node 24 actions require sufficiently recent runners (checkout requires [runner 2.327.1 or later](https://github.com/actions/checkout#checkout-v5)); these workflows use GitHub-hosted runners.
+
+Validation and remaining evidence:
+- Local `actionlint .github/workflows/release.yml .github/workflows/verify.yml` and `git diff --check`: PASS.
+- PR Verify on macOS, Windows 2022 and Ubuntu: see the PR checks for the exact head; these run type checks, tests and Vite bundling, not installer packaging.
+- Next authorized release: inspect the tag run for its exact commit, successful tag Verify and all three Build jobs; inspect each platform's uploaded package and the draft's expected assets. Inspect annotations and logs for Node 20 action runtime warnings in Verify, Build and Create draft release jobs, including post steps. Record run URL, commit, per-platform results and warning findings before the existing isolated smoke and manual publication gate.
+- Tag-run package builds, artifact transfer, draft creation and absence of Node 20 warnings: **NOT RUN** for this change. The original criteria requiring all-platform package builds and warning-free release runs remain operationally pending; PR Verify cannot establish them. Keep issue #65 open until that evidence exists.
 
 ## Current Release Flow
 
