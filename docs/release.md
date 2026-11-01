@@ -39,6 +39,12 @@ Final decisions and local evidence (2026-09-29, macOS arm64, Node 24.21.0 / ABI 
 
 ### Issue #66: single-source release workflow
 
+Refined execution plan (2026-11-01, before implementation):
+- Pass `--publish never` to packaging and retain credential-free, verified-tag matrix builds.
+- Download only the three named artifacts into separate directories; validate the required platform installers and reject duplicate basenames before assembling a flat asset directory. Optional metadata may be absent.
+- Serialize writers for a tag and check the existing release before publication: reject published releases and drafts with unexpected assets; allow a matching/incomplete draft to be safely retried. Keep the single publisher draft-only.
+- Exercise synthetic successful and failing collections and release-state decisions, run actionlint, and record exact evidence and untested real tag/installer paths.
+
 Plan:
 - make `softprops/action-gh-release` the only release publisher
 - remove `GH_TOKEN` from platform build jobs so `electron-builder` cannot auto-create draft releases during packaging
@@ -46,7 +52,14 @@ Plan:
 - create/update the GitHub draft release in one dedicated job after all platform builds complete
 - keep draft releases as the review gate before public publishing
 
-Final notes:
+Final notes (refined work, 2026-11-01):
+- Packaging runs the same typecheck and Vite build as `pnpm build`, then explicitly invokes `electron-builder --publish never`; builds still have no release credentials. Verification gates the entire matrix, and the matrix gates the sole draft job.
+- The release job downloads the three named artifacts from its current run separately. `scripts/release-assets.mjs` requires a DMG from macOS, an EXE from Windows, and an AppImage from Linux; it validates allowed extensions and unique basenames before copying to one flat directory. Missing optional update metadata is allowed. The configured Windows target is NSIS; an EXE's installer type is not independently inspected.
+- Same-tag release jobs are serialized. Before the publisher runs, a paginated API lookup includes drafts and rejects published releases, duplicate tag releases, lookup failures, and existing drafts with assets absent from the new set. A new draft or an incomplete/matching draft may be retried; matching names are overwritten by the release action. Unexpected stale assets require human investigation before a retry. Concurrency covers workflow jobs, not an outside actor manually publishing or editing between the guard and publisher; do not modify the release during a run.
+- Local synthetic checks: `node --test tests/release-assets.test.mjs` on Node 22.23.4 passed 2 tests, including each missing installer, absent optional metadata, duplicate names, unexpected files, new/matching/incomplete drafts, published and stale drafts, duplicate releases, API failure, and release-list pagination. `actionlint .github/workflows/release.yml` and `git diff --check` passed. The tests use temporary files and fake API responses only.
+- Actual tag-triggered CI, GitHub draft creation/rerun and macOS DMG, Windows NSIS and Linux AppImage builds/installations are **NOT RUN**. No release, tag, app launch, or real user data was used; these synthetic checks do not prove the live GitHub action or installer paths.
+
+Earlier implementation notes:
 - `.github/workflows/release.yml` now has platform build jobs with no release credentials and one `create-release` job that owns draft release creation
 - platform artifacts are uploaded with `actions/upload-artifact` and then downloaded into the release job before `softprops/action-gh-release` attaches them
 - this removes the previous race where `electron-builder` and the release action could both create/update draft releases, which produced `untagged-*` draft URLs
@@ -66,9 +79,9 @@ Final notes:
 
 1. Before tagging, PR and `main` runs of `.github/workflows/verify.yml` run frozen installs, independent main and renderer type checks, the full Node-native and DOM test suite, and a Vite bundle build on macOS, Windows, and Linux. Since issue #81, GitHub branch protection requires all three `Verify` checks on `main`, including for admins, with up-to-date branches required. Check these settings if the job names change; workflow triggers alone do **not** block merges.
 2. Prepare version bumps through a reviewed PR rather than running `scripts/release.sh`: it commits, tags, and pushes the branch plus **all** local tags without checks or confirmation, and direct pushes to protected `main` can fail. After the version-bump PR passes checks and merges, tag the exact merged `main` commit and push only the intended tag. The tag push starts `.github/workflows/release.yml`; its reusable `verify` job checks out **`${{ github.sha }}`** (the tag's commit) and runs the same checks. This does not trust a prior PR result; a tag can point to an arbitrary commit.
-3. **Only if every tag verification matrix job succeeds**, platform builds run `pnpm build` on that commit on macOS, Windows, and Linux without release credentials. A failed/cancelled verification blocks all builds; a failed/cancelled build blocks draft creation. No `always()` bypasses either dependency.
-4. Each build uploads only packaged release artifacts (`.dmg`, `.exe`, `.AppImage`, blockmaps, and update YAML files) to the workflow run.
-5. A single `create-release` job (the only job with `contents: write` / `GITHUB_TOKEN` for release publishing) downloads those artifacts and creates one draft GitHub release for the tag.
+3. **Only if every tag verification matrix job succeeds**, platform builds run the build steps with `electron-builder --publish never` on that commit on macOS, Windows, and Linux without release credentials. A failed/cancelled verification blocks all builds; a failed/cancelled build blocks draft creation. No `always()` bypasses either dependency.
+4. Each build uploads packaged release artifacts to the workflow run. The release job downloads the three named artifacts separately and requires a macOS DMG, Windows EXE and Linux AppImage. It rejects unexpected file types and duplicate asset basenames; metadata is optional.
+5. A single `create-release` job (the only job with `contents: write` / `GITHUB_TOKEN` for release publishing) validates those artifacts and creates or updates one draft GitHub release for the tag. Same-tag jobs are serialized; published releases and drafts containing unexpected assets are rejected. Avoid manual edits or publication while a job is running.
 6. A human performs the packaged-app smoke pass and reviews the draft before publishing. CI and an untested tag do not automatically publish. **Do not use the existing `.claude/agents/release-manager.md` for publication yet**: it auto-promotes the draft after CI and launches/kills the app without verified user-data isolation. Issue #79 tracks aligning it with this gate.
 
 ## Pre-publish packaged-app smoke record (repeat on each release candidate)
