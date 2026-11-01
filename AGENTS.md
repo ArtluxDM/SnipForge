@@ -23,6 +23,14 @@ SnipForge is a desktop app (Electron + Vue 3 + TypeScript) for saving, searching
 
 **GitHub Issues** are the work tracking system. Each session starts with an issue, ends with a commit that references it. Issues have acceptance criteria and point to the relevant feature doc. We use GitHub issues as the todo list, so closure semantics are intentional: `fixes #N` is for bug/rework/refactor issues, while `closes #N` is for completed feature/chore issues that should leave the todo list.
 
+**Issue status labels:** Use exactly one of `triage`, `todo`, `blocked`, or `completed` on issues managed under this convention.
+- `triage`: idea or request needing discussion, scope and acceptance criteria. Do not treat it as ready for implementation without the maintainer’s direction.
+- `todo`: specified and ready; also covers work in progress.
+- `blocked`: cannot proceed until a named dependency, decision or external action is resolved. Record the blocker in the issue; return to `todo` when resolved.
+- `completed`: delivered and verified; close the issue. A cancellation or duplicate is not completed work.
+
+`require-human` is an additional flag, not a status. Add it when human input, a decision or an action is needed; record what is needed and remove it when resolved. `exploration` marks investigation without committing to implementation and may accompany a status. Keep transitions manual for now. Preserve unrelated labels; historical relabeling and removal/renaming of older labels remain subject to issue #97 review. Direct maintainer instructions can authorize scoped work on a triage issue without authorizing its entire backlog.
+
 **User-first mindset.** We're not building code for code's sake. Every feature exists because a person needs it. Think about how functional it is for the end user — that's the driver, not how fancy the implementation is.
 
 **Context management.** For large features, split into two issues: backend (#N-backend) and frontend (#N-frontend). Backend session handles main process, SQLite, IPC, types. Frontend session starts fresh with clean context and handles Vue components, styles, visual verification. This avoids hallucinations from context pressure. Chrome DevTools MCP is available directly for screenshots and visual verification (`pnpm dev:debug`). See `.claude/README.md` for available agents.
