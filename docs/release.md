@@ -58,7 +58,9 @@ Inspected all 6,362 full log lines including post steps and all job annotations:
 
 Local validation: Node 24; main and renderer type checks, both synthetic release-asset tests, actionlint and `git diff --check` passed. Required PR CI will run the full application suite and bundle build on all three platforms. Tag packaging and draft checks remain pending.
 
-No new application features, updater tracks, public publication, normal user-data access or packaged GUI launch are authorized by this validation plan.
+Publication update (2026-11-02 Europe/Berlin; GitHub timestamp 2026-11-01T23:06:20Z): the maintainer reported that the candidate works and explicitly authorized publication while retaining beta status. Published [SnipForge 2.13.2 Beta 4](https://github.com/ArtluxDM/SnipForge/releases/tag/v2.13.2-beta.4) from the same tag and eight assets with `draft: false`, `prerelease: true`, and `make_latest: false`. Verified `/releases/latest` still resolves to stable `v2.12.0`. Detailed per-platform installed-app smoke evidence was not supplied; do not infer cross-platform PASS results from this approval. Release notes record that limitation. #65 is closed and labeled completed; its CI evidence is independent of installed-app testing.
+
+The original validation plan did not authorize publication; the maintainer’s explicit approval above subsequently authorized publishing this beta. No new application features, updater tracks, normal user-data access or agent-run packaged GUI launch were added.
 
 ## Active Notes
 
