@@ -68,7 +68,8 @@ watch(() => props.show, (isShown) => {
     nextTick(() => {
       const firstVariable = props.variables[0]
       const firstInput = inputRefs[firstVariable]
-      if (firstInput) {
+      const modal = firstInput?.closest('.modal-overlay')
+      if (firstInput && modal && !modal.contains(document.activeElement)) {
         firstInput.focus()
       }
     })

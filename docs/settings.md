@@ -82,6 +82,24 @@ Plan:
 
 Implementation: `App.vue` now leaves the query untouched on `window-shown`, closes the filter dropdown, clears command selection, and focuses the search input through its Vue ref. The regression test confirms that the query and filtered commands survive reopening. Verified with `pnpm exec vitest run tests/app-copy.test.ts`, `pnpm typecheck:renderer`, and `pnpm typecheck:main`.
 
+### Modal focus on reopen (issue [#110](https://github.com/ArtluxDM/SnipForge/issues/110))
+
+Plan:
+- [x] Keep the active modal and its focused control and editing context on reopen; use a focusable control in the active modal if the original disappears.
+- [x] Keep existing palette resets and search focus only when no modal is open; remove the delayed search callback.
+- [x] Cover real modal controls, Settings and editor focus, and the former delayed-focus race; run focused and full tests and both type checks.
+- [x] Verify the real shortcut with isolated app data (maintainer-reported macOS pass below).
+
+Implementation: `window-shown` restores the last focused element within the active modal if needed, with a modal-local fallback, and does not reset palette selection or filters while a modal is open. Without a modal, it retains the existing resets and focuses search synchronously without selecting text or changing the query. Command and variable modal autofocus callbacks avoid replacing focus already inside their modal. Main-process minimize/show behavior is unchanged.
+
+Verification (2026-11-02, macOS): Node 24 and pnpm 10.16.0; focused `tests/app-copy.test.ts` passed (7 tests); main and renderer type checks passed; full `pnpm test` passed (14 files, 135 tests). Renderer tests exercise actual command and Settings components, a CodeMirror surface, input selection/content, fallback and the former delayed-focus race. They do not prove operating-system focus behavior.
+
+Parent review built the production renderer/main and launched a disposable Electron wrapper that sets `userData`, `sessionData` and logs to a fresh temporary directory before importing the application. A separate pre-launch probe and the actual database startup log confirmed the isolated `userData` path. The fixture uses a disposable library, disables update checks and registers `CommandOrControl+Alt+Shift+Space` to avoid the installed app's shortcut. Native input reached the real command modal and retained unsaved tags and a text selection; native Command+M minimized the window. App-targeted automated key delivery did not invoke Electron's global shortcut callback, so it is not evidence of shortcut behavior.
+
+Native shortcut smoke (2026-11-02, macOS, maintainer-reported PASS): using real Command+Option+Shift+Space in that disposable app, the maintainer confirmed all requested modal-focus cases worked: focused-to-minimize and restore, hidden restore, and return after switching to another app. The non-first Tags field retained focus, unsaved text and its selection. This resolves the human verification gate for #110. Native Windows/Linux behavior was not manually tested; their coverage is the CI suite.
+
+Integration validation after merging the delivered #95 CLI init into this branch: both type checks and the full suite passed on Node 24.22.1 / pnpm 10.16.0 (14 files, 163 tests); `git diff --check` passed.
+
 ---
 
 ## Tab Structure

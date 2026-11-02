@@ -243,7 +243,9 @@
   watch(() => props.show, (isShown) => {
     if (isShown) {
       nextTick(() => {
-        titleInput.value?.focus()
+        const input = titleInput.value
+        const modal = input?.closest('.modal-overlay')
+        if (input && modal && !modal.contains(document.activeElement)) input.focus()
       })
     } else {
       languageOpen.value = false
