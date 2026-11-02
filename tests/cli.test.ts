@@ -132,3 +132,104 @@ describe('snipforge CLI copy behavior', () => {
     expect(stderr.write).toHaveBeenCalledWith(expect.stringContaining('contains template variables'))
   })
 })
+
+describe('snipforge init', () => {
+  async function init(args: string[], cwd = tmpDir) {
+    const stdout = { write: vi.fn() }
+    const stderr = { write: vi.fn() }
+    const code = await runCli(['init', ...args], { stdout, stderr, cwd })
+    return { code, stdout, stderr }
+  }
+
+  it('initializes cwd and preserves unrelated files', async () => {
+    const root = path.join(tmpDir, 'my_library-name')
+    await fs.mkdir(root)
+    await fs.writeFile(path.join(root, 'notes.txt'), 'keep me')
+    const result = await init([], root)
+    expect(result.code).toBe(0)
+    expect(result.stdout.write).toHaveBeenCalledWith(root + '\n')
+    expect(JSON.parse(await fs.readFile(path.join(root, '.snipforge.json'), 'utf8'))).toEqual({
+      snipforge: 'library', name: 'My Library Name', description: '', format_version: '1.0',
+    })
+    expect(await fs.readFile(path.join(root, 'notes.txt'), 'utf8')).toBe('keep me')
+  })
+
+  it.each(['--library', '-l'])('creates missing relative directories with spaces using %s', async flag => {
+    const result = await init([flag, 'nested/Commands With Spaces'])
+    const root = path.join(tmpDir, 'nested', 'Commands With Spaces')
+    expect(result.code).toBe(0)
+    expect(result.stdout.write).toHaveBeenCalledWith(root + '\n')
+    expect(JSON.parse(await fs.readFile(path.join(root, '.snipforge.json'), 'utf8')).name).toBe('Commands With Spaces')
+  })
+
+  it.each([
+    '{ "name": "Legacy", "extra": true }\n',
+    '{\n "snipforge": "library", "name": "Current", "format_version": "1.0"\n}',
+  ])('preserves existing valid manifest bytes across repeated init', async raw => {
+    const manifest = path.join(tmpDir, '.snipforge.json')
+    await fs.writeFile(manifest, raw)
+    expect((await init(['--library', tmpDir])).code).toBe(0)
+    expect((await init([])).code).toBe(0)
+    expect(await fs.readFile(manifest, 'utf8')).toBe(raw)
+  })
+
+  it.each([
+    '{ broken', 'null', '[]', '42', '{}', '{"name":"  "}', '{"name":42}',
+    '{"name":"ok","snipforge":"command"}', '{"name":"ok","snipforge":null}',
+    '{"name":"ok","format_version":"2.0"}', '{"name":"ok","format_version":null}',
+  ])('rejects invalid manifest without changing bytes: %s', async raw => {
+    const manifest = path.join(tmpDir, '.snipforge.json')
+    await fs.writeFile(manifest, raw)
+    const result = await init([])
+    expect(result.code).toBe(1)
+    expect(result.stderr.write).toHaveBeenCalled()
+    expect(await fs.readFile(manifest, 'utf8')).toBe(raw)
+  })
+
+  it.each([
+    ['--unknown'], ['positional'], ['--library'], ['-l', ''], ['-l', '   '],
+    ['--library', '--help'], ['-l', 'one', '--library', 'two'], ['-l', 'one', '-l', 'one'],
+    ['--help', 'extra'],
+  ])('rejects invalid args %j without creating files', async args => {
+    const root = path.join(tmpDir, 'missing')
+    const result = await init(args, root)
+    expect(result.code).toBe(1)
+    expect(result.stderr.write).toHaveBeenCalledWith(expect.stringContaining('Usage: snipforge init'))
+    await expect(fs.stat(root)).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('prints help without touching the filesystem', async () => {
+    const root = path.join(tmpDir, 'missing')
+    const result = await init(['--help'], root)
+    expect(result.code).toBe(0)
+    expect(result.stdout.write).toHaveBeenCalledWith(expect.stringContaining('Usage: snipforge init'))
+    await expect(fs.stat(root)).rejects.toMatchObject({ code: 'ENOENT' })
+  })
+
+  it('reports non-directory targets and unreadable manifests', async () => {
+    const file = path.join(tmpDir, 'file')
+    await fs.writeFile(file, 'unchanged')
+    expect((await init(['-l', file])).stderr.write).toHaveBeenCalledWith(expect.stringContaining('Cannot create library directory'))
+    const root = path.join(tmpDir, 'directory-manifest')
+    await fs.mkdir(path.join(root, '.snipforge.json'), { recursive: true })
+    expect((await init(['-l', root])).stderr.write).toHaveBeenCalledWith(expect.stringContaining('Cannot read library manifest'))
+    expect(await fs.readFile(file, 'utf8')).toBe('unchanged')
+  })
+
+  it('does not overwrite a manifest created concurrently', async () => {
+    const root = path.join(tmpDir, 'race')
+    const manifest = path.join(root, '.snipforge.json')
+    const competingBytes = '{ "name": "Concurrent" }\n'
+    const original = fs.writeFile.bind(fs)
+    const spy = vi.spyOn(fs, 'writeFile').mockImplementationOnce(async (...args) => {
+      await original(manifest, competingBytes)
+      return original(...args)
+    })
+    try {
+      expect((await init(['-l', root])).code).toBe(0)
+      expect(await fs.readFile(manifest, 'utf8')).toBe(competingBytes)
+    } finally {
+      spy.mockRestore()
+    }
+  })
+})
